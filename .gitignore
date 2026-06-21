@@ -1,0 +1,38 @@
+# Python
+
+**pycache**/
+*.pyc
+.venv/
+venv/
+.env
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Experiment outputs
+
+experiments/outputs/
+assets/figures/tmp/
+
+# Data
+
+data/raw/
+data/external/
+
+# Academic integrity protection
+
+solutions/
+official-solutions/
+problem-sets-solutions/
+private-scratch/
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# IDE
+
+.vscode/
+.idea/
