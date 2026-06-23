@@ -4,6 +4,12 @@ This repository is a research-oriented learning lab for Stanford CS229: Machine 
 
 The goal is not to passively watch lectures or collect notes. The goal is to rebuild the core mathematical, algorithmic, and experimental foundations of machine learning through derivations, from-scratch implementations, tests, benchmark-style experiments, and research-style reflections.
 
+## Personalized Study Strategy
+
+This repository follows a depth-weighted CS229 strategy because the learner already has partial ML background. Basic concepts are compressed, while mathematical derivations, assumptions, implementations, tests, and reliability-oriented experiments are expanded.
+
+See: [syllabus-analysis/personalized-study-policy.md](syllabus-analysis/personalized-study-policy.md)
+
 ## 1. Course Positioning
 
 CS229 is treated here as a foundational machine learning course for advanced AI study and research preparation. It provides the mathematical and algorithmic base for later work in trustworthy machine learning, reliable AI systems, representation analysis, causal reliability, LLM evaluation, and AI for Science.
@@ -72,6 +78,7 @@ By the end of this course lab, the repository should contain:
 * [x] Official resource map created
 * [x] Course positioning note written
 * [x] Module dependency graph created
+* [x] Personalized study policy created
 * [x] Lecture 1 note completed
 * [ ] Lecture 2 linear regression derivation completed
 * [ ] Linear regression from scratch implemented

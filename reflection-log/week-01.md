@@ -24,6 +24,25 @@ The Lecture 1 note was also visually improved. Mermaid-only geometric explanatio
 
 The next learning target is Lecture 2: Supervised Learning Setup and Linear Regression.
 
+## Study Strategy Adjustment
+
+After completing Lecture 1, the learning strategy was adjusted. CS229 will no longer be treated as a beginner survey course. The study will prioritize mathematical derivation, implementation verification, assumptions, failure modes, and reliability-oriented experiments.
+
+Familiar concepts should be compressed. Core derivations should be expanded. Algorithms should be implemented from scratch when central. Research connections should remain focused and should not turn every lecture into an unrelated LLM or systems discussion.
+
+## Next Learning Target
+
+Lecture 2: Supervised Learning Setup and Linear Regression.
+
+Focus:
+
+* least squares objective
+* gradient descent
+* normal equation
+* Gaussian noise assumption
+* MLE interpretation
+* first from-scratch implementation design
+
 ## 4. What I Still Do Not Understand
 
 I still need to make the lecture-by-lecture schedule operational. The resource map identifies official sources, but I need to convert it into a weekly derivation and implementation plan without copying official materials.
