@@ -20,6 +20,8 @@ Lecture 1 has been watched and processed. The main takeaway is that CS229 introd
 
 The Lecture 1 note was upgraded from a rough summary into a research-level note. It now explains supervised learning, training sets, hypothesis classes, loss functions, generalization, regression versus classification, geometric intuition, SVM and kernel intuition, the ML pipeline, common misunderstandings, and research connections.
 
+The Lecture 1 note was also visually improved. Mermaid-only geometric explanations were replaced with clean matplotlib educational plots for 1D classification, 1D regression, 2D classification, 2D regression, and kernel intuition. The note is now more readable and more suitable for portfolio display.
+
 The next learning target is Lecture 2: Supervised Learning Setup and Linear Regression.
 
 ## 4. What I Still Do Not Understand

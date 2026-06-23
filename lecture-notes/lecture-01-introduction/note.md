@@ -125,27 +125,53 @@ Regression error 通常可以解释为数值偏差大小，例如预测价格偏
 
 ## 5. Geometric Intuition
 
-### 5.1 One-dimensional intuition
+Geometric intuition 的作用不是把 machine learning 简化成画图，而是帮助我们看清楚：data representation 如何决定模型能看到什么结构，loss 和 hypothesis 如何在 feature space 中形成预测规则，以及 generalization failure 往往会出现在边界、外推或分布变化的位置。
 
-当 input 只有一个 feature 时，每个样本可以放在 number line 上。Regression 可以理解为在这条线上学习一个函数曲线：给定位置 `x`，输出对应的数值 `y`。Classification 则可以理解为在数轴上划分区间：某些区域属于 class 0，另一些区域属于 class 1。
+### 5.1 One-dimensional classification intuition
 
-一维视角的价值在于，它让我们看到 model capacity 的问题。过于简单的模型可能无法表达真实趋势；过于复杂的模型可能穿过所有训练点，却在点与点之间剧烈震荡，从而损害 generalization。
+如果只有一个 feature，例如 tumor size，每个样本都可以放在一条 number line 上。Classification 的目标不是预测一个连续数值，而是回答 “Which class?”。在这个例子中，模型可以学习一个 threshold：阈值左侧更可能是 benign，右侧更可能是 malignant。
 
-### 5.2 Two-dimensional intuition
+这张图的重要性在于：即使 input 只有一维，classification 也已经包含了 supervised learning 的核心结构，包括 labeled examples、decision rule、错误边界和 generalization。靠近 threshold 的样本通常更不确定，也更容易暴露 label noise 或 feature insufficiency。
 
-当 input 有两个 features 时，每个样本可以可视化为平面上的点。Regression 可以把 `(x_1, x_2)` 映射到一个高度或颜色值；classification 则是在平面中寻找 decision boundary。
+![1D classification intuition](../../assets/figures/lecture01-1d-classification-intuition.png)
 
-Linear classifier 在二维平面上对应一条直线，把空间分成两侧；在三维空间中对应一个平面；在更高维空间中对应 hyperplane。这个 geometric view 帮助我们理解为什么 feature representation 很重要：如果原始平面中的类别不是线性可分的，换一种 representation 后可能变得更容易分离。
+### 5.2 One-dimensional regression intuition
 
-### 5.3 Higher-dimensional intuition and kernels
+Regression 的问题形式不同。对于 house size -> price，模型需要预测连续 target，而不是离散类别。图中的 fitted line 表示一个简单 hypothesis：房屋面积越大，价格倾向于越高。每个点到拟合线的垂直距离可以理解为 prediction error 的直观版本。
 
-真实数据通常不是一维或二维，而是高维向量。Linear models 在高维中对应 hyperplanes。SVM 的核心几何思想是寻找一个 separating hyperplane，并尽可能扩大 margin，使分类边界不只是能分开训练样本，而且对扰动更稳定。
+这张图说明了 regression 的核心问题：模型不是寻找 class boundary，而是在学习一个 functional relationship。后续 Lecture 2 的 least squares、gradient descent 和 normal equation 都可以从这个最简单的几何图像开始理解。
 
-Kernel methods 进一步说明 representation 的力量。正确表达是：
+![1D regression intuition](../../assets/figures/lecture01-1d-regression-intuition.png)
+
+### 5.3 Two-dimensional classification intuition
+
+当 input 有两个 features 时，每个样本成为 feature space 中的一个点。Spam detection 可以用 suspicious keyword frequency 和 number of suspicious links 作为两个坐标。Classification 在这里变成 boundary finding：模型要在平面中找到一条 decision boundary，把 spam 和 not spam 尽量分开。
+
+这张图强调 representation 的作用。如果两个 features 已经把类别结构暴露得很清楚，linear decision boundary 可能就足够。如果点云高度重叠，问题可能不是 optimizer 不好，而是 feature representation 不足、labels 有噪声，或任务本身存在不可分性。
+
+![2D classification intuition](../../assets/figures/lecture01-2d-classification-intuition.png)
+
+### 5.4 Two-dimensional regression intuition
+
+Regression 在二维 input space 中更难画，因为输入已经是平面，而 target 是第三个量。Apartment price prediction 可以使用 floor area 和 distance to city center 作为输入，用点的颜色表示 price。颜色变化提供了 response surface 的一个 surrogate view。
+
+这张图说明：高维 regression 不只是“画一条线”。模型需要学习从多维 feature vector 到连续 target 的映射。不同区域的数据密度、噪声水平和外推范围都会影响预测可靠性。对于 AI for Science 和 spatiotemporal forecasting，这一点尤其重要，因为 target 往往随多个空间、时间和环境变量共同变化。
+
+![2D regression intuition](../../assets/figures/lecture01-2d-regression-intuition.png)
+
+### 5.5 Higher-dimensional intuition and kernels
+
+Linear models 在二维中对应 lines，在三维中对应 planes，在更高维中对应 hyperplanes。SVM 的几何思想是寻找 separating hyperplane，并尽可能扩大 margin，使分类规则不仅能分开训练样本，也对小扰动更稳定。
+
+但很多数据在原始 feature space 中不是 linearly separable。Kernel intuition 的关键是：我们可以把原始 features 映射到新的 transformed feature space，使原来非线性的结构在新空间中变得更接近线性可分。图中的 XOR-like pattern 在原始二维空间中无法用一条直线分开，但在包含 `x1 * x2` 等 transformed features 的空间中，可以用线性边界分开。
+
+严格地说，kernel trick 不是说 SVM “直接在无限维中预测”。更准确的表述是：
 
 > Kernel methods allow the model to implicitly perform linear separation in a transformed feature space, without explicitly constructing the high-dimensional feature vectors.
 
-也就是说，kernel trick 不是说 SVM “直接在无限维中预测”，而是说某些 inner product 可以通过 kernel function 隐式计算，从而让模型等价于在高维甚至 infinite-dimensional feature space 中进行线性分离。这里的关键仍然是 inductive bias：kernel 选择定义了样本之间的 similarity，也定义了模型更容易学习哪类结构。
+因此，kernel 的本质是 representation 和 similarity 的选择。Kernel function 定义了哪些样本被认为相似，也定义了模型更容易学习哪种几何结构。
+
+![Kernel intuition](../../assets/figures/lecture01-kernel-intuition.png)
 
 ## 6. Conceptual Structure
 
@@ -172,35 +198,6 @@ flowchart LR
 * **Generalization**：判断模型是否在 unseen data、未来数据或轻微变化环境中仍然有效。
 
 Any weak link in the pipeline can lead to model failure。数据偏差、表示错误、hypothesis class 不合适、loss 失配、optimization 不稳定、evaluation 泄漏或泛化声明过度，都会让最终模型不可靠。
-
-```mermaid
-mindmap
-  root((CS229))
-    Supervised Learning
-      Regression
-      Classification
-      Loss
-      Generalization
-    Unsupervised Learning
-      Clustering
-      Representation
-      Latent Structure
-    Reinforcement Learning
-      Sequential Decision
-      Reward
-      Policy
-    Core Foundations
-      Probability
-      Linear Algebra
-      Optimization
-      Evaluation
-    Research Connections
-      Trustworthy ML
-      Reliable AI Systems
-      LLM Evaluation
-      Representation Analysis
-      Causal Reliability
-```
 
 ## 7. Why Lecture 1 Matters for Later CS229
 
