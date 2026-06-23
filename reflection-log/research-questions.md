@@ -1,5 +1,97 @@
 # Research Questions
 
+## Lecture 1 Research Questions
+
+### Q1. How does biased training data affect learned decision boundaries?
+
+Question: How does sampling bias in the training set change the decision boundary learned by a supervised classifier?
+
+Why it matters: Supervised learning assumes the training set is informative about future data, but real datasets often overrepresent some groups, regions, or regimes. A model may learn the geometry of the sample rather than the geometry of the target population.
+
+Possible mini experiment: Generate two 2D binary classification datasets with the same class-conditional distributions but different group proportions; train logistic regression and compare decision boundaries, subgroup error, and calibration.
+
+### Q2. How robust is supervised learning to label noise?
+
+Question: How does increasing label noise affect classification accuracy, calibration, and learned parameters?
+
+Why it matters: Labels are treated as supervision, but in medical, scientific, and human-annotated datasets they may contain mistakes or subjective bias. Reliable ML requires knowing when noisy labels distort the learned hypothesis.
+
+Possible mini experiment: Create a binary classification dataset and randomly flip 0%, 5%, 10%, 20%, and 40% of labels; compare logistic regression training loss, test accuracy, confidence, and parameter stability.
+
+### Q3. When does regression become classification by thresholding?
+
+Question: What changes when a continuous target is converted into discrete labels by thresholding?
+
+Why it matters: Regression and classification differ not only in output type but also in loss, evaluation, and error interpretation. Thresholding can hide magnitude information and create artificial decision boundaries.
+
+Possible mini experiment: Generate continuous risk scores, train one regression model on the original target and one classifier on thresholded labels; compare ranking quality, threshold sensitivity, and errors near the cutoff.
+
+### Q4. Which evaluation metric best exposes failure under class imbalance?
+
+Question: When classes are imbalanced, which metrics reveal failures that accuracy hides?
+
+Why it matters: A high-accuracy classifier can be unreliable if it ignores rare but important classes. Lecture 1's evaluation framing implies that metric choice is part of the learning problem.
+
+Possible mini experiment: Train logistic regression on imbalanced synthetic data; report accuracy, balanced accuracy, precision, recall, F1, ROC-AUC, PR-AUC, and calibration across different thresholds.
+
+### Q5. How does representation change generalization?
+
+Question: How do different feature representations affect model performance on unseen data?
+
+Why it matters: The same algorithm can succeed or fail depending on whether the representation exposes the relevant structure. This connects Lecture 1's feature intuition to later kernel methods and representation analysis.
+
+Possible mini experiment: Use a nonlinear 2D dataset such as concentric circles; compare logistic regression on raw features, polynomial features, and radial features, then evaluate decision boundaries and held-out error.
+
+### Q6. Can low training error coexist with poor reliability?
+
+Question: Under what conditions does a model achieve low training error but fail on shifted test data?
+
+Why it matters: Generalization is the central tension of ML. Training performance alone cannot justify reliability claims, especially when deployment data differs from training data.
+
+Possible mini experiment: Train polynomial regression on one input interval and test on a shifted interval; compare training error, validation error, shifted test error, and curve behavior for different polynomial degrees.
+
+### Q7. How does objective mismatch create systematic failure?
+
+Question: What happens when the training loss does not match the real-world deployment objective?
+
+Why it matters: Loss defines what the model treats as good. A model can optimize the specified loss while failing the actual task, especially when errors have asymmetric costs.
+
+Possible mini experiment: Simulate a medical screening task with different costs for false negatives and false positives; train classifiers using standard logistic loss and compare threshold choices under cost-sensitive evaluation.
+
+### Q8. What is the minimum reliable supervised learning pipeline?
+
+Question: What components must be specified before a supervised learning result is meaningful?
+
+Why it matters: Lecture 1 frames ML as a pipeline, not a single algorithm. Data source, representation, hypothesis class, objective, optimization, evaluation, and generalization target must all be explicit.
+
+Possible mini experiment: Build a tiny supervised learning checklist and apply it to housing-price regression, spam classification, and a toy medical diagnosis task; identify which reliability assumptions are missing in each case.
+
+### Q9. How should spatiotemporal forecasting be evaluated under distribution shift?
+
+Question: How should forecasting models be evaluated when future time periods, spatial regions, or sensor conditions differ from training data?
+
+Why it matters: AI for Science and spatiotemporal forecasting often involve missing data, noisy measurements, and nonstationary distributions. Average error on random splits can overstate deployment reliability.
+
+Possible mini experiment: Generate synthetic spatiotemporal data with trend, seasonality, missing values, and a regime shift; compare random split, time-based split, and region-held-out evaluation for linear baselines.
+
+## Lecture 1 Preparation
+
+### 0. Learning Setup and Reliability
+
+Question: What has to be specified before a supervised learning result can be called reliable?
+
+Why it matters: Lecture 1 introduces the basic learning setup. For research use, I need to make explicit the data distribution, features, labels, hypothesis space, learning algorithm, evaluation protocol, and generalization target before trusting any result.
+
+Possible mini experiment: Use a tiny binary classification toy dataset and evaluate the same model under different train/test splits, metrics, and class balances; document how the reliability claim changes.
+
+### 0.1 Evaluation Design as Part of Learning
+
+Question: How can evaluation design change the apparent quality of the same hypothesis?
+
+Why it matters: A model is not reliable just because it performs well on one benchmark. Lecture 1 should be read with the expectation that evaluation is part of the learning problem, not a separate reporting step.
+
+Possible mini experiment: Train one simple classifier and report accuracy, balanced accuracy, precision/recall, and calibration under class imbalance; compare which claims each metric supports.
+
 ## Supervised Learning
 
 ### 1. Heavy-tailed Noise and Linear Regression

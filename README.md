@@ -72,7 +72,7 @@ By the end of this course lab, the repository should contain:
 * [x] Official resource map created
 * [x] Course positioning note written
 * [x] Module dependency graph created
-* [ ] Lecture 1 note completed
+* [x] Lecture 1 note completed
 * [ ] Lecture 2 linear regression derivation completed
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed

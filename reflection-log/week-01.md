@@ -6,25 +6,33 @@ I initialized the Stanford CS229 Machine Learning Lab repository as a research-o
 
 I established the academic integrity boundary early: this repository should contain independent notes, derivations, implementations, tests, experiments, reflections, and non-infringing summaries. It should not contain official solution keys, copied student solutions, restricted assignment reproductions, or private course materials.
 
-I selected Stanford CS229 Autumn 2018 as the main course version, with Andrew Ng's lecture sequence and official Stanford resources as the primary reference frame. I also started Day 1 course positioning by clarifying why CS229 is a core ML foundation for later trustworthy ML, reliable AI systems, LLM evaluation, representation analysis, causal reliability, and AI for Science.
+I selected Stanford CS229 Autumn 2018 as the main course version, with Andrew Ng's lecture sequence and official Stanford resources as the primary reference frame. I also clarified why CS229 is a core ML foundation for later trustworthy ML, reliable AI systems, LLM evaluation, representation analysis, causal reliability, and AI for Science.
 
 ## 2. What I Learned
 
-CS229 should be treated as a training ground for the full ML loop: assumptions, data, objective, optimization, generalization, evaluation, and error analysis. The course is not just a list of algorithms; it is a structured way to connect mathematical modeling with experimental discipline.
+CS229 should be treated as a training ground for the full ML loop: assumptions, data, representation, hypothesis, objective, optimization, evaluation, generalization, and error analysis. The course is not just a list of algorithms; it is a structured way to connect mathematical modeling with experimental discipline.
 
 The biggest portfolio value will come from evidence: original derivations, from-scratch implementations, tests, sanity checks, failure mode analysis, and research-style reports. A clean repository structure is useful only if each future commit adds a verifiable learning artifact.
 
-## 3. What I Still Do Not Understand
+## 3. Lecture 1 Completed
 
-I still need to make the exact lecture-by-lecture schedule operational. The resource map identifies official sources, but I need to convert it into a weekly reading and implementation plan without copying official materials.
+Lecture 1 has been watched and processed. The main takeaway is that CS229 introduces machine learning as a full pipeline, not as a list of disconnected algorithms.
+
+The Lecture 1 note was upgraded from a rough summary into a research-level note. It now explains supervised learning, training sets, hypothesis classes, loss functions, generalization, regression versus classification, geometric intuition, SVM and kernel intuition, the ML pipeline, common misunderstandings, and research connections.
+
+The next learning target is Lecture 2: Supervised Learning Setup and Linear Regression.
+
+## 4. What I Still Do Not Understand
+
+I still need to make the lecture-by-lecture schedule operational. The resource map identifies official sources, but I need to convert it into a weekly derivation and implementation plan without copying official materials.
 
 I also need to decide how to keep derivations rigorous but concise. The risk is either writing shallow summaries or over-expanding each topic into a separate mini textbook.
 
-## 4. Debugging Record
+## 5. Debugging Record
 
 No algorithmic debugging happened yet. The main setup issue was preserving intended empty directories while keeping experiment outputs ignored. Placeholder `.gitkeep` files are used only for repository structure.
 
-## 5. Critical Questions
+## 6. Critical Questions
 
 What counts as enough derivation before implementation?
 
@@ -34,22 +42,20 @@ Which sanity checks should be mandatory for every from-scratch implementation?
 
 How can I connect reliability questions to CS229 algorithms without expanding beyond the course boundary?
 
-## Current Risk
+How can I evaluate generalization without confusing benchmark performance with real-world reliability?
 
-Collecting resources without deep learning is the first risk. A resource map is only useful if it leads to derivation, implementation, and testing.
+## Risks After Lecture 1
 
-Copying notes instead of deriving is the second risk. Official notes may guide structure, but the repository must contain my own reasoning and reconstruction.
-
-Starting implementation too early is the third risk. If I implement before deriving, the code may run but the learning objective will be weakened.
-
-Expanding CS229 into unrelated LLM/system projects is the fourth risk. LLM evaluation and reliable systems are long-term directions, but Day 1 should stay focused on CS229's core ML foundation.
+* Mistaking concept familiarity for mastery.
+* Writing notes without deriving equations.
+* Over-expanding CS229 into unrelated LLM/system topics.
+* Starting coding before understanding assumptions.
+* Treating benchmark accuracy as reliability.
 
 ## Next Action
 
-Complete Lecture 1 note.
-
-Build Lecture 1 concept map.
-
-Write 5 critical questions.
-
-Prepare for Lecture 2 linear regression derivation.
+1. Start Lecture 2.
+2. Derive least squares.
+3. Derive gradient descent update.
+4. Derive normal equation.
+5. Implement Linear Regression from scratch after the derivation.
