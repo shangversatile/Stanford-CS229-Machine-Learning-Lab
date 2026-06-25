@@ -28,6 +28,6 @@ Run the read-only compatibility audit from the repository root:
 python tools/audit_markdown_math.py
 ```
 
-The script recursively scans Markdown files and reports renderer-sensitive operator notation and malformed display-math delimiters with file paths and line numbers. It does not modify files and exits with a nonzero status when suspicious patterns are found.
+The script recursively scans Markdown files and enforces single-line double-dollar display formulas, while also reporting unsupported operator notation. It does not modify files and exits with a nonzero status when rendering issues are found.
 
 See [Markdown Math Style Guide](markdown-math-style-guide.md) for the repository conventions enforced by the audit.

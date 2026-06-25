@@ -21,161 +21,77 @@
 
 Hypothesis：
 
-\[
-h_\theta(x^{(i)})=\theta^Tx^{(i)}.
-\]
+$$h_\theta(x^{(i)})=\theta^Tx^{(i)}.$$
 
 Design matrix：
 
-\[
-X=
-\begin{bmatrix}
-(x^{(1)})^T\\
-\vdots\\
-(x^{(m)})^T
-\end{bmatrix},
-\qquad
-y=
-\begin{bmatrix}
-y^{(1)}\\
-\vdots\\
-y^{(m)}
-\end{bmatrix}.
-\]
+$$X= \begin{bmatrix} (x^{(1)})^T\\ \vdots\\ (x^{(m)})^T \end{bmatrix}, \qquad y= \begin{bmatrix} y^{(1)}\\ \vdots\\ y^{(m)} \end{bmatrix}.$$
 
 于是第 $i$ 个分量满足
 
-\[
-(X\theta)_i=(x^{(i)})^T\theta=h_\theta(x^{(i)}).
-\]
+$$(X\theta)_i=(x^{(i)})^T\theta=h_\theta(x^{(i)}).$$
 
 ## 2. Scalar Objective
 
 对样本 $i$ 定义 residual
 
-\[
-r^{(i)}=\theta^Tx^{(i)}-y^{(i)}.
-\]
+$$r^{(i)}=\theta^Tx^{(i)}-y^{(i)}.$$
 
 Squared loss 为
 
-\[
-L_i(\theta)=\frac12(r^{(i)})^2
-=\frac12(\theta^Tx^{(i)}-y^{(i)})^2.
-\]
+$$L_i(\theta)=\frac12(r^{(i)})^2 =\frac12(\theta^Tx^{(i)}-y^{(i)})^2.$$
 
 对全部样本求和：
 
-\[
-\boxed{
-J(\theta)=
-\frac12\sum_{i=1}^{m}
-(\theta^Tx^{(i)}-y^{(i)})^2
-}.
-\]
+$$\boxed{ J(\theta)= \frac12\sum_{i=1}^{m} (\theta^Tx^{(i)}-y^{(i)})^2 }.$$
 
 由于
 
-\[
-\lVert X\theta-y\rVert_2^2
-=\sum_{i=1}^{m}
-(\theta^Tx^{(i)}-y^{(i)})^2,
-\]
+$$\lVert X\theta-y\rVert_2^2 =\sum_{i=1}^{m} (\theta^Tx^{(i)}-y^{(i)})^2,$$
 
 scalar objective 与 matrix objective 完全相同：
 
-\[
-J(\theta)
-=\frac12\lVert X\theta-y\rVert_2^2
-=\frac12(X\theta-y)^T(X\theta-y).
-\]
+$$J(\theta) =\frac12\lVert X\theta-y\rVert_2^2 =\frac12(X\theta-y)^T(X\theta-y).$$
 
 ## 3. Gradient of One Example
 
 固定一个样本，令
 
-\[
-e_i(\theta)=\theta^Tx^{(i)}-y^{(i)}
-=\sum_{k=0}^{n}\theta_kx_k^{(i)}-y^{(i)}.
-\]
+$$e_i(\theta)=\theta^Tx^{(i)}-y^{(i)} =\sum_{k=0}^{n}\theta_kx_k^{(i)}-y^{(i)}.$$
 
 则
 
-\[
-J_i(\theta)=\frac12e_i(\theta)^2.
-\]
+$$J_i(\theta)=\frac12e_i(\theta)^2.$$
 
 对 $\theta_j$ 求偏导。Chain rule 给出
 
-\[
-\frac{\partial J_i}{\partial\theta_j}
-=
-\frac{\partial J_i}{\partial e_i}
-\cdot
-\frac{\partial e_i}{\partial\theta_j}.
-\]
+$$\frac{\partial J_i}{\partial\theta_j} = \frac{\partial J_i}{\partial e_i} \cdot \frac{\partial e_i}{\partial\theta_j}.$$
 
 分别计算：
 
-\[
-\frac{\partial J_i}{\partial e_i}
-=\frac{\partial}{\partial e_i}\frac12e_i^2
-=e_i,
-\]
+$$\frac{\partial J_i}{\partial e_i} =\frac{\partial}{\partial e_i}\frac12e_i^2 =e_i,$$
 
 以及
 
-\[
-\begin{aligned}
-\frac{\partial e_i}{\partial\theta_j}
-&=
-\frac{\partial}{\partial\theta_j}
-\left(
-\sum_{k=0}^{n}\theta_kx_k^{(i)}-y^{(i)}
-\right)\\
-&=x_j^{(i)}.
-\end{aligned}
-\]
+$$\frac{\partial e_i}{\partial\theta_j}=\frac{\partial}{\partial\theta_j} \left( \sum_{k=0}^{n}\theta_kx_k^{(i)}-y^{(i)} \right)$$
+
+$$\frac{\partial e_i}{\partial\theta_j}=x_j^{(i)}.$$
 
 因此
 
-\[
-\boxed{
-\frac{\partial J_i}{\partial\theta_j}
-=
-(\theta^Tx^{(i)}-y^{(i)})x_j^{(i)}
-}.
-\]
+$$\boxed{ \frac{\partial J_i}{\partial\theta_j} = (\theta^Tx^{(i)}-y^{(i)})x_j^{(i)} }.$$
 
 Vector form：
 
-\[
-\boxed{
-\nabla_\theta J_i(\theta)
-=
-(\theta^Tx^{(i)}-y^{(i)})x^{(i)}
-}.
-\]
+$$\boxed{ \nabla_\theta J_i(\theta) = (\theta^Tx^{(i)}-y^{(i)})x^{(i)} }.$$
 
 Gradient descent update：
 
-\[
-\theta_j
-\leftarrow
-\theta_j-\alpha
-(\theta^Tx^{(i)}-y^{(i)})x_j^{(i)}.
-\]
+$$\theta_j \leftarrow \theta_j-\alpha (\theta^Tx^{(i)}-y^{(i)})x_j^{(i)}.$$
 
 把负号吸收到 residual 后：
 
-\[
-\boxed{
-\theta_j
-\leftarrow
-\theta_j+\alpha
-(y^{(i)}-h_\theta(x^{(i)}))x_j^{(i)}
-}.
-\]
+$$\boxed{ \theta_j \leftarrow \theta_j+\alpha (y^{(i)}-h_\theta(x^{(i)}))x_j^{(i)} }.$$
 
 这就是 one-example LMS / SGD update。
 
@@ -185,52 +101,25 @@ Gradient descent update：
 
 从
 
-\[
-J(\theta)
-=\frac12\sum_{i=1}^{m}
-(\theta^Tx^{(i)}-y^{(i)})^2
-\]
+$$J(\theta) =\frac12\sum_{i=1}^{m} (\theta^Tx^{(i)}-y^{(i)})^2$$
 
 开始。对 $\theta_j$ 求偏导：
 
-\[
-\begin{aligned}
-\frac{\partial J}{\partial\theta_j}
-&=
-\sum_{i=1}^{m}
-\frac{\partial}{\partial\theta_j}
-\frac12(\theta^Tx^{(i)}-y^{(i)})^2\\
-&=
-\sum_{i=1}^{m}
-(\theta^Tx^{(i)}-y^{(i)})x_j^{(i)}.
-\end{aligned}
-\]
+$$\frac{\partial J}{\partial\theta_j}=\sum_{i=1}^{m} \frac{\partial}{\partial\theta_j} \frac12(\theta^Tx^{(i)}-y^{(i)})^2$$
+
+$$\frac{\partial J}{\partial\theta_j}=\sum_{i=1}^{m} (\theta^Tx^{(i)}-y^{(i)})x_j^{(i)}.$$
 
 把所有 coordinates 组合成 vector：
 
-\[
-\nabla_\theta J(\theta)
-=
-\sum_{i=1}^{m}
-x^{(i)}\left((x^{(i)})^T\theta-y^{(i)}\right).
-\]
+$$\nabla_\theta J(\theta) = \sum_{i=1}^{m} x^{(i)}\left((x^{(i)})^T\theta-y^{(i)}\right).$$
 
 而 $X\theta-y$ 收集了所有 scalar residual，左乘 $X^T$ 正好对 samples 求上述加权和：
 
-\[
-\boxed{
-\nabla_\theta J(\theta)=X^T(X\theta-y)
-}.
-\]
+$$\boxed{ \nabla_\theta J(\theta)=X^T(X\theta-y) }.$$
 
 Dimension check：
 
-\[
-X^T(X\theta-y):
-\quad
-((n+1)\times m)(m\times1)
-=(n+1)\times1.
-\]
+$$X^T(X\theta-y): \quad ((n+1)\times m)(m\times1) =(n+1)\times1.$$
 
 这与 $\theta$ 的 shape 一致。
 
@@ -238,210 +127,125 @@ X^T(X\theta-y):
 
 令
 
-\[
-r(\theta)=X\theta-y.
-\]
+$$r(\theta)=X\theta-y.$$
 
 则
 
-\[
-J(\theta)=\frac12r(\theta)^Tr(\theta).
-\]
+$$J(\theta)=\frac12r(\theta)^Tr(\theta).$$
 
 Differential method：
 
-\[
-dJ
-=\frac12\left((dr)^Tr+r^Tdr\right).
-\]
+$$dJ =\frac12\left((dr)^Tr+r^Tdr\right).$$
 
 两项都是 scalar，并且互为 transpose，因此相等：
 
-\[
-dJ=r^Tdr.
-\]
+$$dJ=r^Tdr.$$
 
 因为
 
-\[
-dr=X\,d\theta,
-\]
+$$dr=X\,d\theta,$$
 
 所以
 
-\[
-dJ=r^TX\,d\theta
-=(X^Tr)^T d\theta.
-\]
+$$dJ=r^TX\,d\theta =(X^Tr)^T d\theta.$$
 
 由 gradient 的定义
 
-\[
-dJ=(\nabla_\theta J)^T d\theta,
-\]
+$$dJ=(\nabla_\theta J)^T d\theta,$$
 
 得到
 
-\[
-\boxed{
-\nabla_\theta J=X^Tr=X^T(X\theta-y)
-}.
-\]
+$$\boxed{ \nabla_\theta J=X^Tr=X^T(X\theta-y) }.$$
 
 ## 5. Normal Equation
 
 从
 
-\[
-J(\theta)
-=\frac12(X\theta-y)^T(X\theta-y)
-\]
+$$J(\theta) =\frac12(X\theta-y)^T(X\theta-y)$$
 
 开始。
 
 ### Step 1: transpose
 
-\[
-(X\theta-y)^T
-=\theta^TX^T-y^T.
-\]
+$$(X\theta-y)^T =\theta^TX^T-y^T.$$
 
 ### Step 2: distribute
 
-\[
-\begin{aligned}
-J(\theta)
-&=\frac12(\theta^TX^T-y^T)(X\theta-y)\\
-&=\frac12\left(
-\theta^TX^TX\theta
--\theta^TX^Ty
--y^TX\theta
-+y^Ty
-\right).
-\end{aligned}
-\]
+$$J(\theta)=\frac12(\theta^TX^T-y^T)(X\theta-y)$$
+
+$$J(\theta)=\frac12\left( \theta^TX^TX\theta -\theta^TX^Ty -y^TX\theta +y^Ty \right).$$
 
 ### Step 3: identify equal scalar cross terms
 
 由于 $\theta^TX^Ty$ 是 scalar，
 
-\[
-\theta^TX^Ty
-=(\theta^TX^Ty)^T
-=y^TX\theta.
-\]
+$$\theta^TX^Ty =(\theta^TX^Ty)^T =y^TX\theta.$$
 
 因此
 
-\[
-J(\theta)
-=\frac12\left(
-\theta^TX^TX\theta
--2y^TX\theta
-+y^Ty
-\right).
-\]
+$$J(\theta) =\frac12\left( \theta^TX^TX\theta -2y^TX\theta +y^Ty \right).$$
 
 ### Step 4: differentiate each term
 
 $X^TX$ symmetric，因为
 
-\[
-(X^TX)^T=X^T(X^T)^T=X^TX.
-\]
+$$(X^TX)^T=X^T(X^T)^T=X^TX.$$
 
 因此
 
-\[
-\nabla_\theta(\theta^TX^TX\theta)
-=2X^TX\theta.
-\]
+$$\nabla_\theta(\theta^TX^TX\theta) =2X^TX\theta.$$
 
 又因为
 
-\[
-y^TX\theta=(X^Ty)^T\theta,
-\]
+$$y^TX\theta=(X^Ty)^T\theta,$$
 
 所以
 
-\[
-\nabla_\theta(y^TX\theta)=X^Ty.
-\]
+$$\nabla_\theta(y^TX\theta)=X^Ty.$$
 
 $y^Ty$ 与 $\theta$ 无关，所以
 
-\[
-\nabla_\theta(y^Ty)=0.
-\]
+$$\nabla_\theta(y^Ty)=0.$$
 
 合并：
 
-\[
-\begin{aligned}
-\nabla_\theta J(\theta)
-&=\frac12
-\left(
-2X^TX\theta-2X^Ty
-\right)\\
-&=X^TX\theta-X^Ty\\
-&=X^T(X\theta-y).
-\end{aligned}
-\]
+$$\nabla_\theta J(\theta)=\frac12 \left( 2X^TX\theta-2X^Ty \right)$$
+
+$$\nabla_\theta J(\theta)=X^TX\theta-X^Ty$$
+
+$$\nabla_\theta J(\theta)=X^T(X\theta-y).$$
 
 ### Step 5: stationary condition
 
 令
 
-\[
-\nabla_\theta J(\hat{\theta})=0,
-\]
+$$\nabla_\theta J(\hat{\theta})=0,$$
 
 得到
 
-\[
-X^TX\hat{\theta}-X^Ty=0,
-\]
+$$X^TX\hat{\theta}-X^Ty=0,$$
 
 即
 
-\[
-\boxed{
-X^TX\hat{\theta}=X^Ty
-}.
-\]
+$$\boxed{ X^TX\hat{\theta}=X^Ty }.$$
 
 ### Step 6: solve when invertible
 
 若 $X^TX$ invertible，在等式左侧乘 $(X^TX)^{-1}$：
 
-\[
-(X^TX)^{-1}X^TX\hat{\theta}
-=(X^TX)^{-1}X^Ty.
-\]
+$$(X^TX)^{-1}X^TX\hat{\theta} =(X^TX)^{-1}X^Ty.$$
 
 因为
 
-\[
-(X^TX)^{-1}X^TX=I_{n+1},
-\]
+$$(X^TX)^{-1}X^TX=I_{n+1},$$
 
 所以
 
-\[
-\boxed{
-\hat{\theta}=(X^TX)^{-1}X^Ty
-}.
-\]
+$$\boxed{ \hat{\theta}=(X^TX)^{-1}X^Ty }.$$
 
 Dimension check：
 
-\[
-((n+1)\times(n+1))
-((n+1)\times m)
-(m\times1)
-=(n+1)\times1.
-\]
+$$((n+1)\times(n+1)) ((n+1)\times m) (m\times1) =(n+1)\times1.$$
 
 实际计算中不应默认显式构造 inverse。`solve`、QR、SVD 或 pseudo-inverse 通常更稳定。
 
@@ -451,154 +255,87 @@ Dimension check：
 
 令
 
-\[
-f(x)=a^Tx=\sum_{i=1}^{d}a_ix_i.
-\]
+$$f(x)=a^Tx=\sum_{i=1}^{d}a_ix_i.$$
 
 则第 $j$ 个偏导为
 
-\[
-\frac{\partial f}{\partial x_j}=a_j.
-\]
+$$\frac{\partial f}{\partial x_j}=a_j.$$
 
 所以
 
-\[
-\boxed{\nabla_x(a^Tx)=a}.
-\]
+$$\boxed{\nabla_x(a^Tx)=a}.$$
 
 ### 6.2 Gradient of a quadratic form
 
 令
 
-\[
-f(x)=x^TAx
-=\sum_{i=1}^{d}\sum_{j=1}^{d}x_iA_{ij}x_j.
-\]
+$$f(x)=x^TAx =\sum_{i=1}^{d}\sum_{j=1}^{d}x_iA_{ij}x_j.$$
 
 对 $x_k$ 求偏导。$x_k$ 可能出现在左侧因子 $x_i$，也可能出现在右侧因子 $x_j$：
 
-\[
-\begin{aligned}
-\frac{\partial f}{\partial x_k}
-&=
-\sum_{j=1}^{d}A_{kj}x_j
-+
-\sum_{i=1}^{d}x_iA_{ik}\\
-&=(Ax)_k+(A^Tx)_k.
-\end{aligned}
-\]
+$$\frac{\partial f}{\partial x_k}=\sum_{j=1}^{d}A_{kj}x_j + \sum_{i=1}^{d}x_iA_{ik}$$
+
+$$\frac{\partial f}{\partial x_k}=(Ax)_k+(A^Tx)_k.$$
 
 因此
 
-\[
-\boxed{
-\nabla_x(x^TAx)=(A+A^T)x
-}.
-\]
+$$\boxed{ \nabla_x(x^TAx)=(A+A^T)x }.$$
 
 若 $A=A^T$，
 
-\[
-\boxed{
-\nabla_x(x^TAx)=2Ax
-}.
-\]
+$$\boxed{ \nabla_x(x^TAx)=2Ax }.$$
 
 ### 6.3 Gradient of squared residual norm
 
 令
 
-\[
-f(\theta)=\frac12\lVert X\theta-y\rVert_2^2.
-\]
+$$f(\theta)=\frac12\lVert X\theta-y\rVert_2^2.$$
 
 展开为
 
-\[
-f(\theta)
-=\frac12
-\left(
-\theta^TX^TX\theta
--2y^TX\theta
-+y^Ty
-\right).
-\]
+$$f(\theta) =\frac12 \left( \theta^TX^TX\theta -2y^TX\theta +y^Ty \right).$$
 
 使用前两条规则：
 
-\[
-\begin{aligned}
-\nabla_\theta f
-&=\frac12
-\left(
-2X^TX\theta-2X^Ty
-\right)\\
-&=X^T(X\theta-y).
-\end{aligned}
-\]
+$$\nabla_\theta f=\frac12 \left( 2X^TX\theta-2X^Ty \right)$$
+
+$$\nabla_\theta f=X^T(X\theta-y).$$
 
 所以
 
-\[
-\boxed{
-\nabla_\theta
-\frac12\lVert X\theta-y\rVert_2^2
-=X^T(X\theta-y)
-}.
-\]
+$$\boxed{ \nabla_\theta \frac12\lVert X\theta-y\rVert_2^2 =X^T(X\theta-y) }.$$
 
 ## 7. Convexity and Global Optimum
 
 Gradient 为
 
-\[
-\nabla_\theta J(\theta)
-=X^TX\theta-X^Ty.
-\]
+$$\nabla_\theta J(\theta) =X^TX\theta-X^Ty.$$
 
 再对 $\theta$ 求导得到 Hessian：
 
-\[
-\boxed{
-\nabla_\theta^2J(\theta)=X^TX
-}.
-\]
+$$\boxed{ \nabla_\theta^2J(\theta)=X^TX }.$$
 
 对任意 $v\in\mathbb{R}^{n+1}$，
 
-\[
-v^TX^TXv
-=(Xv)^T(Xv)
-=\lVert Xv\rVert_2^2
-\geq0.
-\]
+$$v^TX^TXv =(Xv)^T(Xv) =\lVert Xv\rVert_2^2 \geq0.$$
 
 所以
 
-\[
-X^TX\succeq0,
-\]
+$$X^TX\succeq0,$$
 
 从而 $J(\theta)$ convex。Convex differentiable function 的任何 stationary point 都是 global minimizer。
 
 若 $X$ full column rank，则对任意 $v\neq0$，
 
-\[
-Xv\neq0,
-\]
+$$Xv\neq0,$$
 
 因此
 
-\[
-v^TX^TXv=\lVert Xv\rVert_2^2>0.
-\]
+$$v^TX^TXv=\lVert Xv\rVert_2^2>0.$$
 
 于是
 
-\[
-X^TX\succ0,
-\]
+$$X^TX\succ0,$$
 
 $J$ strictly convex，minimizer 唯一。
 
@@ -610,47 +347,29 @@ Here, \(\mathrm{Col}(X)\) denotes the column space of \(X\).
 
 The fitted vector is
 
-\[
-\hat{y}=X\hat{\theta}.
-\]
+$$\hat{y}=X\hat{\theta}.$$
 
 Because \(\hat{y}\) is a linear combination of the columns of \(X\), it lies in the column space:
 
-\[
-\hat{y}\in\mathrm{Col}(X).
-\]
+$$\hat{y}\in \mathrm{Col}(X).$$
 
 The normal equation can be rewritten as
 
-\[
-X^T(y-X\hat{\theta})=0.
-\]
+$$X^T(y-X\hat{\theta})=0.$$
 
 This means the residual vector is orthogonal to the column space:
 
-\[
-y-X\hat{\theta}\perp\mathrm{Col}(X).
-\]
+$$y-X\hat{\theta}\perp \mathrm{Col}(X).$$
 
 Therefore, \(\hat{y}\) is the orthogonal projection of \(y\) onto \(\mathrm{Col}(X)\).
 
 Equivalently, with \(e=y-\hat{y}\),
 
-\[
-y=\hat{y}+e,
-\qquad
-\hat{y}\in\mathrm{Col}(X),
-\qquad
-e\in\mathrm{Col}(X)^\perp.
-\]
+$$y=\hat{y}+e, \qquad \hat{y}\in\mathrm{Col}(X), \qquad e\in\mathrm{Col}(X)^\perp.$$
 
 Thus,
 
-\[
-X\hat{\theta}
-=
-\mathrm{Proj}_{\mathrm{Col}(X)}y.
-\]
+$$X\hat{\theta} = \mathrm{Proj}_{\mathrm{Col}(X)}y.$$
 
 “Normal equation”中的 normal 正对应 residual 对 column space 的 normal / orthogonal 关系。
 
@@ -660,98 +379,47 @@ X\hat{\theta}
 
 假设
 
-\[
-y^{(i)}
-=\theta^Tx^{(i)}+\epsilon^{(i)},
-\]
+$$y^{(i)} =\theta^Tx^{(i)}+\epsilon^{(i)},$$
 
 其中
 
-\[
-\epsilon^{(i)}
-\overset{\mathrm{iid}}{\sim}
-\mathcal{N}(0,\sigma^2).
-\]
+$$\epsilon^{(i)} \overset{\mathrm{iid}}{\sim} \mathcal{N}(0,\sigma^2).$$
 
 因此
 
-\[
-y^{(i)}\mid x^{(i)};\theta
-\sim
-\mathcal{N}(\theta^Tx^{(i)},\sigma^2).
-\]
+$$y^{(i)}\mid x^{(i)};\theta \sim \mathcal{N}(\theta^Tx^{(i)},\sigma^2).$$
 
 ### 9.2 Conditional density
 
-\[
-p(y^{(i)}\mid x^{(i)};\theta)
-=
-\frac{1}{\sqrt{2\pi\sigma^2}}
-\exp\left[
--\frac{
-(y^{(i)}-\theta^Tx^{(i)})^2
-}{2\sigma^2}
-\right].
-\]
+$$p(y^{(i)}\mid x^{(i)};\theta) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left[ -\frac{ (y^{(i)}-\theta^Tx^{(i)})^2 }{2\sigma^2} \right].$$
 
 ### 9.3 Likelihood
 
 Conditional independence 给出
 
-\[
-\begin{aligned}
-L(\theta)
-&=
-p(y\mid X;\theta)\\
-&=
-\prod_{i=1}^{m}
-p(y^{(i)}\mid x^{(i)};\theta).
-\end{aligned}
-\]
+$$L(\theta)=p(y\mid X;\theta)$$
+
+$$L(\theta)=\prod_{i=1}^{m} p(y^{(i)}\mid x^{(i)};\theta).$$
 
 这里 observed $X,y$ 固定，likelihood 是 $\theta$ 的函数。
 
 ### 9.4 Log likelihood
 
-\[
-\begin{aligned}
-\ell(\theta)
-&=\log L(\theta)\\
-&=
-\sum_{i=1}^{m}
-\left[
--\frac12\log(2\pi\sigma^2)
--\frac{
-(y^{(i)}-\theta^Tx^{(i)})^2
-}{2\sigma^2}
-\right]\\
-&=
--\frac{m}{2}\log(2\pi\sigma^2)
--\frac{1}{2\sigma^2}
-\sum_{i=1}^{m}
-(y^{(i)}-\theta^Tx^{(i)})^2.
-\end{aligned}
-\]
+$$\ell(\theta)=\log L(\theta)$$
+
+$$\ell(\theta)=\sum_{i=1}^{m} \left[ -\frac12\log(2\pi\sigma^2) -\frac{ (y^{(i)}-\theta^Tx^{(i)})^2 }{2\sigma^2} \right]$$
+
+$$\ell(\theta)=-\frac{m}{2}\log(2\pi\sigma^2) -\frac{1}{2\sigma^2} \sum_{i=1}^{m} (y^{(i)}-\theta^Tx^{(i)})^2.$$
 
 ### 9.5 MLE to least squares
 
 第一项不依赖 $\theta$。因为 $\sigma^2>0$，
 
-\[
--\frac{1}{2\sigma^2}<0.
-\]
+$$-\frac{1}{2\sigma^2}<0.$$
 
 Therefore, maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
 
-\[
-\underset{\theta}{\mathrm{argmax}}\ \ell(\theta)
-=
-\underset{\theta}{\mathrm{argmin}}\;
-\sum_{i=1}^{m}
-\left(
-y^{(i)}-\theta^T x^{(i)}
-\right)^2.
-\]
+$$\underset{\theta}{\mathrm{argmax}}\ \ell(\theta)=\underset{\theta}{\mathrm{argmin}}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
 
 So Gaussian noise MLE and ordinary least squares produce the same parameter estimate.
 
