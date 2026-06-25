@@ -27,10 +27,6 @@ SUSPICIOUS_PATTERNS = {
     "proj": re.compile(r"\\proj(?![A-Za-z])"),
     "argmax": re.compile(r"\\argmax(?![A-Za-z])"),
     "argmin": re.compile(r"\\argmin(?![A-Za-z])"),
-    "content after opening $$": re.compile(r"^\s*\$\$\s*\S"),
-    "content before closing $$": re.compile(r"\S\s*\$\$\s*$"),
-    "alternate display opener": re.compile(r"^\s*\\\[\s*$"),
-    "alternate display closer": re.compile(r"^\s*\\\]\s*$"),
     "single-line multi-row matrix": re.compile(
         r"\\begin\{bmatrix\}.*\\end\{bmatrix\}"
     ),
@@ -38,14 +34,96 @@ SUSPICIOUS_PATTERNS = {
 
 
 def audit_markdown(root: Path) -> list[tuple[Path, int, str, str]]:
-    """Return suspicious matches as path, line number, pattern, and line."""
+    """Return suspicious matches as path, line number, reason, and line."""
     findings: list[tuple[Path, int, str, str]] = []
+
     for path in sorted(root.rglob("*.md")):
-        text = path.read_text(encoding="utf-8-sig")
-        for line_number, line in enumerate(text.splitlines(), start=1):
+        lines = path.read_text(encoding="utf-8-sig").splitlines()
+        in_fence = False
+        in_display = False
+        display_open_line = 0
+
+        for line_number, line in enumerate(lines, start=1):
+            if "$$" in line:
+                findings.append(
+                    (
+                        path,
+                        line_number,
+                        "double-dollar display delimiter is forbidden",
+                        line.strip(),
+                    )
+                )
+
             for label, pattern in SUSPICIOUS_PATTERNS.items():
                 if pattern.search(line):
                     findings.append((path, line_number, label, line.strip()))
+
+            stripped = line.strip()
+            if stripped.startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence:
+                continue
+
+            rendered_line = re.sub(r"`[^`]*`", "", line)
+            rendered_stripped = rendered_line.strip()
+
+            if r"\[" in rendered_line and rendered_stripped != r"\[":
+                findings.append(
+                    (
+                        path,
+                        line_number,
+                        r"display opener \[ must be alone on its line",
+                        line.strip(),
+                    )
+                )
+            if r"\]" in rendered_line and rendered_stripped != r"\]":
+                findings.append(
+                    (
+                        path,
+                        line_number,
+                        r"display closer \] must be alone on its line",
+                        line.strip(),
+                    )
+                )
+
+            if rendered_stripped == r"\[":
+                if in_display:
+                    findings.append(
+                        (
+                            path,
+                            line_number,
+                            "nested display opener",
+                            line.strip(),
+                        )
+                    )
+                else:
+                    in_display = True
+                    display_open_line = line_number
+            elif rendered_stripped == r"\]":
+                if not in_display:
+                    findings.append(
+                        (
+                            path,
+                            line_number,
+                            "display closer has no matching opener",
+                            line.strip(),
+                        )
+                    )
+                else:
+                    in_display = False
+                    display_open_line = 0
+
+        if in_display:
+            findings.append(
+                (
+                    path,
+                    display_open_line,
+                    "display opener has no matching closer",
+                    r"\[",
+                )
+            )
+
     return findings
 
 
@@ -53,13 +131,13 @@ def main() -> int:
     """Print the audit result and return a shell-friendly status code."""
     findings = audit_markdown(ROOT)
     if not findings:
-        print("Markdown math audit passed: no suspicious patterns found.")
+        print("Markdown math audit passed.")
         return 0
 
-    print("Markdown math audit found suspicious patterns:")
-    for path, line_number, label, line in findings:
+    print("Markdown math audit found rendering issues:")
+    for path, line_number, reason, line in findings:
         relative_path = path.relative_to(ROOT)
-        print(f"- {relative_path}:{line_number}: {label}: {line}")
+        print(f"- {relative_path}:{line_number}: {reason}: {line}")
     return 1
 
 
