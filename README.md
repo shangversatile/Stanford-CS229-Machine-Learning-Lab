@@ -80,6 +80,8 @@ By the end of this course lab, the repository should contain:
 * [x] Module dependency graph created
 * [x] Personalized study policy created
 * [x] Lecture 1 note completed
-* [ ] Lecture 2 linear regression derivation completed
+* [x] Lecture 2 linear regression derivation completed
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed
+
+Implementation intentionally follows derivation: the next stage will implement gradient descent and the normal-equation baseline, then verify both with tests and stress cases.
