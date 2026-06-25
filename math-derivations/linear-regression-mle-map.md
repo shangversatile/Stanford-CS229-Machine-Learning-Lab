@@ -606,64 +606,51 @@ $J$ strictly convex，minimizer 唯一。
 
 ## 8. Projection Geometry
 
-In this note, $\mathrm{Col}(X)$ denotes the column space of $X$.
+Here, \(\mathrm{Col}(X)\) denotes the column space of \(X\).
 
-Normal equation 为
+The fitted vector is
 
-\[
-X^TX\hat{\theta}=X^Ty.
-\]
+$$
+\hat{y}=X\hat{\theta}.
+$$
 
-移项：
+Because \(\hat{y}\) is a linear combination of the columns of \(X\), it lies in the column space:
 
-\[
-X^T(y-X\hat{\theta})=0.
-\]
-
-令
-
-\[
-\hat{y}=X\hat{\theta},
-\qquad
-e=y-\hat{y}.
-\]
-
-由于 $\hat{y}$ 是 $X$ columns 的 linear combination，
-
-\[
+$$
 \hat{y}\in\mathrm{Col}(X).
-\]
+$$
 
-而
+The normal equation can be rewritten as
 
-\[
-X^Te=0.
-\]
+$$
+X^T(y-X\hat{\theta})=0.
+$$
 
-意味着 $e$ 与 $X$ 的每一列正交，因此与整个 $\mathrm{Col}(X)$ 正交：
+This means the residual vector is orthogonal to the column space:
 
-\[
-e=y-X\hat{\theta}\perp\mathrm{Col}(X).
-\]
+$$
+y-X\hat{\theta}\perp\mathrm{Col}(X).
+$$
 
-于是存在 orthogonal decomposition：
+Therefore, \(\hat{y}\) is the orthogonal projection of \(y\) onto \(\mathrm{Col}(X)\).
 
-\[
+Equivalently, with \(e=y-\hat{y}\),
+
+$$
 y=\hat{y}+e,
 \qquad
 \hat{y}\in\mathrm{Col}(X),
 \qquad
 e\in\mathrm{Col}(X)^\perp.
-\]
+$$
 
-因此
+Thus,
 
-\[
-\boxed{
+$$
 X\hat{\theta}
-=\mathrm{Proj}_{\mathrm{Col}(X)}y
-}.
-\]
+=
+\mathrm{Proj}_{\mathrm{Col}(X)}y.
+$$
 
 “Normal equation”中的 normal 正对应 residual 对 column space 的 normal / orthogonal 关系。
 
@@ -754,16 +741,17 @@ $$
 -\frac{1}{2\sigma^2}<0.
 $$
 
-Maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
+Therefore, maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
 
-\[
-\boxed{
+$$
 \underset{\theta}{\mathrm{argmax}}\ \ell(\theta)
 =
 \underset{\theta}{\mathrm{argmin}}\;
-\sum_{i=1}^{m}\left(y^{(i)}-\theta^T x^{(i)}\right)^2
-}.
-\]
+\sum_{i=1}^{m}
+\left(
+y^{(i)}-\theta^T x^{(i)}
+\right)^2.
+$$
 
 所以 ordinary least-squares estimator 同时是该 Gaussian model 下的 maximum likelihood estimator。
 

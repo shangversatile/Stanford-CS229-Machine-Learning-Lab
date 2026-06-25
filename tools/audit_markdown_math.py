@@ -27,6 +27,13 @@ SUSPICIOUS_PATTERNS = {
     "proj": re.compile(r"\\proj(?![A-Za-z])"),
     "argmax": re.compile(r"\\argmax(?![A-Za-z])"),
     "argmin": re.compile(r"\\argmin(?![A-Za-z])"),
+    "content after opening $$": re.compile(r"^\s*\$\$\s*\S"),
+    "content before closing $$": re.compile(r"\S\s*\$\$\s*$"),
+    "alternate display opener": re.compile(r"^\s*\\\[\s*$"),
+    "alternate display closer": re.compile(r"^\s*\\\]\s*$"),
+    "single-line multi-row matrix": re.compile(
+        r"\\begin\{bmatrix\}.*\\end\{bmatrix\}"
+    ),
 }
 
 

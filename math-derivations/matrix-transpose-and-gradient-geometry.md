@@ -285,66 +285,55 @@ $$
 r(t)
 =
 \begin{bmatrix}
-x(t)\\
+x(t) \\
 y(t)
 \end{bmatrix}
 $$
 
-完全位于 contour $\mathcal{C}_c$ 上。于是对所有相关 $t$，
+完全位于 contour \(\mathcal{C}_c\) 上。Since \(r(t)\) stays on the contour, the function value is constant:
 
 $$
-f(r(t))
-=f(x(t),y(t))
-=c.
+f(x(t), y(t))=c.
 $$
 
-右侧是常数，所以
+Differentiating both sides with respect to \(t\):
 
 $$
-\frac{d}{dt}f(r(t))=0.
-$$
-
-由 multivariable chain rule，
-
-$$
-\begin{aligned}
-\frac{d}{dt}f(x(t),y(t))
-&=
-\frac{\partial f}{\partial x}x'(t)
+\frac{d}{dt} f(x(t), y(t))
+=
+f_x(x(t), y(t))x'(t)
 +
-\frac{\partial f}{\partial y}y'(t)\\
-&=
+f_y(x(t), y(t))y'(t).
+$$
+
+Using vector notation:
+
+$$
+\frac{d}{dt} f(x(t), y(t))
+=
+\nabla f(x(t), y(t))^T
 \begin{bmatrix}
-f_x&f_y
-\end{bmatrix}
-\begin{bmatrix}
-x'(t)\\
+x'(t) \\
 y'(t)
-\end{bmatrix}\\
-&=
-\nabla f(r(t))^Tr'(t).
-\end{aligned}
+\end{bmatrix}
+=0.
 $$
 
-因此
+Therefore,
 
 $$
-\boxed{
-\nabla f(r(t))^Tr'(t)=0
-}.
+\nabla f(x(t), y(t))^T r'(t)=0,
 $$
 
-$r'(t)$ 是 contour 的 tangent vector，所以在 regular point $\nabla f\neq0$，
+which means
 
 $$
-\boxed{
-\nabla f(r(t))\perp r'(t)
-}.
+\nabla f(x(t), y(t))\perp r'(t).
 $$
 
 这个证明揭示了关键逻辑：沿 contour 的 directional derivative 为零，而 directional derivative 正是 gradient 与移动方向的 inner product。
 
-若 $\nabla f=0$，等式仍成立，但 zero vector 不能定义唯一 normal direction；此时 level set 的局部形状可能需要 higher-order information。
+若 \(\nabla f=0\)，等式仍成立，但 zero vector 不能定义唯一 normal direction；此时 level set 的局部形状可能需要 higher-order information。
 
 ## 3. Surface-Normal Projection Proof
 

@@ -311,7 +311,7 @@ Learning rate $\alpha$ 不能脱离 objective geometry 来理解：
 
 ### 7.1 Contour-line proof
 
-对 differentiable function $z=f(x,y)$，equal-height contour 定义为
+对 differentiable function \(z=f(x,y)\)，equal-height contour 定义为
 
 $$
 f(x,y)=c.
@@ -322,50 +322,56 @@ $$
 令 contour 上的一条 differentiable curve 为
 
 $$
-r(t)=
+r(t)
+=
 \begin{bmatrix}
-x(t)\\
+x(t) \\
 y(t)
 \end{bmatrix}.
 $$
 
-因为曲线始终位于同一 contour，
+Since \(r(t)\) stays on the contour, the function value is constant:
 
 $$
-f(x(t),y(t))=c.
+f(x(t), y(t))=c.
 $$
 
-两边对 $t$ 求导，由 multivariable chain rule，
+Differentiating both sides with respect to \(t\):
 
 $$
-\frac{d}{dt}f(x(t),y(t))
-=f_x\,x'(t)+f_y\,y'(t)
+\frac{d}{dt} f(x(t), y(t))
 =
-\nabla f(x(t),y(t))^T
+f_x(x(t), y(t))x'(t)
++
+f_y(x(t), y(t))y'(t).
+$$
+
+Using vector notation:
+
+$$
+\frac{d}{dt} f(x(t), y(t))
+=
+\nabla f(x(t), y(t))^T
 \begin{bmatrix}
-x'(t)\\
+x'(t) \\
 y'(t)
 \end{bmatrix}
 =0.
 $$
 
-而
+Therefore,
 
 $$
-r'(t)=
-\begin{bmatrix}
-x'(t)\\
-y'(t)
-\end{bmatrix}
+\nabla f(x(t), y(t))^T r'(t)=0,
 $$
 
-是 contour 的 tangent direction，因此
+which means
 
 $$
-\boxed{\nabla f\perp r'(t)}.
+\nabla f(x(t), y(t))\perp r'(t).
 $$
 
-严格地说，该结论在 regular point $\nabla f\neq0$ 处给出明确法向方向；若 gradient 为零，则不能由零向量定义唯一方向。
+严格地说，该结论在 regular point \(\nabla f\neq0\) 处给出明确法向方向；若 gradient 为零，则不能由零向量定义唯一方向。
 
 图中蓝色箭头是 gradient，红色箭头是 negative gradient。它们穿过 contour，而不是沿 contour 移动。
 
@@ -595,33 +601,33 @@ $X^TX$ 可能不 invertible，原因包括：
 
 ### Step 7: projection geometry
 
-令 fitted vector 为
+Here, \(\mathrm{Col}(X)\) denotes the column space of \(X\).
 
-\[
+The fitted vector is
+
+$$
 \hat{y}=X\hat{\theta}.
-\]
+$$
 
-In this note, $\mathrm{Col}(X)$ denotes the column space of $X$.
+Because \(\hat{y}\) is a linear combination of the columns of \(X\), it lies in the column space:
 
-Because $\hat{y}$ is a linear combination of the columns of $X$, it lies in the column space:
-
-\[
+$$
 \hat{y}\in\mathrm{Col}(X).
-\]
+$$
 
 The normal equation can be rewritten as
 
-\[
+$$
 X^T(y-X\hat{\theta})=0.
-\]
+$$
 
-This means the residual vector $y-X\hat{\theta}$ is orthogonal to every column of $X$:
+This means the residual vector is orthogonal to the column space:
 
-\[
+$$
 y-X\hat{\theta}\perp\mathrm{Col}(X).
-\]
+$$
 
-Therefore, $\hat{y}=X\hat{\theta}$ is the orthogonal projection of $y$ onto $\mathrm{Col}(X)$.
+Therefore, \(\hat{y}\) is the orthogonal projection of \(y\) onto \(\mathrm{Col}(X)\).
 
 ![Normal equation as orthogonal projection](../../assets/figures/lecture02-normal-equation-projection.png)
 
@@ -692,14 +698,19 @@ $$
 \end{aligned}
 $$
 
-Log 是 strictly increasing function，所以 maximizing $L(\theta)$ 等价于 maximizing $\ell(\theta)$。第一项与 $\theta$ 无关，第二项前的 $-1/(2\sigma^2)$ 是负常数。Maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
+Log is strictly increasing, so maximizing \(L(\theta)\) is equivalent to maximizing \(\ell(\theta)\). The first term is independent of \(\theta\), and \(-1/(2\sigma^2)\) is a negative constant.
 
-\[
+Therefore, maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
+
+$$
 \underset{\theta}{\mathrm{argmax}}\ \ell(\theta)
 =
 \underset{\theta}{\mathrm{argmin}}\;
-\sum_{i=1}^{m}\left(y^{(i)}-\theta^T x^{(i)}\right)^2.
-\]
+\sum_{i=1}^{m}
+\left(
+y^{(i)}-\theta^T x^{(i)}
+\right)^2.
+$$
 
 所以 Gaussian noise MLE 与 ordinary least squares 有相同的 parameter estimate。
 
