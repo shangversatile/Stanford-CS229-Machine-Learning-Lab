@@ -23,18 +23,18 @@ Linear regression 是这个范式的最小完整实例，因为：
 
 $$J(\theta)=\frac{1}{2}\lVert X\theta-y\rVert_2^2$$
 
-是关于参数 $\theta$ 的 convex quadratic function。任何 stationary point 都是 global minimizer；若 $X$ 具有 full column rank，则 $X^TX$ positive definite，global minimizer 唯一。这里不能把一般非凸优化中的“局部极小值”直觉机械地搬到 ordinary least squares。
+是关于参数 \(\theta\) 的 convex quadratic function。任何 stationary point 都是 global minimizer；若 \(X\) 具有 full column rank，则 \(X^TX\) positive definite，global minimizer 唯一。这里不能把一般非凸优化中的“局部极小值”直觉机械地搬到 ordinary least squares。
 
 ## 2. Supervised Learning Setup
 
-一个 **training example** 是一对 $(x^{(i)},y^{(i)})$：
+一个 **training example** 是一对 \((x^{(i)},y^{(i)})\)：
 
-* $x^{(i)}$：第 $i$ 个样本的 feature vector；
-* $y^{(i)}$：对应的 label / target；
+* \(x^{(i)}\)：第 \(i\) 个样本的 feature vector；
+* \(y^{(i)}\)：对应的 label / target；
 * training set：所有已观测输入输出对的集合；
-* hypothesis $h_\theta$：由输入产生预测的参数化函数；
-* parameter $\theta$：要从数据中学习的系数；
-* design matrix $X$：把所有样本按行堆叠后的矩阵。
+* hypothesis \(h_\theta\)：由输入产生预测的参数化函数；
+* parameter \(\theta\)：要从数据中学习的系数；
+* design matrix \(X\)：把所有样本按行堆叠后的矩阵。
 
 训练集记为
 
@@ -42,21 +42,21 @@ $$\mathcal{D}=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}.$$
 
 本笔记采用以下维度约定：
 
-* $m$：training examples 数量；
-* $n$：原始 features 数量；
-* 加入 intercept feature $x_0=1$ 后，每个 $x^{(i)}$ 有 $n+1$ 个分量；
-* $X\in\mathbb{R}^{m\times(n+1)}$；
-* $\theta\in\mathbb{R}^{(n+1)\times1}$；
-* $y\in\mathbb{R}^{m\times1}$；
-* $X\theta\in\mathbb{R}^{m\times1}$；
-* $X^TX\in\mathbb{R}^{(n+1)\times(n+1)}$；
-* $X^Ty\in\mathbb{R}^{(n+1)\times1}$。
+* \(m\)：training examples 数量；
+* \(n\)：原始 features 数量；
+* 加入 intercept feature \(x_0=1\) 后，每个 \(x^{(i)}\) 有 \(n+1\) 个分量；
+* \(X\in\mathbb{R}^{m\times(n+1)}\)；
+* \(\theta\in\mathbb{R}^{(n+1)\times1}\)；
+* \(y\in\mathbb{R}^{m\times1}\)；
+* \(X\theta\in\mathbb{R}^{m\times1}\)；
+* \(X^TX\in\mathbb{R}^{(n+1)\times(n+1)}\)；
+* \(X^Ty\in\mathbb{R}^{(n+1)\times1}\)。
 
-第 $i$ 行是 $(x^{(i)})^T$，因此
+第 \(i\) 行是 \((x^{(i)})^T\)，因此
 
 $$X= \begin{bmatrix} (x^{(1)})^T\\ (x^{(2)})^T\\ \vdots\\ (x^{(m)})^T \end{bmatrix}.$$
 
-令 $x_0=1$ 的作用，是把原本单独书写的 intercept $\theta_0$ 吸收到向量内：
+令 \(x_0=1\) 的作用，是把原本单独书写的 intercept \(\theta_0\) 吸收到向量内：
 
 $$h_\theta(x)=\theta_0+\sum_{j=1}^{n}\theta_jx_j =\sum_{j=0}^{n}\theta_jx_j =\theta^Tx.$$
 
@@ -68,7 +68,7 @@ Linear regression 的 hypothesis 为
 
 $$h_\theta(x)=\theta^Tx.$$
 
-“Linear”首先指模型对 parameters $\theta$ 是线性的，而不要求对 raw input 必须呈直线关系。若构造 feature map
+“Linear”首先指模型对 parameters \(\theta\) 是线性的，而不要求对 raw input 必须呈直线关系。若构造 feature map
 
 $$\phi(x)=[1,x,x^2,\log x]^T,$$
 
@@ -76,15 +76,15 @@ $$\phi(x)=[1,x,x^2,\log x]^T,$$
 
 $$h_\theta(x)=\theta^T\phi(x)$$
 
-对原始 $x$ 是 nonlinear function，但对 $\theta$ 仍是 linear model，因此仍属于 linear regression。
+对原始 \(x\) 是 nonlinear function，但对 \(\theta\) 仍是 linear model，因此仍属于 linear regression。
 
 这一区分连接了三个重要概念：
 
-1. **Feature engineering**：通过选择 $\phi(x)$ 暴露适合线性组合的结构。
-2. **Polynomial regression**：用 $1,x,x^2,\ldots$ 扩展输入，但参数仍线性进入模型。
+1. **Feature engineering**：通过选择 \(\phi(x)\) 暴露适合线性组合的结构。
+2. **Polynomial regression**：用 \(1,x,x^2,\ldots\) 扩展输入，但参数仍线性进入模型。
 3. **Kernel intuition**：未来可以在高维 feature space 中使用线性模型，而不必把“线性”误解为 raw input space 中的一条直线。
 
-下图以 house size $\rightarrow$ price 为例。散点是 observations，直线是 fitted hypothesis，竖直线段是若干样本的 residual。图像直观展示了模型、预测和误差如何进入同一个学习问题。
+下图以 house size \(\rightarrow\) price 为例。散点是 observations，直线是 fitted hypothesis，竖直线段是若干样本的 residual。图像直观展示了模型、预测和误差如何进入同一个学习问题。
 
 ![Linear regression fit with residuals](../../assets/figures/lecture02-linear-regression-fit.png)
 
@@ -94,11 +94,11 @@ $$h_\theta(x)=\theta^T\phi(x)$$
 
 $$r=X\theta-y,$$
 
-即第 $i$ 个 scalar residual 为
+即第 \(i\) 个 scalar residual 为
 
 $$r^{(i)}=h_\theta(x^{(i)})-y^{(i)}.$$
 
-也可以定义 residual 为 $y-h_\theta(x)$。两种定义互为相反数，因此平方后 objective 和 optimum 相同；但一阶 residual 的符号不同，会改变中间 gradient 与 update 的书写方式。推导时必须固定 convention。
+也可以定义 residual 为 \(y-h_\theta(x)\)。两种定义互为相反数，因此平方后 objective 和 optimum 相同；但一阶 residual 的符号不同，会改变中间 gradient 与 update 的书写方式。推导时必须固定 convention。
 
 Least squares objective 定义为
 
@@ -113,7 +113,7 @@ Squared error 可以理解为 prediction error 的一种“energy representation
 * 对 linear hypothesis，它形成 convex quadratic objective；
 * 在 independent Gaussian noise assumption 下，它自然对应 maximum likelihood estimation。
 
-系数 $1/2$ 不改变 minimizer，因为它只是正的常数缩放。它的作用是抵消平方求导产生的 $2$：
+系数 \(1/2\) 不改变 minimizer，因为它只是正的常数缩放。它的作用是抵消平方求导产生的 \(2\)：
 
 $$\frac{d}{du}\frac12u^2=u.$$
 
@@ -132,9 +132,9 @@ Gradient descent 是 numerical optimization method。它不直接给出 optimum 
 
 $$\theta\leftarrow\theta-\alpha\nabla_\theta J(\theta),$$
 
-其中 $\alpha>0$ 是 learning rate。
+其中 \(\alpha>0\) 是 learning rate。
 
-为什么使用 negative gradient？对小扰动 $\Delta$，first-order Taylor approximation 给出
+为什么使用 negative gradient？对小扰动 \(\Delta\)，first-order Taylor approximation 给出
 
 $$J(\theta+\Delta) \approx J(\theta)+\nabla J(\theta)^T\Delta.$$
 
@@ -162,7 +162,7 @@ $$J_i(\theta) =\frac12\left(h_\theta(x^{(i)})-y^{(i)}\right)^2.$$
 
 $$e_i=h_\theta(x^{(i)})-y^{(i)} =\sum_{k=0}^{n}\theta_kx_k^{(i)}-y^{(i)}.$$
 
-对 $\theta_j$ 使用 chain rule：
+对 \(\theta_j\) 使用 chain rule：
 
 $$\frac{\partial J_i}{\partial\theta_j} =\frac{\partial (\frac12e_i^2)}{\partial e_i} \cdot \frac{\partial e_i}{\partial\theta_j}.$$
 
@@ -189,7 +189,7 @@ $$\boxed{ \theta_j \leftarrow\theta_j+\alpha \left(y^{(i)}-h_\theta(x^{(i)})\rig
 这个 Least Mean Squares (LMS) update 的直觉是：
 
 * prediction error 越大，parameter update 通常越大；
-* feature value $x_j^{(i)}$ 决定该样本对 $\theta_j$ 的影响尺度；
+* feature value \(x_j^{(i)}\) 决定该样本对 \(\theta_j\) 的影响尺度；
 * 若某个 feature 数值很大且 prediction 错误，它会对参数调整产生强影响；
 * 这也说明 feature scaling 会直接改变 optimization geometry。
 
@@ -199,7 +199,7 @@ $$\boxed{ \theta_j \leftarrow\theta_j+\alpha \left(y^{(i)}-h_\theta(x^{(i)})\rig
 
 $$\nabla_\theta J(\theta)=X^T(X\theta-y).$$
 
-**Batch Gradient Descent** 每次用全部 $m$ 个样本计算 update：
+**Batch Gradient Descent** 每次用全部 \(m\) 个样本计算 update：
 
 $$\theta\leftarrow \theta-\alpha X^T(X\theta-y).$$
 
@@ -215,7 +215,7 @@ $$\theta\leftarrow \theta-\alpha \left(h_\theta(x^{(i)})-y^{(i)}\right)x^{(i)}.$
 
 ![Batch gradient descent and stochastic gradient descent paths](../../assets/figures/lecture02-batch-vs-sgd-paths.png)
 
-Learning rate $\alpha$ 不能脱离 objective geometry 来理解：
+Learning rate \(\alpha\) 不能脱离 objective geometry 来理解：
 
 * 太小会导致 convergence 很慢；
 * 太大可能 overshoot、oscillate，甚至 diverge；
@@ -281,11 +281,11 @@ Implicit surface 的 normal vector 为
 
 $$\nabla F=(f_x,f_y,-1).$$
 
-把该 normal vector 投影到 $xy$-plane，得到
+把该 normal vector 投影到 \(xy\)-plane，得到
 
 $$(f_x,f_y)=\nabla f.$$
 
-Contour $f(x,y)=c$ 可以看作 surface 与 horizontal plane $z=c$ 的交线，再投影到 $xy$-plane。交线的 tangent vector 同时位于 surface tangent plane 和 horizontal plane 中；其 $xy$ 投影与 $(f_x,f_y)$ 正交。因此，二维 gradient 正是三维 surface normal 在输入平面中的投影方向。
+Contour \(f(x,y)=c\) 可以看作 surface 与 horizontal plane \(z=c\) 的交线，再投影到 \(xy\)-plane。交线的 tangent vector 同时位于 surface tangent plane 和 horizontal plane 中；其 \(xy\) 投影与 \((f_x,f_y)\) 正交。因此，二维 gradient 正是三维 surface normal 在输入平面中的投影方向。
 
 ![Surface normal projection and gradient](../../assets/figures/lecture02-surface-normal-projection.png)
 
@@ -317,9 +317,9 @@ $$(AB)^T=B^TA^T.$$
 
 Matrix multiplication 有三个互补视角：
 
-1. Entry-wise：$(AB)_{ij}$ 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。
-2. Column-space view：$AB$ 的第 $j$ 列是 $A$ 各列的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。
-3. Row-space view：$AB$ 的第 $i$ 行是 $B$ 各行的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。
+1. Entry-wise：\((AB)_{ij}\) 是 \(A\) 的第 \(i\) 行与 \(B\) 的第 \(j\) 列的 inner product。
+2. Column-space view：\(AB\) 的第 \(j\) 列是 \(A\) 各列的 linear combination，coefficients 来自 \(B\) 的第 \(j\) 列。
+3. Row-space view：\(AB\) 的第 \(i\) 行是 \(B\) 各行的 linear combination，coefficients 来自 \(A\) 的第 \(i\) 行。
 
 Transpose 会交换 rows 与 columns。原 composition 的最后一步在转置后的表示中必须先被处理，所以乘法顺序反转。详细的 entry-wise proof、column/row interpretation 和 linear-map explanation 见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
 
@@ -331,15 +331,15 @@ $$J(\theta) =\frac12(X\theta-y)^T(X\theta-y).$$
 
 ### Step 1: transpose the residual
 
-利用 $(AB)^T=B^TA^T$，
+利用 \((AB)^T=B^TA^T\)，
 
 $$(X\theta-y)^T =(X\theta)^T-y^T =\theta^TX^T-y^T.$$
 
 Dimension check：
 
-* $X\theta-y\in\mathbb{R}^{m\times1}$；
-* $(X\theta-y)^T\in\mathbb{R}^{1\times m}$；
-* 因而 $J(\theta)\in\mathbb{R}$。
+* \(X\theta-y\in\mathbb{R}^{m\times1}\)；
+* \((X\theta-y)^T\in\mathbb{R}^{1\times m}\)；
+* 因而 \(J(\theta)\in\mathbb{R}\)。
 
 ### Step 2: expand the product
 
@@ -349,14 +349,14 @@ $$J(\theta)=\frac12\left( \theta^TX^TX\theta -\theta^TX^Ty -y^TX\theta +y^Ty \ri
 
 各项 shape 为：
 
-* $\theta^TX^TX\theta$：$(1\times(n+1))((n+1)\times(n+1))((n+1)\times1)$，结果是 scalar；
-* $\theta^TX^Ty$：$(1\times(n+1))((n+1)\times1)$，结果是 scalar；
-* $y^TX\theta$：$(1\times m)(m\times(n+1))((n+1)\times1)$，结果是 scalar；
-* $y^Ty$：$(1\times m)(m\times1)$，结果是 scalar。
+* \(\theta^TX^TX\theta\)：\((1\times(n+1))((n+1)\times(n+1))((n+1)\times1)\)，结果是 scalar；
+* \(\theta^TX^Ty\)：\((1\times(n+1))((n+1)\times1)\)，结果是 scalar；
+* \(y^TX\theta\)：\((1\times m)(m\times(n+1))((n+1)\times1)\)，结果是 scalar；
+* \(y^Ty\)：\((1\times m)(m\times1)\)，结果是 scalar。
 
 ### Step 3: combine the cross terms
 
-$\theta^TX^Ty$ 是 scalar，因此等于自身的 transpose：
+\(\theta^TX^Ty\) 是 scalar，因此等于自身的 transpose：
 
 $$\theta^TX^Ty =(\theta^TX^Ty)^T =y^TX\theta.$$
 
@@ -372,7 +372,7 @@ $$\nabla_\theta(a^T\theta)=a,$$
 
 $$\nabla_\theta(\theta^TA\theta)=(A+A^T)\theta.$$
 
-若 $A$ symmetric，
+若 \(A\) symmetric，
 
 $$\nabla_\theta(\theta^TA\theta)=2A\theta.$$
 
@@ -380,7 +380,7 @@ $$\nabla_\theta(\theta^TA\theta)=2A\theta.$$
 
 $$(X^TX)^T=X^T(X^T)^T=X^TX,$$
 
-$X^TX$ symmetric。并且 $y^Ty$ 与 $\theta$ 无关，其 gradient 为零。因此
+\(X^TX\) symmetric。并且 \(y^Ty\) 与 \(\theta\) 无关，其 gradient 为零。因此
 
 $$\nabla_\theta J(\theta)=\frac12\left(2X^TX\theta-2X^Ty+0\right)$$
 
@@ -390,9 +390,9 @@ $$\nabla_\theta J(\theta)=X^T(X\theta-y).$$
 
 Dimension check：
 
-* $X^TX\theta\in\mathbb{R}^{(n+1)\times1}$；
-* $X^Ty\in\mathbb{R}^{(n+1)\times1}$；
-* $\nabla_\theta J(\theta)$ 与 $\theta$ shape 相同。
+* \(X^TX\theta\in\mathbb{R}^{(n+1)\times1}\)；
+* \(X^Ty\in\mathbb{R}^{(n+1)\times1}\)；
+* \(\nabla_\theta J(\theta)\) 与 \(\theta\) shape 相同。
 
 ### Step 5: solve the stationary condition
 
@@ -404,7 +404,7 @@ $$X^TX\hat{\theta}-X^Ty=0,$$
 
 $$\boxed{X^TX\hat{\theta}=X^Ty}.$$
 
-这就是 normal equation。若 $X^TX$ invertible，
+这就是 normal equation。若 \(X^TX\) invertible，
 
 $$\boxed{\hat{\theta}=(X^TX)^{-1}X^Ty}.$$
 
@@ -412,11 +412,11 @@ $$\boxed{\hat{\theta}=(X^TX)^{-1}X^Ty}.$$
 
 ### Step 6: understand non-invertibility
 
-$X^TX$ 可能不 invertible，原因包括：
+\(X^TX\) 可能不 invertible，原因包括：
 
 * redundant features；
 * exact or near multicollinearity；
-* $m<n+1$，参数维数超过样本提供的独立约束；
+* \(m<n+1\)，参数维数超过样本提供的独立约束；
 * design matrix rank deficiency。
 
 可能的处理方式包括：
@@ -451,7 +451,7 @@ Therefore, \(\hat{y}\) is the orthogonal projection of \(y\) onto \(\mathrm{Col}
 
 ![Normal equation as orthogonal projection](../../assets/figures/lecture02-normal-equation-projection.png)
 
-图中 subspace line 表示 $\mathrm{Col}(X)$，$\hat{y}=X\hat{\theta}$ 位于该 subspace 上，residual 从 projection point 垂直指向 $y$。这条正交关系与 normal equation 完全等价。
+图中 subspace line 表示 \(\mathrm{Col}(X)\)，\(\hat{y}=X\hat{\theta}\) 位于该 subspace 上，residual 从 projection point 垂直指向 \(y\)。这条正交关系与 normal equation 完全等价。
 
 ## 11. Probabilistic Interpretation and MLE
 
@@ -477,8 +477,8 @@ $$L(\theta) =\prod_{i=1}^{m} p(y^{(i)}\mid x^{(i)};\theta).$$
 
 Probability 与 likelihood 使用同一 density，但关注对象不同：
 
-* probability view：固定 $\theta$，把尚未观测的 $y$ 看作 random variable；
-* likelihood view：观测到的 $y$ 已固定，把 $\theta$ 看作要比较和优化的变量。
+* probability view：固定 \(\theta\)，把尚未观测的 \(y\) 看作 random variable；
+* likelihood view：观测到的 \(y\) 已固定，把 \(\theta\) 看作要比较和优化的变量。
 
 取 log：
 

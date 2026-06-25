@@ -72,7 +72,7 @@ $$h_\theta(x) = \theta^T x$$
 
 $$h_\theta(x) = \sigma(\theta^T x)$$
 
-其中 $\sigma(\cdot)$ 是 sigmoid function，用来把线性分数映射到概率区间。Neural network 则可以被看作更 expressive 的 function class，通过多层非线性变换学习复杂映射。
+其中 \(\sigma(\cdot)\) 是 sigmoid function，用来把线性分数映射到概率区间。Neural network 则可以被看作更 expressive 的 function class，通过多层非线性变换学习复杂映射。
 
 Hypothesis class 不只是技术选择，它编码了 inductive bias：
 
@@ -108,7 +108,7 @@ Regression 问的是：“How much?” Classification 问的是：“Which class
 | Output type | Real-valued prediction, e.g. price or temperature | Class label or class probability |
 | Examples | Housing price, rainfall amount, demand forecasting | Spam detection, disease category, image class |
 | Model examples | Linear regression, ridge regression, regression trees, neural regression models | Logistic regression, SVM, Naive Bayes, neural classifiers |
-| Evaluation metrics | MSE, RMSE, MAE, $R^2$ | Accuracy, precision, recall, F1, ROC-AUC, PR-AUC, calibration |
+| Evaluation metrics | MSE, RMSE, MAE, \(R^2\) | Accuracy, precision, recall, F1, ROC-AUC, PR-AUC, calibration |
 | Core question | How close is the predicted quantity to the true value? | Is the predicted class correct, and how reliable is the decision? |
 
 Regression error 通常可以解释为数值偏差大小，例如预测价格偏高多少。Classification error 则常常涉及 decision boundary：模型把 feature space 划分成不同类别区域，错误可能发生在边界附近，也可能来自类别重叠、标签噪声或表示不足。
