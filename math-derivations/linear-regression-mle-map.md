@@ -606,56 +606,64 @@ $J$ strictly convex，minimizer 唯一。
 
 ## 8. Projection Geometry
 
+In this note, $\mathrm{Col}(X)$ denotes the column space of $X$.
+
 Normal equation 为
 
-$$
+\[
 X^TX\hat{\theta}=X^Ty.
-$$
+\]
 
 移项：
 
-$$
+\[
 X^T(y-X\hat{\theta})=0.
-$$
+\]
 
 令
 
-$$
+\[
 \hat{y}=X\hat{\theta},
 \qquad
 e=y-\hat{y}.
-$$
+\]
 
 由于 $\hat{y}$ 是 $X$ columns 的 linear combination，
 
-$$
-\hat{y}\in\operatorname{col}(X).
-$$
+\[
+\hat{y}\in\mathrm{Col}(X).
+\]
 
 而
 
-$$
-X^Te=0
-$$
+\[
+X^Te=0.
+\]
 
-意味着 $e$ 与 $X$ 的每一列正交，因此与整个 $\operatorname{col}(X)$ 正交。于是存在 orthogonal decomposition：
+意味着 $e$ 与 $X$ 的每一列正交，因此与整个 $\mathrm{Col}(X)$ 正交：
 
-$$
+\[
+e=y-X\hat{\theta}\perp\mathrm{Col}(X).
+\]
+
+于是存在 orthogonal decomposition：
+
+\[
 y=\hat{y}+e,
 \qquad
-\hat{y}\in\operatorname{col}(X),
+\hat{y}\in\mathrm{Col}(X),
 \qquad
-e\in\operatorname{col}(X)^\perp.
-$$
+e\in\mathrm{Col}(X)^\perp.
+\]
 
 因此
 
-$$
+\[
 \boxed{
 X\hat{\theta}
-=\operatorname{Proj}_{\operatorname{col}(X)}y
+=\mathrm{Proj}_{\mathrm{Col}(X)}y
 }.
-$$
+\]
 
 “Normal equation”中的 normal 正对应 residual 对 column space 的 normal / orthogonal 关系。
 
@@ -748,15 +756,14 @@ $$
 
 因此 maximizing log likelihood 等价于 minimizing residual sum of squares：
 
-$$
+\[
 \boxed{
-\arg\max_\theta\ell(\theta)
+\underset{\theta}{\mathrm{argmax}}\ \ell(\theta)
 =
-\arg\min_\theta
-\sum_{i=1}^{m}
-(y^{(i)}-\theta^Tx^{(i)})^2
+\underset{\theta}{\mathrm{argmin}}\;
+\sum_{i=1}^{m}\left(y^{(i)}-\theta^T x^{(i)}\right)^2
 }.
-$$
+\]
 
 所以 ordinary least-squares estimator 同时是该 Gaussian model 下的 maximum likelihood estimator。
 

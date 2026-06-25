@@ -597,21 +597,35 @@ $X^TX$ 可能不 invertible，原因包括：
 
 令 fitted vector 为
 
-$$
+\[
 \hat{y}=X\hat{\theta}.
-$$
+\]
 
-因为 $\hat{y}$ 是 $X$ columns 的 linear combination，所以 $\hat{y}\in\operatorname{col}(X)$。Normal equation 可重写为
+In this note, $\mathrm{Col}(X)$ denotes the column space of $X$.
 
-$$
+Because $\hat{y}$ is a linear combination of the columns of $X$, it lies in the column space:
+
+\[
+\hat{y}\in\mathrm{Col}(X).
+\]
+
+The normal equation can be rewritten as
+
+\[
 X^T(y-X\hat{\theta})=0.
-$$
+\]
 
-这表示 residual $y-X\hat{\theta}$ 与 $X$ 的每一列都 orthogonal。因此 $X\hat{\theta}$ 是 $y$ 到 column space $\operatorname{col}(X)$ 的 orthogonal projection。
+This means the residual vector $y-X\hat{\theta}$ is orthogonal to every column of $X$:
+
+\[
+y-X\hat{\theta}\perp\mathrm{Col}(X).
+\]
+
+Therefore, $\hat{y}=X\hat{\theta}$ is the orthogonal projection of $y$ onto $\mathrm{Col}(X)$.
 
 ![Normal equation as orthogonal projection](../../assets/figures/lecture02-normal-equation-projection.png)
 
-图中 subspace line 表示 $\operatorname{col}(X)$，$\hat{y}=X\hat{\theta}$ 位于该 subspace 上，residual 从 projection point 垂直指向 $y$。这条正交关系与 normal equation 完全等价。
+图中 subspace line 表示 $\mathrm{Col}(X)$，$\hat{y}=X\hat{\theta}$ 位于该 subspace 上，residual 从 projection point 垂直指向 $y$。这条正交关系与 normal equation 完全等价。
 
 ## 11. Probabilistic Interpretation and MLE
 
@@ -680,13 +694,12 @@ $$
 
 Log 是 strictly increasing function，所以 maximizing $L(\theta)$ 等价于 maximizing $\ell(\theta)$。第一项与 $\theta$ 无关，第二项前的 $-1/(2\sigma^2)$ 是负常数，因此
 
-$$
-\arg\max_\theta\ell(\theta)
+\[
+\underset{\theta}{\mathrm{argmax}}\ \ell(\theta)
 =
-\arg\min_\theta
-\sum_{i=1}^{m}
-(y^{(i)}-\theta^Tx^{(i)})^2.
-$$
+\underset{\theta}{\mathrm{argmin}}\;
+\sum_{i=1}^{m}\left(y^{(i)}-\theta^T x^{(i)}\right)^2.
+\]
 
 所以 Gaussian noise MLE 与 ordinary least squares 有相同的 parameter estimate。
 

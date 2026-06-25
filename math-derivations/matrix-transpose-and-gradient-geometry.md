@@ -72,9 +72,9 @@ $$
 因此，$AB$ 的第 $j$ 列是 $A$ columns 的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。由此立即得到
 
 $$
-\operatorname{col}(AB)
+\mathrm{Col}(AB)
 \subseteq
-\operatorname{col}(A).
+\mathrm{Col}(A).
 $$
 
 ## 3. Row-Space View
@@ -108,9 +108,9 @@ $$
 所以 $AB$ 的第 $i$ 行是 $B$ rows 的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。相应地，
 
 $$
-\operatorname{row}(AB)
+\mathrm{Row}(AB)
 \subseteq
-\operatorname{row}(B).
+\mathrm{Row}(B).
 $$
 
 Column view 与 row view 描述的是同一个 operation：中间 index $k$ 决定如何组合 $A$ 的 columns 或 $B$ 的 rows。
@@ -379,7 +379,7 @@ $$
 把该 vector orthogonally projected onto the $xy$-plane，删除 $z$ component：
 
 $$
-\operatorname{Proj}_{xy}(\nabla F)
+\mathrm{Proj}_{xy}(\nabla F)
 =
 \begin{bmatrix}
 f_x\\
