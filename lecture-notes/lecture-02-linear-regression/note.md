@@ -692,7 +692,7 @@ $$
 \end{aligned}
 $$
 
-Log 是 strictly increasing function，所以 maximizing $L(\theta)$ 等价于 maximizing $\ell(\theta)$。第一项与 $\theta$ 无关，第二项前的 $-1/(2\sigma^2)$ 是负常数，因此
+Log 是 strictly increasing function，所以 maximizing $L(\theta)$ 等价于 maximizing $\ell(\theta)$。第一项与 $\theta$ 无关，第二项前的 $-1/(2\sigma^2)$ 是负常数。Maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
 
 \[
 \underset{\theta}{\mathrm{argmax}}\ \ell(\theta)

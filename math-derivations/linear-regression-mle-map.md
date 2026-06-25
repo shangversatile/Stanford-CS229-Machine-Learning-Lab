@@ -754,7 +754,7 @@ $$
 -\frac{1}{2\sigma^2}<0.
 $$
 
-因此 maximizing log likelihood 等价于 minimizing residual sum of squares：
+Maximizing the Gaussian log likelihood is equivalent to minimizing the squared-error objective:
 
 \[
 \boxed{
