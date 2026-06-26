@@ -28,6 +28,6 @@ Run the read-only compatibility audit from the repository root:
 python tools/audit_markdown_math.py
 ```
 
-The script recursively scans Markdown files, ignores fenced code blocks, and enforces backslash-parenthesis inline math and single-line double-dollar display formulas. It also reports forbidden delimiters and macros, raw LaTeX command lines, and doubled backslashes outside math delimiters. It does not modify files and exits with a nonzero status when rendering issues are found.
+The script recursively scans Markdown files, ignores fenced code blocks, and enforces `$...$` inline math plus single-line `$$...$$` display formulas. It reports legacy backslash-parenthesis inline delimiters, bracket-style display delimiters, standalone double-dollar lines, unsupported macros, malformed arg notation, raw LaTeX command lines, and display formulas that are not on one physical Markdown line. It does not modify files and exits with a nonzero status when rendering issues are found.
 
 See [Markdown Math Style Guide](markdown-math-style-guide.md) for the repository conventions enforced by the audit.

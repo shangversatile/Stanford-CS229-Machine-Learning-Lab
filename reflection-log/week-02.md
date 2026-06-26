@@ -7,7 +7,7 @@ Lecture 2: Supervised Learning Setup and Linear Regression 已完成。主笔记
 本周还补充了两个容易被公式压缩掉的基础推导：
 
 * gradient 为什么与 contour tangent 垂直，包括 curve-based proof 和 surface-normal projection proof；
-* 为什么 \((AB)^T=B^TA^T\)，包括 entry-wise、column-space、row-space 和 linear-map 解释。
+* 为什么 $(AB)^T=B^TA^T$，包括 entry-wise、column-space、row-space 和 linear-map 解释。
 
 同时生成了六张 matplotlib educational figures，用于连接 fitted residual、quadratic loss、gradient geometry、surface normal、optimization path 和 normal-equation projection。
 
@@ -23,7 +23,7 @@ Loss minimization 把理论模型与工程计算连接起来。Squared loss 把 
 
 Gradient descent 是 numerical method：它通过 local first-order information 逐步逼近 optimum。Normal equation 是 analytic method：它通过 stationary condition 和 linear algebra 得到 ordinary least-squares solution。
 
-Residual 定义为 \(h_\theta(x)-y\) 或 \(y-h_\theta(x)\) 不会改变 squared objective 和 optimum，但会改变一阶 residual 与 update 的 sign convention。因此推导和实现必须固定同一种 convention。
+Residual 定义为 $h_\theta(x)-y$ 或 $y-h_\theta(x)$ 不会改变 squared objective 和 optimum，但会改变一阶 residual 与 update 的 sign convention。因此推导和实现必须固定同一种 convention。
 
 Learning rate 不应被理解为孤立的超参数。它与 objective curvature、feature scaling、conditioning、gradient noise 和 batch construction 共同决定有效 update。
 

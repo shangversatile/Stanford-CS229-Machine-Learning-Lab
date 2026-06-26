@@ -1,23 +1,23 @@
-﻿# Linear Regression: Least Squares, Normal Equation, and MLE
+# Linear Regression: Least Squares, Normal Equation, and MLE
 
 ## 1. Setup and Dimensions
 
-设有 \(m\) 个 training examples，每个 raw input 有 \(n\) 个 features。加入 intercept coordinate \(x_0=1\) 后：
+设有 $m$ 个 training examples，每个 raw input 有 $n$ 个 features。加入 intercept coordinate $x_0=1$ 后：
 
 | Symbol | Meaning | Shape |
 | ------ | ------- | ----- |
-| \(m\) | Number of samples | Scalar |
-| \(n\) | Number of original features | Scalar |
-| \(x^{(i)}\) | Augmented feature vector for sample \(i\) | \((n+1)\times1\) |
-| \(y^{(i)}\) | Target for sample \(i\) | Scalar |
-| \(X\) | Design matrix; row \(i\) is \((x^{(i)})^T\) | \(m\times(n+1)\) |
-| \(\theta\) | Parameter vector including intercept | \((n+1)\times1\) |
-| \(y\) | Target vector | \(m\times1\) |
-| \(X\theta\) | Vector of fitted values | \(m\times1\) |
-| \(r=X\theta-y\) | Residual vector under this note's convention | \(m\times1\) |
-| \(X^TX\) | Gram matrix | \((n+1)\times(n+1)\) |
-| \(X^Ty\) | Feature-target cross-product | \((n+1)\times1\) |
-| \(J(\theta)\) | Least-squares objective | Scalar |
+| $m$ | Number of samples | Scalar |
+| $n$ | Number of original features | Scalar |
+| $x^{(i)}$ | Augmented feature vector for sample $i$ | $(n+1)\times1$ |
+| $y^{(i)}$ | Target for sample $i$ | Scalar |
+| $X$ | Design matrix; row $i$ is $(x^{(i)})^T$ | $m\times(n+1)$ |
+| $\theta$ | Parameter vector including intercept | $(n+1)\times1$ |
+| $y$ | Target vector | $m\times1$ |
+| $X\theta$ | Vector of fitted values | $m\times1$ |
+| $r=X\theta-y$ | Residual vector under this note's convention | $m\times1$ |
+| $X^TX$ | Gram matrix | $(n+1)\times(n+1)$ |
+| $X^Ty$ | Feature-target cross-product | $(n+1)\times1$ |
+| $J(\theta)$ | Least-squares objective | Scalar |
 
 Hypothesis：
 
@@ -27,13 +27,13 @@ Design matrix：
 
 $$X= \begin{bmatrix} (x^{(1)})^T\\ \vdots\\ (x^{(m)})^T \end{bmatrix}, \qquad y= \begin{bmatrix} y^{(1)}\\ \vdots\\ y^{(m)} \end{bmatrix}.$$
 
-于是第 \(i\) 个分量满足
+于是第 $i$ 个分量满足
 
 $$(X\theta)_i=(x^{(i)})^T\theta=h_\theta(x^{(i)}).$$
 
 ## 2. Scalar Objective
 
-对样本 \(i\) 定义 residual
+对样本 $i$ 定义 residual
 
 $$r^{(i)}=\theta^Tx^{(i)}-y^{(i)}.$$
 
@@ -63,7 +63,7 @@ $$e_i(\theta)=\theta^Tx^{(i)}-y^{(i)} =\sum_{k=0}^{n}\theta_kx_k^{(i)}-y^{(i)}.$
 
 $$J_i(\theta)=\frac12e_i(\theta)^2.$$
 
-对 \(\theta_j\) 求偏导。Chain rule 给出
+对 $\theta_j$ 求偏导。Chain rule 给出
 
 $$\frac{\partial J_i}{\partial\theta_j} = \frac{\partial J_i}{\partial e_i} \cdot \frac{\partial e_i}{\partial\theta_j}.$$
 
@@ -103,7 +103,7 @@ $$\boxed{ \theta_j \leftarrow \theta_j+\alpha (y^{(i)}-h_\theta(x^{(i)}))x_j^{(i
 
 $$J(\theta) =\frac12\sum_{i=1}^{m} (\theta^Tx^{(i)}-y^{(i)})^2$$
 
-开始。对 \(\theta_j\) 求偏导：
+开始。对 $\theta_j$ 求偏导：
 
 $$\frac{\partial J}{\partial\theta_j}=\sum_{i=1}^{m} \frac{\partial}{\partial\theta_j} \frac12(\theta^Tx^{(i)}-y^{(i)})^2$$
 
@@ -113,7 +113,7 @@ $$\frac{\partial J}{\partial\theta_j}=\sum_{i=1}^{m} (\theta^Tx^{(i)}-y^{(i)})x_
 
 $$\nabla_\theta J(\theta) = \sum_{i=1}^{m} x^{(i)}\left((x^{(i)})^T\theta-y^{(i)}\right).$$
 
-而 \(X\theta-y\) 收集了所有 scalar residual，左乘 \(X^T\) 正好对 samples 求上述加权和：
+而 $X\theta-y$ 收集了所有 scalar residual，左乘 $X^T$ 正好对 samples 求上述加权和：
 
 $$\boxed{ \nabla_\theta J(\theta)=X^T(X\theta-y) }.$$
 
@@ -121,7 +121,7 @@ Dimension check：
 
 $$X^T(X\theta-y): \quad ((n+1)\times m)(m\times1) =(n+1)\times1.$$
 
-这与 \(\theta\) 的 shape 一致。
+这与 $\theta$ 的 shape 一致。
 
 ### 4.2 From matrix form
 
@@ -177,7 +177,7 @@ $$J(\theta)=\frac12\left( \theta^TX^TX\theta -\theta^TX^Ty -y^TX\theta +y^Ty \ri
 
 ### Step 3: identify equal scalar cross terms
 
-由于 \(\theta^TX^Ty\) 是 scalar，
+由于 $\theta^TX^Ty$ 是 scalar，
 
 $$\theta^TX^Ty =(\theta^TX^Ty)^T =y^TX\theta.$$
 
@@ -187,7 +187,7 @@ $$J(\theta) =\frac12\left( \theta^TX^TX\theta -2y^TX\theta +y^Ty \right).$$
 
 ### Step 4: differentiate each term
 
-\(X^TX\) symmetric，因为
+$X^TX$ symmetric，因为
 
 $$(X^TX)^T=X^T(X^T)^T=X^TX.$$
 
@@ -203,7 +203,7 @@ $$y^TX\theta=(X^Ty)^T\theta,$$
 
 $$\nabla_\theta(y^TX\theta)=X^Ty.$$
 
-\(y^Ty\) 与 \(\theta\) 无关，所以
+$y^Ty$ 与 $\theta$ 无关，所以
 
 $$\nabla_\theta(y^Ty)=0.$$
 
@@ -231,7 +231,7 @@ $$\boxed{ X^TX\hat{\theta}=X^Ty }.$$
 
 ### Step 6: solve when invertible
 
-若 \(X^TX\) invertible，在等式左侧乘 \((X^TX)^{-1}\)：
+若 $X^TX$ invertible，在等式左侧乘 $(X^TX)^{-1}$：
 
 $$(X^TX)^{-1}X^TX\hat{\theta} =(X^TX)^{-1}X^Ty.$$
 
@@ -257,7 +257,7 @@ $$((n+1)\times(n+1)) ((n+1)\times m) (m\times1) =(n+1)\times1.$$
 
 $$f(x)=a^Tx=\sum_{i=1}^{d}a_ix_i.$$
 
-则第 \(j\) 个偏导为
+则第 $j$ 个偏导为
 
 $$\frac{\partial f}{\partial x_j}=a_j.$$
 
@@ -271,7 +271,7 @@ $$\boxed{\nabla_x(a^Tx)=a}.$$
 
 $$f(x)=x^TAx =\sum_{i=1}^{d}\sum_{j=1}^{d}x_iA_{ij}x_j.$$
 
-对 \(x_k\) 求偏导。\(x_k\) 可能出现在左侧因子 \(x_i\)，也可能出现在右侧因子 \(x_j\)：
+对 $x_k$ 求偏导。$x_k$ 可能出现在左侧因子 $x_i$，也可能出现在右侧因子 $x_j$：
 
 $$\frac{\partial f}{\partial x_k}=\sum_{j=1}^{d}A_{kj}x_j + \sum_{i=1}^{d}x_iA_{ik}$$
 
@@ -281,7 +281,7 @@ $$\frac{\partial f}{\partial x_k}=(Ax)_k+(A^Tx)_k.$$
 
 $$\boxed{ \nabla_x(x^TAx)=(A+A^T)x }.$$
 
-若 \(A=A^T\)，
+若 $A=A^T$，
 
 $$\boxed{ \nabla_x(x^TAx)=2Ax }.$$
 
@@ -311,11 +311,11 @@ Gradient 为
 
 $$\nabla_\theta J(\theta) =X^TX\theta-X^Ty.$$
 
-再对 \(\theta\) 求导得到 Hessian：
+再对 $\theta$ 求导得到 Hessian：
 
 $$\boxed{ \nabla_\theta^2J(\theta)=X^TX }.$$
 
-对任意 \(v\in\mathbb{R}^{n+1}\)，
+对任意 $v\in\mathbb{R}^{n+1}$，
 
 $$v^TX^TXv =(Xv)^T(Xv) =\lVert Xv\rVert_2^2 \geq0.$$
 
@@ -323,9 +323,9 @@ $$v^TX^TXv =(Xv)^T(Xv) =\lVert Xv\rVert_2^2 \geq0.$$
 
 $$X^TX\succeq0,$$
 
-从而 \(J(\theta)\) convex。Convex differentiable function 的任何 stationary point 都是 global minimizer。
+从而 $J(\theta)$ convex。Convex differentiable function 的任何 stationary point 都是 global minimizer。
 
-若 \(X\) full column rank，则对任意 \(v\neq0\)，
+若 $X$ full column rank，则对任意 $v\neq0$，
 
 $$Xv\neq0,$$
 
@@ -337,19 +337,19 @@ $$v^TX^TXv=\lVert Xv\rVert_2^2>0.$$
 
 $$X^TX\succ0,$$
 
-\(J\) strictly convex，minimizer 唯一。
+$J$ strictly convex，minimizer 唯一。
 
-若 \(X\) rank deficient，objective 仍 convex，但可能存在多个 parameter vectors 产生相同 fitted values。Pseudo-inverse 可选择 minimum-norm solution。
+若 $X$ rank deficient，objective 仍 convex，但可能存在多个 parameter vectors 产生相同 fitted values。Pseudo-inverse 可选择 minimum-norm solution。
 
 ## 8. Projection Geometry
 
-Here, \(\mathrm{Col}(X)\) denotes the column space of \(X\).
+Here, $\mathrm{Col}(X)$ denotes the column space of $X$.
 
 The fitted vector is
 
 $$\hat{y}=X\hat{\theta}.$$
 
-Because \(\hat{y}\) is a linear combination of the columns of \(X\), it lies in the column space:
+Because $\hat{y}$ is a linear combination of the columns of $X$, it lies in the column space:
 
 $$\hat{y}\in \mathrm{Col}(X).$$
 
@@ -361,9 +361,9 @@ This means the residual vector is orthogonal to the column space:
 
 $$y-X\hat{\theta}\perp \mathrm{Col}(X).$$
 
-Therefore, \(\hat{y}\) is the orthogonal projection of \(y\) onto \(\mathrm{Col}(X)\).
+Therefore, $\hat{y}$ is the orthogonal projection of $y$ onto $\mathrm{Col}(X)$.
 
-Equivalently, with \(e=y-\hat{y}\),
+Equivalently, with $e=y-\hat{y}$,
 
 $$y=\hat{y}+e, \qquad \hat{y}\in\mathrm{Col}(X), \qquad e\in\mathrm{Col}(X)^\perp.$$
 
@@ -401,7 +401,7 @@ $$L(\theta)=p(y\mid X;\theta)$$
 
 $$L(\theta)=\prod_{i=1}^{m} p(y^{(i)}\mid x^{(i)};\theta).$$
 
-这里 observed \(X,y\) 固定，likelihood 是 \(\theta\) 的函数。
+这里 observed $X,y$ 固定，likelihood 是 $\theta$ 的函数。
 
 ### 9.4 Log likelihood
 
@@ -413,7 +413,7 @@ $$\ell(\theta)=-\frac{m}{2}\log(2\pi\sigma^2) -\frac{1}{2\sigma^2} \sum_{i=1}^{m
 
 ### 9.5 MLE to least squares
 
-第一项不依赖 \(\theta\)。因为 \(\sigma^2>0\)，
+第一项不依赖 $\theta$。因为 $\sigma^2>0$，
 
 $$-\frac{1}{2\sigma^2}<0.$$
 
@@ -433,8 +433,8 @@ Least squares 在以下条件下可能不可靠：
 * **Heavy-tailed noise**：极端 residual 比 Gaussian model 预期更频繁；
 * **Heteroscedasticity**：constant variance assumption 失效；
 * **Correlated errors**：iid assumption 失效，常见于 temporal / spatial data；
-* **Model misspecification**：\(\mathbb{E}[y\mid x]\) 不能由所选 features 的线性组合表达；
-* **Multicollinearity**：\(X^TX\) ill-conditioned，parameter estimates 对扰动敏感；
+* **Model misspecification**：$\mathbb{E}[y\mid x]$ 不能由所选 features 的线性组合表达；
+* **Multicollinearity**：$X^TX$ ill-conditioned，parameter estimates 对扰动敏感；
 * **Rank deficiency**：parameter solution 不唯一；
 * **Label noise**：错误 observations 被平方项放大；
 * **Distribution shift**：训练条件下的 relation 不再适用于测试或部署；
