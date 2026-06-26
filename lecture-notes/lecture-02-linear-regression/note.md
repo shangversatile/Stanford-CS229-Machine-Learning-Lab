@@ -317,11 +317,20 @@ $$(AB)^T=B^TA^T.$$
 
 Matrix multiplication 有三个互补视角：
 
-1. Entry-wise：对 $C=AB$，$C_{ij}=\sum_k A_{ik}B_{kj}$。
-2. Column view：each column of $AB$ is a linear combination of columns of $A$。
-3. Row view：each row of $AB$ is a linear combination of rows of $B$。
+1. Entry-wise view focuses on the scalar row-column formula:
 
-Transpose reverses the order of composition：$B$ acts first in $ABx=A(Bx)$，but the transpose product is $(AB)^T=B^TA^T$。
+$$C_{ij}=\sum_k A_{ik}B_{kj}.$$
+
+2. Column view: each column of $AB$ is a linear combination of columns of $A$.
+3. Row view: each row of $AB$ is a linear combination of rows of $B$.
+
+For column-vector convention,
+
+$$ABx=A(Bx).$$
+
+The transpose product reverses the composition order:
+
+$$(AB)^T=B^TA^T.$$
 
 完整推导见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
 

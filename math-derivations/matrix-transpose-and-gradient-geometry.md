@@ -4,19 +4,23 @@
 
 ## 1. Dimension Setup
 
-设 $A\in\mathbb{R}^{m\times n}$，$B\in\mathbb{R}^{n\times p}$。令
+设矩阵 dimensions 为
+
+$$A\in\mathbb{R}^{m\times n},\qquad B\in\mathbb{R}^{n\times p}$$
+
+令
 
 $$C=AB\in\mathbb{R}^{m\times p}.$$
 
-这里的 dimension condition 是 essential：$A$ 的 columns 数必须等于 $B$ 的 rows 数，也就是共同的内维 $n$。后面的求和都沿着这个 shared index 展开。
+这里的 dimension condition 是 essential: the number of columns of $A$ must equal the number of rows of $B$; this common inner dimension is $n$. 后面的求和都沿着这个 shared index 展开。
 
 本文使用以下 notation：
 
-* $A_{i:}$：$A$ 的第 $i$ 行；
-* $A_{:k}$：$A$ 的第 $k$ 列；
-* $B_{k:}$：$B$ 的第 $k$ 行；
-* $B_{:j}$：$B$ 的第 $j$ 列；
-* $C_{ij}$：$C$ 的第 $i$ 行、第 $j$ 列 entry。
+* $A_{i:}$ 表示 $A$ 的第 $i$ 行；
+* $A_{:k}$ 表示 $A$ 的第 $k$ 列；
+* $B_{k:}$ 表示 $B$ 的第 $k$ 行；
+* $B_{:j}$ 表示 $B$ 的第 $j$ 列；
+* $C_{ij}$ 表示 $C$ 的第 $i$ 行、第 $j$ 列 entry。
 
 ## 2. Entry-wise Row-Column View
 
@@ -24,7 +28,7 @@ Matrix product 的最局部定义是单个 entry：
 
 $$C_{ij}=(AB)_{ij}=A_{i:}B_{:j}=\sum_{k=1}^{n}A_{ik}B_{kj}.$$
 
-也就是说，$AB$ 的 $(i,j)$ entry 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。这个视角关注一个 scalar output：每个输出 entry 都由一次 row-column interaction 产生。
+也就是说，product $AB$ 的 $(i,j)$ entry 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。这个视角关注一个 scalar output：每个输出 entry 都由一次 row-column interaction 产生。
 
 ## 3. Column View: Columns of $AB$ as Linear Combinations of Columns of $A$
 
@@ -40,7 +44,7 @@ $$AB_{:j}=B_{1j}A_{:1}+B_{2j}A_{:2}+\cdots+B_{nj}A_{:n}.$$
 
 $$C_{:j}=\sum_{k=1}^{n}B_{kj}A_{:k}.$$
 
-这说明 $AB$ 的第 $j$ 列是 $A$ 的 columns 的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。更精确地说，$B_{:j}$ 提供 coefficients；真正被组合的 vectors 是 $A$ 的 columns。由此也可以看出
+这说明 $AB$ 的第 $j$ 列是 $A$ 的 columns 的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。更精确地说，column vector $B_{:j}$ 提供 coefficients；真正被组合的 vectors 是 $A$ 的 columns。由此也可以看出
 
 $$\mathrm{Col}(AB)\subseteq\mathrm{Col}(A).$$
 
@@ -78,7 +82,11 @@ $$C_{ij}=\sum_{k=1}^{n}A_{ik}B_{kj}.$$
 
 ## 6. Entry-wise Proof of $(AB)^T=B^TA^T$
 
-令 $D=(AB)^T$。则
+令
+
+$$D=(AB)^T$$
+
+则
 
 $$D_{ij}=((AB)^T)_{ij}=(AB)_{ji}.$$
 
@@ -86,7 +94,11 @@ $$D_{ij}=((AB)^T)_{ij}=(AB)_{ji}.$$
 
 $$(AB)_{ji}=\sum_{k=1}^{n}A_{jk}B_{ki}.$$
 
-现在考虑 $E=B^TA^T$。它的 $(i,j)$ entry 为
+现在考虑
+
+$$E=B^TA^T$$
+
+它的 $(i,j)$ entry 为
 
 $$E_{ij}=(B^TA^T)_{ij}=\sum_{k=1}^{n}(B^T)_{ik}(A^T)_{kj}.$$
 
@@ -116,13 +128,13 @@ $$(AB)^T=B^TA^T.$$
 
 Transpose operation swaps rows and columns。因为 matrix multiplication 既可以从 row-combination 角度读，也可以从 column-combination 角度读，转置 product 会迫使我们把 final rows 重新解释为 columns，把 final columns 重新解释为 rows。
 
-形成 $AB$ 时，$B$ 的 columns 被 $A$ 作用，等价地，$B$ 的 rows 按照 $A$ 的 rows 提供的 coefficients 被组合。转置之后，rows 与 columns 的角色交换，所以原来最后作用的 factor 必须先出现。
+形成 product $AB$ 时，matrix $A$ acts on the columns of matrix $B$; equivalently, rows of $B$ 按照 rows of $A$ 提供的 coefficients 被组合。转置之后，rows 与 columns 的角色交换，所以原来最后作用的 factor 必须先出现。
 
 Linear map interpretation 给出更直接的解释。若 vectors 都看作 column vectors，则 $ABx$ 表示
 
 $$ABx=A(Bx).$$
 
-所以 $B$ 先作用，$A$ 后作用。对 transpose，corresponding composition reverses：
+所以 $B$ 先作用，而 $A$ 后作用。对 transpose，corresponding composition reverses：
 
 $$(AB)^T=B^TA^T.$$
 
@@ -152,7 +164,7 @@ $$(X\theta)^T=\theta^TX^T$$
 
 $$f:\mathbb{R}^2\to\mathbb{R}$$
 
-可微。给定常数 $c$，level set / contour 定义为
+可微。给定常数 $c$ 后，level set / contour 定义为
 
 $$\mathcal{C}_c = \{(x,y):f(x,y)=c\}.$$
 
@@ -190,7 +202,7 @@ $$\nabla f(x(t),y(t))\perp r'(t).$$
 
 这个证明揭示了关键逻辑：沿 contour 的 directional derivative 为零，而 directional derivative 正是 gradient 与移动方向的 inner product。
 
-若 $\nabla f=0$，等式仍成立，但 zero vector 不能定义唯一 normal direction；此时 level set 的局部形状可能需要 higher-order information。
+在 $\nabla f=0$ 的情形下，等式仍成立，但 zero vector 不能定义唯一 normal direction；此时 level set 的局部形状可能需要 higher-order information。
 
 ## 3. Surface-Normal Projection Proof
 
@@ -204,7 +216,7 @@ $$z=f(x,y).$$
 
 $$F(x,y,z)=f(x,y)-z=0.$$
 
-由于 $F$ 在 surface 上恒为零，$\nabla F$ 是 surface 的 normal vector：
+由于 $F$ 在 surface 上恒为零，the vector $\nabla F$ 是 surface 的 normal vector：
 
 $$\boxed{ \nabla F = \begin{bmatrix} f_x\\ f_y\\ -1 \end{bmatrix} }.$$
 
@@ -246,7 +258,7 @@ $$\nabla f^Tr'(t)=0.$$
 
 ## 4. Connection to Gradient Descent
 
-在 point $x$ 附近，对小 displacement $\Delta$，
+在 point $x$ 附近，对小 displacement $\Delta$ 使用 first-order approximation：
 
 $$f(x+\Delta) \approx f(x)+\nabla f(x)^T\Delta.$$
 
