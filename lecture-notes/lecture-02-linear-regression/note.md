@@ -317,11 +317,13 @@ $$(AB)^T=B^TA^T.$$
 
 Matrix multiplication 有三个互补视角：
 
-1. Entry-wise： $(AB)_{ij}$ 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。
-2. Column-space view： $AB$ 的第 $j$ 列是 $A$ 各列的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。
-3. Row-space view： $AB$ 的第 $i$ 行是 $B$ 各行的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。
+1. Entry-wise：对 $C=AB$，$C_{ij}=\sum_k A_{ik}B_{kj}$。
+2. Column view：each column of $AB$ is a linear combination of columns of $A$。
+3. Row view：each row of $AB$ is a linear combination of rows of $B$。
 
-Transpose 会交换 rows 与 columns。原 composition 的最后一步在转置后的表示中必须先被处理，所以乘法顺序反转。详细的 entry-wise proof、column/row interpretation 和 linear-map explanation 见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
+Transpose reverses the order of composition：$B$ acts first in $ABx=A(Bx)$，but the transpose product is $(AB)^T=B^TA^T$。
+
+完整推导见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
 
 ## 10. Normal Equation: Full Derivation
 

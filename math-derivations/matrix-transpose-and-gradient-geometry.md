@@ -2,146 +2,147 @@
 
 # Part I: Why $(AB)^T=B^TA^T$
 
-## 1. Matrix Multiplication as Row-Column Interaction
+## 1. Dimension Setup
 
-设
+设 $A\in\mathbb{R}^{m\times n}$，$B\in\mathbb{R}^{n\times p}$。令
 
-$$A\in\mathbb{R}^{p\times q}, \qquad B\in\mathbb{R}^{q\times r}.$$
+$$C=AB\in\mathbb{R}^{m\times p}.$$
 
-内维 $q$ 相同，因此
+这里的 dimension condition 是 essential：$A$ 的 columns 数必须等于 $B$ 的 rows 数，也就是共同的内维 $n$。后面的求和都沿着这个 shared index 展开。
 
-$$AB\in\mathbb{R}^{p\times r}.$$
+本文使用以下 notation：
 
-Product 的 $(i,j)$ entry 定义为
+* $A_{i:}$：$A$ 的第 $i$ 行；
+* $A_{:k}$：$A$ 的第 $k$ 列；
+* $B_{k:}$：$B$ 的第 $k$ 行；
+* $B_{:j}$：$B$ 的第 $j$ 列；
+* $C_{ij}$：$C$ 的第 $i$ 行、第 $j$ 列 entry。
 
-$$\boxed{ (AB)_{ij} =\sum_{k=1}^{q}A_{ik}B_{kj} }.$$
+## 2. Entry-wise Row-Column View
 
-也就是说，$(AB)_{ij}$ 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。Matrix multiplication 不是逐元素相乘；它通过共享索引 $k$ 聚合中间维度。
+Matrix product 的最局部定义是单个 entry：
 
-## 2. Column-Space View
+$$C_{ij}=(AB)_{ij}=A_{i:}B_{:j}=\sum_{k=1}^{n}A_{ik}B_{kj}.$$
 
-$AB$ 的第 $j$ 列为
+也就是说，$AB$ 的 $(i,j)$ entry 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。这个视角关注一个 scalar output：每个输出 entry 都由一次 row-column interaction 产生。
 
-$$\boxed{ (AB)_{:j}=AB_{:j} }.$$
+## 3. Column View: Columns of $AB$ as Linear Combinations of Columns of $A$
 
-若把 $A$ 写成 columns：
+对第 $j$ 列，
 
-$$A= \begin{bmatrix} A_{:1}&A_{:2}&\cdots&A_{:q} \end{bmatrix},$$
+$$C_{:j}=(AB)_{:j}=AB_{:j}.$$
 
-并把 $B$ 的第 $j$ 列写成
+由于 $B_{:j}$ 是一个 $n$-dimensional coefficient vector，
 
-$$B_{:j} = \begin{bmatrix} B_{1j}\\ B_{2j}\\ \vdots\\ B_{qj} \end{bmatrix},$$
-
-则
-
-$$(AB)_{:j} = \sum_{k=1}^{q}B_{kj}A_{:k}.$$
-
-因此，$AB$ 的第 $j$ 列是 $A$ columns 的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。由此立即得到
-
-$$\mathrm{Col}(AB) \subseteq \mathrm{Col}(A).$$
-
-## 3. Row-Space View
-
-$AB$ 的第 $i$ 行为
-
-$$\boxed{ (AB)_{i:}=A_{i:}B }.$$
-
-若
-
-$$A_{i:} = \begin{bmatrix} A_{i1}&A_{i2}&\cdots&A_{iq} \end{bmatrix},$$
-
-则
-
-$$(AB)_{i:} = \sum_{k=1}^{q}A_{ik}B_{k:}.$$
-
-所以 $AB$ 的第 $i$ 行是 $B$ rows 的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。相应地，
-
-$$\mathrm{Row}(AB) \subseteq \mathrm{Row}(B).$$
-
-Column view 与 row view 描述的是同一个 operation：中间 index $k$ 决定如何组合 $A$ 的 columns 或 $B$ 的 rows。
-
-## 4. Entry-wise Proof of Transpose Identity
-
-目标是证明
-
-$$(AB)^T=B^TA^T.$$
-
-先检查 dimensions：
-
-$$AB\in\mathbb{R}^{p\times r} \quad\Longrightarrow\quad (AB)^T\in\mathbb{R}^{r\times p}.$$
-
-另一方面，
-
-$$B^T\in\mathbb{R}^{r\times q}, \qquad A^T\in\mathbb{R}^{q\times p},$$
-
-所以
-
-$$B^TA^T\in\mathbb{R}^{r\times p}.$$
-
-两边 shape 一致。现在比较任意 $(i,j)$ entry。
-
-由 transpose 定义：
-
-$$\left((AB)^T\right)_{ij}=(AB)_{ji}$$
-
-$$\left((AB)^T\right)_{ij}=\sum_{k=1}^{q}A_{jk}B_{ki}.$$
-
-另一方面，由 matrix multiplication 定义：
-
-$$(B^TA^T)_{ij}=\sum_{k=1}^{q}(B^T)_{ik}(A^T)_{kj}$$
-
-$$(B^TA^T)_{ij}=\sum_{k=1}^{q}B_{ki}A_{jk}.$$
-
-对每个 $k$，$A_{jk}$ 与 $B_{ki}$ 是 scalars，scalar multiplication commutes：
-
-$$A_{jk}B_{ki}=B_{ki}A_{jk}.$$
+$$AB_{:j}=B_{1j}A_{:1}+B_{2j}A_{:2}+\cdots+B_{nj}A_{:n}.$$
 
 因此
 
-$$\sum_{k=1}^{q}A_{jk}B_{ki} = \sum_{k=1}^{q}B_{ki}A_{jk}.$$
+$$C_{:j}=\sum_{k=1}^{n}B_{kj}A_{:k}.$$
 
-所以对所有 $i,j$，
+这说明 $AB$ 的第 $j$ 列是 $A$ 的 columns 的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。更精确地说，$B_{:j}$ 提供 coefficients；真正被组合的 vectors 是 $A$ 的 columns。由此也可以看出
 
-$$\left((AB)^T\right)_{ij} =(B^TA^T)_{ij}.$$
+$$\mathrm{Col}(AB)\subseteq\mathrm{Col}(A).$$
 
-由矩阵相等的 entry-wise definition，
+## 4. Row View: Rows of $AB$ as Linear Combinations of Rows of $B$
 
-$$\boxed{ (AB)^T=B^TA^T }.$$
+对第 $i$ 行，
 
-## 5. Intuitive Explanation of Order Reversal
+$$C_{i:}=(AB)_{i:}=A_{i:}B.$$
 
-一个自然的直觉是：matrix multiplication 通过 linear combinations 生成 rows 或 columns；transpose 交换 row / column roles，因此 composition 的顺序也必须反转。
+由于 $A_{i:}$ 是一个 $n$-dimensional row vector of coefficients，
 
-从 linear maps 看，这个结论更直接。对 column vector $x$，
+$$A_{i:}B=A_{i1}B_{1:}+A_{i2}B_{2:}+\cdots+A_{in}B_{n:}.$$
 
-$$(AB)x=A(Bx).$$
+因此
 
-所以 $AB$ 表示：
+$$C_{i:}=\sum_{k=1}^{n}A_{ik}B_{k:}.$$
 
-1. $B$ 先作用于 $x$；
-2. $A$ 再作用于结果。
+这说明 $AB$ 的第 $i$ 行是 $B$ 的 rows 的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。也就是说，每一行 $A_{i:}$ 提供 coefficients，用来组合 $B$ 的 rows。相应地，
 
-Transpose 描述 inner product 中把 linear map 从一侧移到另一侧的 adjoint operation。对任意兼容向量 $u,v$，
+$$\mathrm{Row}(AB)\subseteq\mathrm{Row}(B).$$
 
-$$\langle u,ABv\rangle =u^TABv.$$
+## 5. Why the Row and Column Views Are Consistent
 
-先把 $A$ 移到左侧：
+Entry-wise view、column view 和 row view 是同一个 matrix multiplication 的三种观察尺度：
 
-$$u^TABv =(A^Tu)^TBv.$$
+* Entry-wise view 关注一个 scalar output；
+* Column view 关注每个 output column 如何形成；
+* Row view 关注每个 output row 如何形成。
 
-再把 $B$ 移到左侧：
+它们最终都回到同一个表达式：
 
-$$(A^Tu)^TBv =(B^TA^Tu)^Tv.$$
+$$C_{ij}=\sum_{k=1}^{n}A_{ik}B_{kj}.$$
 
-因此 composite map 的 transpose 必须先反转最后作用的 $A$，再反转先作用的 $B$：
+因此，matrix multiplication 不只是“row times column”的局部规则；它也是一种 structured linear-combination operation：从 column 角度组合 $A$ 的 columns，从 row 角度组合 $B$ 的 rows。
+
+## 6. Entry-wise Proof of $(AB)^T=B^TA^T$
+
+令 $D=(AB)^T$。则
+
+$$D_{ij}=((AB)^T)_{ij}=(AB)_{ji}.$$
+
+由 entry-wise multiplication rule，
+
+$$(AB)_{ji}=\sum_{k=1}^{n}A_{jk}B_{ki}.$$
+
+现在考虑 $E=B^TA^T$。它的 $(i,j)$ entry 为
+
+$$E_{ij}=(B^TA^T)_{ij}=\sum_{k=1}^{n}(B^T)_{ik}(A^T)_{kj}.$$
+
+根据 transpose 的定义，
+
+$$(B^T)_{ik}=B_{ki}.$$
+
+$$(A^T)_{kj}=A_{jk}.$$
+
+因此
+
+$$E_{ij}=\sum_{k=1}^{n}B_{ki}A_{jk}.$$
+
+因为 $A_{jk}$ 与 $B_{ki}$ 都是 scalars，multiplication commutes：
+
+$$\sum_{k=1}^{n}B_{ki}A_{jk}=\sum_{k=1}^{n}A_{jk}B_{ki}.$$
+
+所以
+
+$$E_{ij}=D_{ij}.$$
+
+由于这对每个 $i$ 和 $j$ 都成立，
 
 $$(AB)^T=B^TA^T.$$
 
-这与函数复合求逆时 order reversal 的逻辑相似：要撤回或对偶化一串 operations，必须从最后一步开始。
+## 7. Intuitive Explanation of Why the Order Reverses
 
-扩展到三个 matrices：
+Transpose operation swaps rows and columns。因为 matrix multiplication 既可以从 row-combination 角度读，也可以从 column-combination 角度读，转置 product 会迫使我们把 final rows 重新解释为 columns，把 final columns 重新解释为 rows。
 
-$$(ABC)^T=C^TB^TA^T.$$
+形成 $AB$ 时，$B$ 的 columns 被 $A$ 作用，等价地，$B$ 的 rows 按照 $A$ 的 rows 提供的 coefficients 被组合。转置之后，rows 与 columns 的角色交换，所以原来最后作用的 factor 必须先出现。
+
+Linear map interpretation 给出更直接的解释。若 vectors 都看作 column vectors，则 $ABx$ 表示
+
+$$ABx=A(Bx).$$
+
+所以 $B$ 先作用，$A$ 后作用。对 transpose，corresponding composition reverses：
+
+$$(AB)^T=B^TA^T.$$
+
+这不是 symbolic trick，而是 transposition 在 dual / inner-product representation 中反转 composition direction 的结果。
+
+## 8. Connection to CS229 Linear Regression
+
+在 linear regression 中，normal equation derivation 会使用
+
+$$J(\theta)=\frac{1}{2}(X\theta-y)^T(X\theta-y).$$
+
+为了正确展开这个 expression，需要
+
+$$(X\theta-y)^T=\theta^TX^T-y^T.$$
+
+其中
+
+$$(X\theta)^T=\theta^TX^T$$
+
+正是 transpose-of-product rule。因此，identity $(AB)^T=B^TA^T$ 不是孤立的 linear algebra fact；它直接支撑 least squares、gradient 和 normal equation 的推导。
 
 # Part II: Why Gradients Are Perpendicular to Contours
 
