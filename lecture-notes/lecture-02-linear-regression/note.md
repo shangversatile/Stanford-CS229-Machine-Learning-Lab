@@ -451,7 +451,7 @@ Therefore, $\hat{y}$ is the orthogonal projection of $y$ onto $\mathrm{Col}(X)$.
 
 ![Normal equation as orthogonal projection](../../assets/figures/lecture02-normal-equation-projection.png)
 
-图中 subspace line 表示 $\mathrm{Col}(X)$，$\hat{y}=X\hat{\theta}$ 位于该 subspace 上，residual 从 projection point 垂直指向 $y$。这条正交关系与 normal equation 完全等价。
+图中 subspace line 表示 $\mathrm{Col}(X)$， $\hat{y}=X\hat{\theta}$ 位于该 subspace 上，residual 从 projection point 垂直指向 $y$。这条正交关系与 normal equation 完全等价。
 
 ## 11. Probabilistic Interpretation and MLE
 
