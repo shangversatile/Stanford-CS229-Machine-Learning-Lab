@@ -317,9 +317,9 @@ $$(AB)^T=B^TA^T.$$
 
 Matrix multiplication 有三个互补视角：
 
-1. Entry-wise：$(AB)_{ij}$ 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。
-2. Column-space view：$AB$ 的第 $j$ 列是 $A$ 各列的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。
-3. Row-space view：$AB$ 的第 $i$ 行是 $B$ 各行的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。
+1. Entry-wise： $(AB)_{ij}$ 是 $A$ 的第 $i$ 行与 $B$ 的第 $j$ 列的 inner product。
+2. Column-space view： $AB$ 的第 $j$ 列是 $A$ 各列的 linear combination，coefficients 来自 $B$ 的第 $j$ 列。
+3. Row-space view： $AB$ 的第 $i$ 行是 $B$ 各行的 linear combination，coefficients 来自 $A$ 的第 $i$ 行。
 
 Transpose 会交换 rows 与 columns。原 composition 的最后一步在转置后的表示中必须先被处理，所以乘法顺序反转。详细的 entry-wise proof、column/row interpretation 和 linear-map explanation 见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
 
@@ -349,10 +349,10 @@ $$J(\theta)=\frac12\left( \theta^TX^TX\theta -\theta^TX^Ty -y^TX\theta +y^Ty \ri
 
 各项 shape 为：
 
-* $\theta^TX^TX\theta$：$(1\times(n+1))((n+1)\times(n+1))((n+1)\times1)$，结果是 scalar；
-* $\theta^TX^Ty$：$(1\times(n+1))((n+1)\times1)$，结果是 scalar；
-* $y^TX\theta$：$(1\times m)(m\times(n+1))((n+1)\times1)$，结果是 scalar；
-* $y^Ty$：$(1\times m)(m\times1)$，结果是 scalar。
+* $\theta^TX^TX\theta$： $(1\times(n+1))((n+1)\times(n+1))((n+1)\times1)$，结果是 scalar；
+* $\theta^TX^Ty$： $(1\times(n+1))((n+1)\times1)$，结果是 scalar；
+* $y^TX\theta$： $(1\times m)(m\times(n+1))((n+1)\times1)$，结果是 scalar；
+* $y^Ty$： $(1\times m)(m\times1)$，结果是 scalar。
 
 ### Step 3: combine the cross terms
 
