@@ -2,7 +2,7 @@
 
 ## 1. Why This Course Should Not Be Studied as a Beginner Course
 
-This repository should not treat CS229 as a beginner survey course. The learner already has partial machine learning background, practical exposure to Python, sklearn, and PyTorch, and prior experience with a robust spatiotemporal forecasting project.
+This repository should not treat CS229 as a beginner survey course. The study plan assumes prior machine learning background, practical exposure to Python, sklearn, and PyTorch, and experience with a robust spatiotemporal forecasting project.
 
 Therefore, the goal is not to memorize basic machine learning categories or produce lecture summaries for every familiar concept. CS229 should be used to rebuild the mathematical, algorithmic, and experimental foundations needed for research-level work. Familiar overview material should be compressed, while derivations, assumptions, implementations, tests, and failure modes should be expanded.
 

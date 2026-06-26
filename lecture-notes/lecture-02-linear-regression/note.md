@@ -235,7 +235,7 @@ Learning rate $\alpha$ 不能脱离 objective geometry 来理解：
 
 $$f(x,y)=c.$$
 
-用户的几何直觉是：沿等高线移动时高度不变，因此“高度增长最快的方向”不应包含沿等高线的切向分量。下面把这个直觉写成严格的 curve-based proof。
+一个自然的几何直觉是：沿等高线移动时高度不变，因此“高度增长最快的方向”不应包含沿等高线的切向分量。下面把这个直觉写成严格的 curve-based proof。
 
 令 contour 上的一条 differentiable curve 为
 

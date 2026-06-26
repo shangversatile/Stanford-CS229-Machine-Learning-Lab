@@ -6,7 +6,7 @@ The goal is not to passively watch lectures or collect notes. The goal is to reb
 
 ## Personalized Study Strategy
 
-This repository follows a depth-weighted CS229 strategy because the learner already has partial ML background. Basic concepts are compressed, while mathematical derivations, assumptions, implementations, tests, and reliability-oriented experiments are expanded.
+This repository follows a depth-weighted CS229 strategy built around prior ML study, practical implementation experience, and research preparation. Basic concepts are compressed, while mathematical derivations, assumptions, implementations, tests, and reliability-oriented experiments are expanded.
 
 See: [syllabus-analysis/personalized-study-policy.md](syllabus-analysis/personalized-study-policy.md)
 

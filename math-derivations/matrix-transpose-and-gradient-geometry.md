@@ -110,7 +110,7 @@ $$\boxed{ (AB)^T=B^TA^T }.$$
 
 ## 5. Intuitive Explanation of Order Reversal
 
-用户的直觉是：matrix multiplication 通过 linear combinations 生成 rows 或 columns；transpose 交换 row / column roles，因此 composition 的顺序也必须反转。
+一个自然的直觉是：matrix multiplication 通过 linear combinations 生成 rows 或 columns；transpose 交换 row / column roles，因此 composition 的顺序也必须反转。
 
 从 linear maps 看，这个结论更直接。对 column vector $x$，
 
@@ -193,7 +193,7 @@ $$\nabla f(x(t),y(t))\perp r'(t).$$
 
 ## 3. Surface-Normal Projection Proof
 
-用户提出的几何思路是：把 $f(x,y)$ 看成三维 surface 的高度，surface normal 投影到 $xy$-plane 后应当给出二维 gradient。下面严格化这个想法。
+同一个结论也可以从几何角度理解：把 $f(x,y)$ 看成三维 surface 的高度，surface normal 投影到 $xy$-plane 后应当给出二维 gradient。下面严格化这个想法。
 
 考虑 graph surface：
 

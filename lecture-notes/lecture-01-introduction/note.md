@@ -222,11 +222,11 @@ Trustworthiness 从检查 data assumptions、label reliability、loss-objective 
 
 ### 9.2 Reliable AI Systems
 
-Model reliability 只是 system reliability 的一部分。一个 AI system 还包括数据采集、预处理、监控、反馈、用户交互和部署环境。Lecture 1 的 pipeline 说明：系统失败往往不是单个模型参数的问题，而是整个 learning and deployment pipeline 中某个环节失效。
+Model reliability 只是 system reliability 的一部分。一个 AI system 还包括数据采集、预处理、监控、反馈、交互界面和部署环境。Lecture 1 的 pipeline 说明：系统失败往往不是单个模型参数的问题，而是整个 learning and deployment pipeline 中某个环节失效。
 
 ### 9.3 LLM Evaluation / Reasoning
 
-虽然 CS229 的开场是 classical ML，但同样结构适用于 LLMs：data 决定模型见过什么，objective 决定模型被奖励什么，evaluation 决定我们声称模型会什么，generalization 决定模型能否处理未见过的 prompts、domains 和 reasoning patterns。LLM benchmark 也必须警惕 leakage、metric mismatch 和 distribution shift。
+虽然 CS229 的开场是 classical ML，但同样结构适用于 LLMs：data 决定模型见过什么，objective 决定模型被奖励什么，evaluation 决定我们声称模型会什么，generalization 决定模型能否处理未见过的 instructions、domains 和 reasoning patterns。LLM benchmark 也必须警惕 leakage、metric mismatch 和 distribution shift。
 
 ### 9.4 Representation Analysis
 
