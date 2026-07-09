@@ -81,6 +81,10 @@ By the end of this course lab, the repository should contain:
 * [x] Personalized study policy created
 * [x] Lecture 1 note completed
 * [x] Lecture 2 linear regression derivation completed
+* [x] Lecture 3 note completed
+* [x] Locally weighted regression derivation completed
+* [x] Logistic regression gradient derivation completed
+* [x] Newton method derivation completed
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed
 

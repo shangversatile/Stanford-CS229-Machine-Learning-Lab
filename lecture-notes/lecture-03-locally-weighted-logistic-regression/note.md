@@ -1,0 +1,355 @@
+# Lecture 3: Locally Weighted and Logistic Regression
+
+## 1. Core Question
+
+Lecture 3 不是简单地往工具箱里再放两个算法。它真正连接的是一条更深的建模链路：当 global linear fit 不够用时，模型如何变成 local；当输出从 real value 变成 class label 时，loss、hypothesis、probabilistic model 和 optimization 又必须如何一起改变。
+
+核心 pipeline 可以概括为：
+
+Global Linear Regression -> Local Linear Approximation -> Probability vs Likelihood -> Bernoulli Classification Model -> Logistic Regression -> Newton Method
+
+这条线索说明了一件事：machine learning 不是固定套用某个 objective，而是根据 data geometry、output space、noise assumption 和 computation constraint 来重新设计模型。
+
+## 2. From Global Linear Regression to Local Models
+
+Ordinary linear regression 学习一个全局参数向量 $\theta$。训练结束后，预测只需要保存 $\theta$，训练数据本身可以丢弃。它的强假设是：同一个 linear relationship 对整个 input space 都足够好。
+
+Locally weighted regression 的想法不同。它不试图找到一个对所有点都同样适用的全局直线，而是在每个 query point $x$ 附近拟合一个 local linear model。给定 query point $x$，局部 objective 是：
+
+$$J_x(\theta)=\frac{1}{2}\sum_{i=1}^{m}w^{(i)}(x)\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+
+下标 $x$ 很重要：它表示这个 objective 本身依赖当前要预测的 query point。换一个 query point，权重 $w^{(i)}(x)$ 会改变，优化问题也会改变。因此 LWR 学到的不是一个固定的 $\theta$，而是每次预测时临时求出的 local parameter $\theta(x)$。
+
+下图用同一组非线性数据展示了 global underfit、较合理的 smooth fit 和过度贴合噪声的 overfit 之间的差异。LWR 的动机正来自这种现象：一个 global linear model 可能太僵硬，但无限制的局部拟合也可能太不稳定。
+
+![Underfitting and overfitting](../../assets/figures/lecture03-underfitting-overfitting.png)
+
+## 3. Parametric vs Non-parametric Learning
+
+Parametric learning 不是简单地说“模型有参数”。更准确地说，它的有效模型复杂度由一个固定维度的有限参数向量控制，通常不会随着训练样本数 $m$ 自动增长。
+
+Non-parametric learning 也不是说“模型没有参数”。它通常意味着模型复杂度或记忆量会随数据量增长，预测时可能直接依赖保留下来的 training examples。
+
+| Aspect | Parametric Learning | Non-parametric Learning |
+| ------ | ------------------- | ----------------------- |
+| Parameter size | 通常固定，例如 $\theta\in\mathbb{R}^d$ | 复杂度或存储常随 $m$ 增长 |
+| Dependence on training data | 训练后主要保存 parameters | 预测时常需要访问 training data |
+| Prediction-time cost | 通常较低 | 可能较高，因为要比较或加权许多样本 |
+| Assumptions | 结构假设强，例如 global linear boundary | 结构假设较弱，更依赖 local evidence |
+| Flexibility | 受固定 hypothesis class 限制 | 更灵活，能适应局部变化 |
+| High-dimensional behavior | 依赖 feature design 和 regularization | 容易受 curse of dimensionality 影响 |
+| Examples | linear regression, logistic regression, perceptron, fixed-architecture neural networks | locally weighted regression, kNN, Gaussian-kernel SVM 等 kernel methods |
+
+这个区分对 reliable ML 很重要。Parametric model 的风险常来自 misspecification；non-parametric model 的风险常来自 locality、sample density、distance metric 和 prediction-time cost。
+
+## 4. Locally Weighted Regression
+
+LWR 常用 Gaussian-kernel-like weight：
+
+$$w^{(i)}(x)=\exp\left(-\frac{\left|x^{(i)}-x\right|_2^2}{2\tau^2}\right).$$
+
+这个公式表示一个以 query point $x$ 为中心的 locality weighting kernel。它不是在说整个数据分布服从 Gaussian distribution，也不是在对 $x$ 的 global density 作建模。它只是定义：离当前 query point 越近的 training example，在当前局部拟合中的权重越大。
+
+![LWR weights around a query point](../../assets/figures/lecture03-lwr-weights-query-point.png)
+
+图中的 query point 决定了权重中心。附近点得到较大 weights，远处点得到较小 weights。每来一个新的 query point，就会产生一组新的 weights，也就产生一个新的 weighted least-squares objective。预测时，LWR 先求出 local $\theta(x)$，再输出 $\theta(x)^Tx$。
+
+## 5. The Role of $\tau$
+
+$\tau$ 是 bandwidth，也可以理解为 locality parameter。它控制一个 training example 离 query point 多远之后还会产生明显影响。
+
+| $\tau$ | Effective neighborhood | Behavior | Risk |
+| ------ | ---------------------- | -------- | ---- |
+| Small | 很窄，只看非常近的点 | 高度 local，曲线很灵活 | variance 高，容易 overfitting，不平滑，数值不稳定 |
+| Medium | 适中邻域 | 在 locality 和 stability 之间平衡 | 依赖数据密度和噪声水平 |
+| Large | 很宽，许多点权重相近 | 接近 global linear regression | bias 高，容易 underfitting |
+
+![LWR fits for small, medium, and large tau](../../assets/figures/lecture03-tau-small-medium-large.png)
+
+从 bias-variance tradeoff 看，小 $\tau$ 降低 bias 但提高 variance；大 $\tau$ 降低 variance 但提高 bias。合适的 $\tau$ 不是数学装饰，而是 LWR 是否可靠的核心超参数。
+
+## 6. Why LWR Struggles in High Dimensions
+
+LWR 的 locality 依赖距离，但 high-dimensional space 会让“附近”这个概念变得困难：
+
+* local neighborhoods 变得稀疏，需要指数级更多样本才能覆盖空间；
+* distances concentrate，最近点和最远点之间的相对差异变小；
+* Gaussian weights 变得不够 discriminative，所有点可能都差不多远；
+* local weighted fit 可能由少数噪声点支配；
+* prediction-time computation 昂贵，因为每个 query 都要重新计算权重甚至重新解 weighted least squares。
+
+![High-dimensional distance concentration](../../assets/figures/lecture03-high-dimensional-distance-concentration.png)
+
+这对 reliable ML 是一个直接提醒：低维 toy data 上看起来很自然的 local method，进入高维 feature space 后可能因为 sample sparsity 和 distance concentration 而失效。
+
+## 7. Probability vs Likelihood
+
+Probability 和 likelihood 使用同一个 density 或 mass function，但关注对象不同。
+
+Probability 中，$p(y|x;\theta)$ 把 $\theta$ 当作固定的模型参数，把 $y$ 当作 random variable。它问的是：在这个模型和参数下，我们可能观察到什么数据？
+
+Likelihood 中，$L(\theta)=p(y|X;\theta)$ 把 observed data 固定下来，把 $\theta$ 当作要比较和优化的变量。它问的是：已经看到了这些数据，哪个 parameter 让它们最 plausible？
+
+直观地说：
+
+Probability asks: under this model, what data might we observe?
+
+Likelihood asks: given the observed data, which parameter makes it most plausible?
+
+这个区分是从 linear regression 的 Gaussian noise 到 logistic regression 的 Bernoulli model 的桥。
+
+## 8. Gaussian Noise, MLE, and Squared Loss
+
+Linear regression 的 probabilistic interpretation 从一个 noise model 开始：
+
+$$y^{(i)}=\theta^Tx^{(i)}+\epsilon^{(i)}.$$
+
+$$\epsilon^{(i)}\sim\mathcal{N}(0,\sigma^2).$$
+
+因此：
+
+$$y^{(i)}|x^{(i)};\theta\sim\mathcal{N}(\theta^Tx^{(i)},\sigma^2).$$
+
+在 conditional independence assumption 下：
+
+$$L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta).$$
+
+取 log 后：
+
+$$\ell(\theta)=-\frac{m}{2}\log(2\pi\sigma^2)-\frac{1}{2\sigma^2}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+
+第一项与 $\theta$ 无关，而 $-\frac{1}{2\sigma^2}$ 是负常数，所以 maximizing Gaussian log likelihood 等价于 minimizing squared error：
+
+$$\underset{\theta}{\mathrm{argmax}}\ \ell(\theta)=\underset{\theta}{\mathrm{argmin}}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+
+这给 squared loss 一个统计解释，但不证明 squared loss 在所有真实数据上都可靠。若 noise heavy-tailed、有 outliers、heteroscedastic 或存在 distribution shift，Gaussian MLE 的解释就需要重新检查。
+
+## 9. Why Gaussian Noise Can Be Reasonable: CLT View
+
+Gaussian noise assumption 的一个常见理由来自 Central Limit Theorem。设总误差是许多小扰动的和：
+
+$$\epsilon=\sum_{k=1}^{K}u_k.$$
+
+如果 $u_k$ 近似 independent、有 finite variance，并且没有单个 component 支配总和，那么标准化后的 sum 会趋向 Gaussian：
+
+$$\frac{\sum_{k=1}^{K}u_k-\sum_{k=1}^{K}\mathbb{E}[u_k]}{\sqrt{\sum_{k=1}^{K}\mathrm{Var}(u_k)}}\Rightarrow\mathcal{N}(0,1).$$
+
+这个 argument 是 rationale，不是 guarantee。CLT 不意味着所有真实噪声都 Gaussian，也不意味着 squared loss 总是最合适。
+
+典型 failure cases 包括：
+
+* heavy-tailed noise；
+* outliers；
+* correlated noise；
+* heteroscedastic noise；
+* distribution shift。
+
+## 10. Why Linear Regression Is Not Suitable for Classification
+
+如果 $y\in\{0,1\}$，直接使用 $\theta^Tx$ 做 classification 会有几个问题：
+
+* output unbounded，可能小于 $0$ 或大于 $1$；
+* squared loss 不是从 Bernoulli labels 自然推出的 likelihood loss；
+* outliers 可能强烈扭曲 decision boundary；
+* classification 需要 probability 或 decision，而不是任意 real-valued output；
+* 预测值的数值大小没有自然的 probability interpretation。
+
+![Linear versus logistic output](../../assets/figures/lecture03-linear-vs-logistic-output.png)
+
+因此从 regression 到 classification 不是简单替换 label，而是要改变 hypothesis、probabilistic model 和 loss。
+
+## 11. Logistic Regression Hypothesis
+
+Sigmoid function 定义为：
+
+$$g(z)=\frac{1}{1+e^{-z}}.$$
+
+Logistic regression 的 hypothesis 是：
+
+$$h_{\theta}(x)=g(\theta^Tx)=\frac{1}{1+e^{-\theta^Tx}}.$$
+
+Sigmoid 把任意 real number 映射到 $(0,1)$，所以 $h_{\theta}(x)$ 可以解释为 $P(y=1|x;\theta)$。这解决了 linear regression output range 不适合 classification 的问题。
+
+![Sigmoid curve](../../assets/figures/lecture03-sigmoid-curve.png)
+
+这里的 linear part $\theta^Tx$ 仍然重要，但它不再直接作为预测值，而是作为 logit 进入 sigmoid。
+
+## 12. Bernoulli Model and Likelihood
+
+对于 binary label：
+
+$$P(y=1|x;\theta)=h_{\theta}(x).$$
+
+$$P(y=0|x;\theta)=1-h_{\theta}(x).$$
+
+两种情况可以写成统一的 Bernoulli form：
+
+$$P(y|x;\theta)=h_{\theta}(x)^y\left(1-h_{\theta}(x)\right)^{1-y}.$$
+
+这个 exponent trick 很关键。当 $y=1$ 时，表达式变成：
+
+$$h_{\theta}(x)^1\left(1-h_{\theta}(x)\right)^0=h_{\theta}(x).$$
+
+当 $y=0$ 时，表达式变成：
+
+$$h_{\theta}(x)^0\left(1-h_{\theta}(x)\right)^1=1-h_{\theta}(x).$$
+
+所以它不是技巧性装饰，而是把 Bernoulli distribution 的两个 cases 用一个公式统一起来。
+
+## 13. Logistic Regression Loss from MLE
+
+在 independent samples 下，log likelihood 是：
+
+$$\ell(\theta)=\sum_{i=1}^{m}\left[y^{(i)}\log h_{\theta}(x^{(i)})+\left(1-y^{(i)}\right)\log\left(1-h_{\theta}(x^{(i)})\right)\right].$$
+
+Negative log likelihood 定义为：
+
+$$J(\theta)=-\ell(\theta).$$
+
+这就是 binary cross-entropy loss。它不是任意选出的 classification loss，而是 Bernoulli likelihood 的直接结果。
+
+Cross-entropy 的含义也很强：如果真实 $y=1$，模型却给 $h_{\theta}(x)$ 很接近 $0$，那么 $-\log h_{\theta}(x)$ 会非常大；如果真实 $y=0$，模型却给 $h_{\theta}(x)$ 很接近 $1$，那么 $-\log(1-h_{\theta}(x))$ 会非常大。它会重罚 confidently wrong predictions。
+
+## 14. Logistic Regression Gradient
+
+利用 $g'(z)=g(z)(1-g(z))$，logistic regression negative log likelihood 的 gradient 是：
+
+$$\nabla_{\theta}J(\theta)=\sum_{i=1}^{m}\left(h_{\theta}(x^{(i)})-y^{(i)}\right)x^{(i)}.$$
+
+它看起来像 linear regression gradient，因为二者都有 “prediction error times feature vector” 的形式。
+
+但这种相似不能被误读成两个模型相同。Linear regression 的 prediction 是 $\theta^Tx$，来自 Gaussian noise 和 squared loss；logistic regression 的 prediction 是 $g(\theta^Tx)$，来自 Bernoulli likelihood 和 cross-entropy。相同的 gradient shape 只是说明 supervised learning 中 residual signal 常常乘以 feature direction。
+
+## 15. Decision Boundary
+
+Logistic regression 的常见 decision rule 是：
+
+$$\hat{y}=1\quad\mathrm{if}\quad h_{\theta}(x)\geq0.5.$$
+
+因为 sigmoid 是 monotonic，并且 $g(0)=0.5$：
+
+$$h_{\theta}(x)=0.5\Longleftrightarrow\theta^Tx=0.$$
+
+因此 decision boundary 在 feature space 中是 linear boundary：
+
+$$\theta^Tx=0.$$
+
+![Logistic regression decision boundary](../../assets/figures/lecture03-logistic-decision-boundary.png)
+
+注意：probability surface 是 sigmoid-shaped，但 $0.5$ threshold 对应的 boundary 是一个 hyperplane。若想得到 nonlinear boundary，需要改变 features，例如使用 $\phi(x)$。
+
+## 16. Logistic Regression vs Perceptron
+
+| Aspect | Logistic Regression | Perceptron |
+| ------ | ------------------- | ---------- |
+| Output | $P(y=1|x;\theta)$ in $(0,1)$ | hard class label or signed score |
+| Activation | sigmoid $g(\theta^Tx)$ | step function or sign function |
+| Objective | Bernoulli negative log likelihood | mistake-driven update, often no smooth global loss in basic form |
+| Update rule | gradient descent or Newton method on cross-entropy | update only on mistakes |
+| Probability interpretation | Yes, conditional Bernoulli model | No calibrated probability by default |
+| Convergence assumptions | Convex objective, but data separation can cause coefficient divergence | finite convergence under linear separability |
+| Robustness | Can use regularization and probabilistic diagnostics | Sensitive to order, margin, and noisy non-separable data |
+
+两者都可能产生 linear decision boundary，但 logistic regression 是 probabilistic and likelihood-based；perceptron 是 mistake-driven，并且对 linear separability 的依赖更强。
+
+## 17. Why Logistic Regression Has No Normal Equation
+
+Linear regression 的 objective 是 quadratic，gradient 是 linear equation，因此 stationary condition 可以写成 normal equation。
+
+Logistic regression 包含 sigmoid：
+
+$$h_{\theta}(x)=g(\theta^Tx).$$
+
+它的 gradient equation 是 nonlinear：
+
+$$\sum_{i=1}^{m}\left(g(\theta^Tx^{(i)})-y^{(i)}\right)x^{(i)}=0.$$
+
+这个方程一般不能整理成 $A\theta=b$。因此 logistic regression 通常需要 iterative optimization，例如 gradient descent、Newton method 或 quasi-Newton methods。
+
+## 18. Newton Method
+
+一维 Newton method 可以从 second-order Taylor approximation 推出：
+
+$$f(\theta)\approx f(\theta_t)+f'(\theta_t)(\theta-\theta_t)+\frac{1}{2}f''(\theta_t)(\theta-\theta_t)^2.$$
+
+对右侧关于 $\theta$ 求导并令其为 $0$，得到：
+
+$$0=f'(\theta_t)+f''(\theta_t)(\theta-\theta_t).$$
+
+因此：
+
+$$\theta_{t+1}=\theta_t-\frac{f'(\theta_t)}{f''(\theta_t)}.$$
+
+Multivariate form 是：
+
+$$\theta_{t+1}=\theta_t-H^{-1}\nabla f(\theta_t).$$
+
+Gradient descent 只使用 slope，Newton method 同时使用 slope 和 curvature。几何上，它是在当前点用 quadratic surrogate 替代原函数，然后跳到这个 surrogate 的 minimizer。
+
+![Newton tangent iteration](../../assets/figures/lecture03-newton-tangent-iteration.png)
+
+## 19. Quadratic Convergence of Newton Method
+
+把 Newton method 写成 root finding。令 $F(\theta)=f'(\theta)$，目标是找到 $F(\theta^\star)=0$。Newton update 是：
+
+$$\theta_{t+1}=\theta_t-\frac{F(\theta_t)}{F'(\theta_t)}.$$
+
+在 smoothness 和 local regularity 条件下，可以得到：
+
+$$|\theta_{t+1}-\theta^\star|\leq C|\theta_t-\theta^\star|^2.$$
+
+简要证明如下。令误差 $e_t=\theta_t-\theta^\star$。对 $F$ 在 $\theta_t$ 附近展开到 $\theta^\star$：
+
+$$0=F(\theta^\star)=F(\theta_t)+F'(\theta_t)(\theta^\star-\theta_t)+\frac{1}{2}F''(\xi_t)(\theta^\star-\theta_t)^2.$$
+
+整理得到：
+
+$$F(\theta_t)=F'(\theta_t)e_t-\frac{1}{2}F''(\xi_t)e_t^2.$$
+
+代入 Newton update：
+
+$$e_{t+1}=\theta_{t+1}-\theta^\star=e_t-\frac{F(\theta_t)}{F'(\theta_t)}.$$
+
+因此：
+
+$$e_{t+1}=\frac{F''(\xi_t)}{2F'(\theta_t)}e_t^2.$$
+
+若在局部邻域中 $|F''(\xi_t)|$ 有界，且 $|F'(\theta_t)|$ 远离 $0$，就存在常数 $C$ 使：
+
+$$|e_{t+1}|\leq C|e_t|^2.$$
+
+需要的条件包括：initial point 足够接近 optimum，$F'(\theta^\star)\neq0$，second derivative bounded，multivariate 情况下 Hessian well-conditioned。
+
+![Newton quadratic convergence](../../assets/figures/lecture03-newton-quadratic-convergence.png)
+
+## 20. Reliability View
+
+LWR 的 failure modes：
+
+* sparse local data；
+* bandwidth sensitivity；
+* high-dimensional failure；
+* noisy local neighborhoods；
+* expensive prediction。
+
+Logistic regression 的 failure modes：
+
+* miscalibration；
+* class imbalance；
+* wrong threshold；
+* linear boundary assumption；
+* label noise；
+* distribution shift；
+* complete separation。
+
+Perceptron 的 failure modes：
+
+* non-separable data；
+* no probability output；
+* unstable updates under noise。
+
+这三个模型都很基础，但 reliability questions 完全不同。LWR 要问 local evidence 是否足够；logistic regression 要问 probability model、calibration 和 threshold 是否可靠；perceptron 要问 separability 和 noisy updates 是否可接受。
+
+## 21. My Takeaways
+
+Lecture 3 shows that a change in data geometry or output type forces a change in model design. LWR changes how training data is used; logistic regression changes the output model and likelihood; Newton method changes the optimization strategy. This lecture is the first serious transition from fitting to modeling.

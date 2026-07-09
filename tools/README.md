@@ -20,6 +20,17 @@ python tools/generate_lecture02_figures.py
 
 The deterministic script uses only NumPy and Matplotlib. It creates six PNG files in `assets/figures/` covering regression residuals, the quadratic loss surface, gradient geometry, surface-normal projection, batch GD versus SGD, and normal-equation projection.
 
+
+## Lecture 3 Figures
+
+Run the following command from the repository root to regenerate the Lecture 3 educational figures:
+
+```bash
+python tools/generate_lecture03_figures.py
+```
+
+The deterministic script uses only NumPy and Matplotlib. It creates nine PNG files in `assets/figures/` covering underfitting and overfitting, locally weighted regression weights, bandwidth effects, high-dimensional distance concentration, sigmoid output, linear versus logistic output, logistic decision boundaries, Newton tangent iteration, and quadratic convergence.
+
 ## Markdown Math Audit
 
 Run the read-only compatibility audit from the repository root:
