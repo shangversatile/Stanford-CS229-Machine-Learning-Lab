@@ -66,3 +66,7 @@ The questions about LWR, $\tau$, non-parametric learning, high-dimensional failu
 The next learning target is Lecture 4 or the next official segment on Newton method, GLM, or implementation depending on the course sequence.
 
 Before moving forward, implement logistic regression only after the gradient and Hessian derivations are reviewed.
+
+## PS1 Gate Initialized
+
+After completing Lecture 3, the learning flow now pauses at PS1 Supervised Learning Gate. Lecture 4 should be completed next, but later topics should not be started until PS1-related derivation and implementation tasks are mapped and attempted.

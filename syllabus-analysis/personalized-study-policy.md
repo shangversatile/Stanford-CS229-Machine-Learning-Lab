@@ -89,6 +89,12 @@ Every important module should produce at least one of:
 
 The output should be verifiable. A polished note without derivation, implementation, or evaluation value is not enough for a high-priority module.
 
+## Assignment-Gated Learning Rule
+
+A lecture cluster is not complete until its corresponding assignment gate is identified and either attempted or explicitly deferred.
+
+For the current CS229 stage, Lecture 2-4 belong to the PS1 Supervised Learning Gate.
+
 ## 8. Relationship to Existing Repositories
 
 This CS229 repository remains independent during course study, but it can inform later work in related repositories:

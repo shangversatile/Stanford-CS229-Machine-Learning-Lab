@@ -57,6 +57,20 @@ This repository is for independent learning and research preparation. Official p
 
 All code and notes in this repository should be written independently unless explicitly marked otherwise.
 
+## Assignment Gates
+
+This repository now follows an assignment-gated learning process. Notes and derivations are necessary but not sufficient. Each lecture cluster must be linked to public-safe problem set work.
+
+Current gate:
+
+PS1 Supervised Learning Gate
+
+Links:
+
+* [assignments/problem-set-map.md](assignments/problem-set-map.md)
+* [assignments/ps1-supervised-learning/README.md](assignments/ps1-supervised-learning/README.md)
+* [assignments/ps1-supervised-learning/ps1-gate-checklist.md](assignments/ps1-supervised-learning/ps1-gate-checklist.md)
+
 ## 6. Final Deliverables
 
 By the end of this course lab, the repository should contain:
@@ -82,6 +96,7 @@ By the end of this course lab, the repository should contain:
 * [x] Lecture 1 note completed
 * [x] Lecture 2 linear regression derivation completed
 * [x] Lecture 3 note completed
+* [x] PS1 supervised learning gate initialized
 * [x] Locally weighted regression derivation completed
 * [x] Logistic regression gradient derivation completed
 * [x] Newton method derivation completed
