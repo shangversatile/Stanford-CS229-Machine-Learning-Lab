@@ -90,24 +90,143 @@ Good bandwidth selection depends on sample density, noise level, smoothness of t
 
 ## 7. High-dimensional Failure and Curse of Dimensionality
 
-In high-dimensional spaces, local methods face several linked problems. Volume grows rapidly, so a fixed sample size gives sparse coverage. Distances also concentrate, meaning the nearest and farthest points can have similar distances from a query point. Then the kernel weights become less informative.
+LWR 的局部拟合依赖两个前提：query point $x$ 附近必须有足够多 informative samples，而且 distance metric 必须能稳定地区分 nearby points 和 faraway points。High-dimensional space 同时破坏这两个前提：local neighborhoods 变得稀疏，distances 又会 concentrate。
 
-If all distances look similar, then:
+### Local Neighborhood Sparsity
 
-$$w^{(1)}(x)\approx w^{(2)}(x)\approx\cdots\approx w^{(m)}(x).$$
+假设 data points 近似均匀分布在 unit hypercube $[0,1]^d$ 中，并且 query point $x$ 离边界足够远。对 $L_{\infty}$ local neighborhood，半径 $r$ 对应一个边长为 $2r$ 的 hypercube。
 
-The local method loses its intended locality. If $\tau$ is made very small to recover locality, there may be too few effective samples and the weighted normal equation may become ill-conditioned.
+$$\mathrm{Vol}_{\infty}(r)=(2r)^d.$$
+
+如果有 $m$ 个 training samples，那么 local sample count $N_r$ 的期望为：
+
+$$\mathbb{E}[N_r]=m(2r)^d.$$
+
+为了让 local neighborhood 平均至少有 $k$ 个 samples，需要：
+
+$$m(2r)^d\geq k.$$
+
+因此：
+
+$$m\geq \frac{k}{(2r)^d}.$$
+
+对固定 local radius $r<1/2$，required sample size 随 dimension $d$ 指数增长。例如 $r=0.1$ 时，$(2r)^d=0.2^d$；若只要求 $k=10$ 个 local samples，也需要：
+
+$$m\geq 10\cdot 5^d.$$
+
+这就是 “local neighborhoods become sparse” 的严格含义。
+
+更直观地看，在 uniform assumption 下，volume ratio 也就是 probability ratio。半径从 $r$ 扩大到 $(1+\epsilon)r$ 时，新增 boundary shell 相对于原 neighborhood 的比例是：
+
+$$\frac{\mathrm{Vol}_{\infty}((1+\epsilon)r)-\mathrm{Vol}_{\infty}(r)}{\mathrm{Vol}_{\infty}(r)}=(1+\epsilon)^d-1.$$
+
+半径从 $r$ 缩小到 $(1-\epsilon)r$ 时，inner core 相对于原 neighborhood 的比例是：
+
+$$\frac{\mathrm{Vol}_{\infty}((1-\epsilon)r)}{\mathrm{Vol}_{\infty}(r)}=(1-\epsilon)^d.$$
+
+所以当 $d$ 增大时，固定比例的边缘变化会被指数放大。outer shell 的概率质量可以很快超过原主体，而去掉边缘后的 inner core 质量会迅速趋近于 $0$。这说明高维空间中的 local mass 对 bandwidth 和边界变化非常敏感，低维中的“中心主体”直觉并不可靠。
+
+对 Euclidean ball，忽略 boundary effects 时：
+
+$$\mathrm{Vol}_{2}(r)=V_d r^d.$$
+
+其中：
+
+$$V_d=\frac{\pi^{d/2}}{\Gamma(d/2+1)}.$$
+
+于是：
+
+$$\mathbb{E}[N_r]=mV_dr^d.$$
+
+为了让 $\mathbb{E}[N_r]\geq k$：
+
+$$m\geq \frac{k}{V_dr^d}.$$
+
+关键因子仍然是 $r^d$。即使不考虑 $V_d$ 的维度依赖，只要 $r<1$，local volume 也会随 $d$ 快速 collapse。
+
+LWR 假设每个 query point $x$ 附近都有足够样本来拟合稳定的 local model $\theta(x)$。在高维中，除非 $m$ 指数增长，否则这个假设会失效。
+
+![Neighborhood volume decays exponentially with dimension](../assets/figures/lecture03-neighborhood-volume-decay.png)
+
+![Sample size required for fixed local coverage grows exponentially](../assets/figures/lecture03-sample-size-exponential-growth.png)
+
+### Distance Concentration
+
+令 $X,Y\in[0,1]^d$ 是两个 independent random points，且各坐标 independent。定义 squared Euclidean distance：
+
+$$D^2=\left|X-Y\right|_2^2=\sum_{j=1}^{d}(X_j-Y_j)^2.$$
+
+令：
+
+$$Z_j=(X_j-Y_j)^2.$$
+
+则：
+
+$$D^2=\sum_{j=1}^{d}Z_j.$$
+
+对 independent $X_j,Y_j\sim\mathrm{Uniform}(0,1)$：
+
+$$\mathbb{E}[Z_j]=\mathbb{E}[(X_j-Y_j)^2]=\frac{1}{6}.$$
+
+并且：
+
+$$\mathbb{E}[Z_j^2]=\mathbb{E}[(X_j-Y_j)^4]=\frac{1}{15}.$$
+
+所以：
+
+$$\mathrm{Var}(Z_j)=\frac{1}{15}-\left(\frac{1}{6}\right)^2=\frac{7}{180}.$$
+
+由于 coordinates independent：
+
+$$\mathbb{E}[D^2]=\sum_{j=1}^{d}\mathbb{E}[Z_j]=\frac{d}{6}.$$
+
+$$\mathrm{Var}(D^2)=\sum_{j=1}^{d}\mathrm{Var}(Z_j)=\frac{7d}{180}.$$
+
+因此 $D^2$ 的 coefficient of variation 为：
+
+$$\frac{\sqrt{\mathrm{Var}(D^2)}}{\mathbb{E}[D^2]}=\frac{\sqrt{7d/180}}{d/6}=\sqrt{\frac{7}{5d}}.$$
+
+Distance 的 absolute scale 随 $d$ 增大，但 relative fluctuation 按 $1/\sqrt{d}$ 缩小，所以 distances increasingly concentrate around their mean。
+
+如果从一个 query point 到 $m$ 个 training points 计算距离，每个 squared distance 都是 $d$ 个 coordinate-level random terms 的和。一个 squared distance 的 typical fluctuation 是 $O(\sqrt{d})$，而 mean 是 $O(d)$。对 fixed 或 subexponential $m$，多个 sampled distances 的 spread 相比 mean 仍然较小。直观地说：
+
+$$\frac{D_{\max}^2-D_{\min}^2}{\mathbb{E}[D^2]}=O\left(\sqrt{\frac{\log m}{d}}\right).$$
+
+当 $d$ 很大且 $\log m\ll d$ 时，nearest 和 farthest distances 的 relative difference 变小。这不表示所有 distances 完全相等，而是表示 Euclidean distance 的 ranking signal 相对于整体 distance scale 变弱。
+
+![Distances concentrate as dimension increases](../assets/figures/lecture03-distance-concentration-derivation.png)
+
+## Consequence for Gaussian Kernel Weights
+
+Gaussian-kernel LWR 使用：
+
+$$w^{(i)}(x)=\exp\left(-\frac{\left|x^{(i)}-x\right|_2^2}{2\tau^2}\right).$$
+
+如果 $\tau$ 固定，typical squared distance 按 $d/6$ 增长，则 typical weight 近似满足：
+
+$$w^{(i)}(x)\approx \exp\left(-\frac{d}{12\tau^2}\right).$$
+
+因此 weights 会随 $d$ 增大而变得极小，effective neighbors 可能 collapse。
+
+如果让 $\tau^2$ 随 $d$ scaling，weights 不会全部 vanish；但由于 distances 的 relative differences 变小，weights 会趋近 uniform。于是高维中出现一个两难：
+
+* small $\tau$：almost no effective neighbors；
+* large $\tau$：all points look similarly weighted，LWR 接近 global fitting；
+* intermediate $\tau$：often unstable and highly data-dependent。
+
+![LWR Gaussian weights degenerate in high dimensions](../assets/figures/lecture03-lwr-weights-high-dimensional-degeneracy.png)
+
+这就是 LWR 在 low-dimensional visual examples 中强大、但在 high-dimensional feature spaces 中脆弱的深层原因。LWR 假设 locality 既 statistically populated 又 geometrically meaningful。高维同时破坏这两个条件：local neighborhoods 除非数据指数增长否则接近空，而 distance-based weighting 因 distances concentrate 变得不够 informative。
 
 ## 8. Reliability Notes
 
-Reliable use of LWR requires checking:
+For reliable ML, locality-based methods should report or monitor:
 
+* effective sample size around each query;
 * bandwidth sensitivity;
-* feature scaling and distance metric choice;
-* local sample density;
-* numerical conditioning of $X^TW_xX$;
-* outlier influence inside local neighborhoods;
-* prediction-time cost;
-* high-dimensional distance concentration.
+* local condition number of weighted design matrix;
+* distance concentration diagnostics;
+* feature scaling and metric validity;
+* whether learned local behavior is stable under perturbations.
 
-LWR is valuable because it exposes the limitation of one global linear model, but it is not automatically more reliable. It trades global misspecification risk for local data sufficiency and bandwidth-selection risk.
+LWR is valuable because it exposes the limitation of one global linear model, but it is not automatically more reliable. It trades global misspecification risk for local data sufficiency, metric validity, and bandwidth-selection risk.

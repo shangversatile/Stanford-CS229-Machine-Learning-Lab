@@ -473,6 +473,183 @@ def figure_newton_quadratic_convergence() -> Path:
     return save(fig, "lecture03-newton-quadratic-convergence.png")
 
 
+
+def figure_neighborhood_volume_decay() -> Path:
+    """Show how fixed-radius local volume vanishes with dimension."""
+    dimensions = np.arange(1, 51)
+    radii = [0.05, 0.1, 0.2]
+    colors = [COLORS["red"], COLORS["blue"], COLORS["green"]]
+
+    fig, ax = plt.subplots(figsize=(8.0, 5.0))
+    for radius, color in zip(radii, colors):
+        volume = (2.0 * radius) ** dimensions
+        ax.plot(
+            dimensions,
+            volume,
+            color=color,
+            linewidth=2.2,
+            marker="o",
+            markersize=3.4,
+            markevery=6,
+            label=rf"$r={radius}$",
+        )
+    ax.set_yscale("log")
+    ax.set_title("Local neighborhood volume decays exponentially")
+    ax.set_xlabel("Dimension d")
+    ax.set_ylabel(r"Local volume $(2r)^d$")
+    ax.grid(True, which="both")
+    ax.legend(frameon=True, loc="upper right", title="Radius")
+    return save(fig, "lecture03-neighborhood-volume-decay.png")
+
+
+def figure_sample_size_exponential_growth() -> Path:
+    """Show sample size needed to maintain fixed expected local coverage."""
+    dimensions = np.arange(1, 31)
+    radii = [0.05, 0.1, 0.2]
+    colors = [COLORS["red"], COLORS["blue"], COLORS["green"]]
+    target_neighbors = 10
+
+    fig, ax = plt.subplots(figsize=(8.0, 5.0))
+    for radius, color in zip(radii, colors):
+        required_m = target_neighbors / ((2.0 * radius) ** dimensions)
+        ax.plot(
+            dimensions,
+            required_m,
+            color=color,
+            linewidth=2.2,
+            marker="o",
+            markersize=3.4,
+            markevery=4,
+            label=rf"$r={radius}$",
+        )
+    ax.set_yscale("log")
+    ax.set_title("Samples needed for fixed local coverage grow exponentially")
+    ax.set_xlabel("Dimension d")
+    ax.set_ylabel(r"Required sample size $m=k/(2r)^d$")
+    ax.grid(True, which="both")
+    ax.legend(frameon=True, loc="upper left", title=r"$k=10$")
+    return save(fig, "lecture03-sample-size-exponential-growth.png")
+
+
+def figure_distance_concentration_derivation() -> Path:
+    """Compare empirical and theoretical CV of squared distances."""
+    dimensions = np.array([2, 5, 10, 20, 50, 100, 200])
+    points_per_query = 2500
+    query_count = 16
+    empirical_cv = []
+
+    for dim in dimensions:
+        squared_distances = []
+        for _ in range(query_count):
+            query = RNG.random(dim)
+            points = RNG.random((points_per_query, dim))
+            dist2 = np.sum((points - query) ** 2, axis=1)
+            squared_distances.append(dist2)
+        values = np.concatenate(squared_distances)
+        empirical_cv.append(float(np.std(values) / np.mean(values)))
+
+    empirical_cv = np.asarray(empirical_cv)
+    smooth_dimensions = np.linspace(dimensions.min(), dimensions.max(), 400)
+    theoretical_cv = np.sqrt(7.0 / (5.0 * smooth_dimensions))
+
+    fig, ax = plt.subplots(figsize=(8.0, 5.0))
+    ax.plot(
+        dimensions,
+        empirical_cv,
+        color=COLORS["blue"],
+        linewidth=2.3,
+        marker="o",
+        label=r"Simulation CV of $D^2$",
+    )
+    ax.plot(
+        smooth_dimensions,
+        theoretical_cv,
+        color=COLORS["orange"],
+        linewidth=2.1,
+        linestyle="--",
+        label=r"Theory: $\sqrt{7/(5d)}$",
+    )
+    ax.set_title("Distance concentration: relative variation shrinks with dimension")
+    ax.set_xlabel("Dimension d")
+    ax.set_ylabel(r"Coefficient of variation of $D^2$")
+    ax.set_ylim(0.0, 0.95)
+    ax.grid(True)
+    ax.legend(frameon=True, loc="upper right")
+    return save(fig, "lecture03-distance-concentration-derivation.png")
+
+
+def normalized_effective_sample_size(weights: np.ndarray) -> float:
+    """Return normalized effective sample size for nonnegative weights."""
+    total = float(np.sum(weights))
+    squared_total = float(np.sum(weights**2))
+    if squared_total == 0.0:
+        return 0.0
+    return (total**2) / (squared_total * weights.size)
+
+
+def gaussian_weight_effective_sample_size(dist2: np.ndarray, tau: float) -> float:
+    """Compute stable normalized ESS for Gaussian-kernel weights."""
+    log_weights = -dist2 / (2.0 * tau**2)
+    weights = np.exp(log_weights - np.max(log_weights))
+    return normalized_effective_sample_size(weights)
+
+
+def figure_lwr_weights_high_dimensional_degeneracy() -> Path:
+    """Plot effective sample size under fixed and dimension-scaled bandwidth."""
+    dimensions = np.array([2, 10, 50, 100])
+    sample_count = 6000
+    trials = 24
+    fixed_tau = 0.2
+    scaled_tau_coefficient = 0.2
+    fixed_ess = []
+    scaled_ess = []
+
+    for dim in dimensions:
+        fixed_values = []
+        scaled_values = []
+        for _ in range(trials):
+            query = RNG.random(dim)
+            points = RNG.random((sample_count, dim))
+            dist2 = np.sum((points - query) ** 2, axis=1)
+            fixed_values.append(gaussian_weight_effective_sample_size(dist2, fixed_tau))
+            scaled_tau = scaled_tau_coefficient * np.sqrt(dim)
+            scaled_values.append(gaussian_weight_effective_sample_size(dist2, scaled_tau))
+        fixed_ess.append(float(np.mean(fixed_values)))
+        scaled_ess.append(float(np.mean(scaled_values)))
+
+    fig, ax = plt.subplots(figsize=(8.0, 5.0))
+    ax.plot(
+        dimensions,
+        fixed_ess,
+        color=COLORS["red"],
+        linewidth=2.3,
+        marker="o",
+        label=rf"Fixed $\tau={fixed_tau}$",
+    )
+    ax.plot(
+        dimensions,
+        scaled_ess,
+        color=COLORS["blue"],
+        linewidth=2.3,
+        marker="s",
+        label=rf"Scaled $\tau={scaled_tau_coefficient}\sqrt{{d}}$",
+    )
+    ax.axhline(
+        1.0,
+        color=COLORS["gray"],
+        linestyle=":",
+        linewidth=1.5,
+        label="Uniform-weight reference",
+    )
+    ax.set_title("LWR Gaussian weights degenerate in high dimensions")
+    ax.set_xlabel("Dimension d")
+    ax.set_ylabel(r"Normalized effective sample size $n_{\mathrm{eff}}/m$")
+    ax.set_ylim(0.0, 1.05)
+    ax.grid(True)
+    ax.legend(frameon=True, loc="center right")
+    return save(fig, "lecture03-lwr-weights-high-dimensional-degeneracy.png")
+
+
 def main() -> None:
     """Generate every Lecture 3 figure and print relative paths."""
     configure_matplotlib()
@@ -486,6 +663,10 @@ def main() -> None:
         figure_logistic_decision_boundary,
         figure_newton_tangent_iteration,
         figure_newton_quadratic_convergence,
+        figure_neighborhood_volume_decay,
+        figure_sample_size_exponential_growth,
+        figure_distance_concentration_derivation,
+        figure_lwr_weights_high_dimensional_degeneracy,
     ]
     paths = [generator() for generator in generators]
     print("Generated Lecture 3 figures:")

@@ -70,17 +70,155 @@ $\tau$ 是 bandwidth，也可以理解为 locality parameter。它控制一个 t
 
 ## 6. Why LWR Struggles in High Dimensions
 
-LWR 的 locality 依赖距离，但 high-dimensional space 会让“附近”这个概念变得困难：
+LWR 在低维图像中很直观，因为“附近”通常既有足够样本，也真的代表相似输入。但这个直觉依赖两个条件：
 
-* local neighborhoods 变得稀疏，需要指数级更多样本才能覆盖空间；
-* distances concentrate，最近点和最远点之间的相对差异变小；
-* Gaussian weights 变得不够 discriminative，所有点可能都差不多远；
-* local weighted fit 可能由少数噪声点支配；
-* prediction-time computation 昂贵，因为每个 query 都要重新计算权重甚至重新解 weighted least squares。
+* query point $x$ 附近的 local neighborhood 含有足够多 informative samples；
+* distance metric 足够 meaningful，使 nearby points 和 faraway points 得到明显不同的 weights。
 
-![High-dimensional distance concentration](../../assets/figures/lecture03-high-dimensional-distance-concentration.png)
+High-dimensional space 会同时破坏这两个条件：local neighborhoods 变得稀疏，distances 又会 concentrate。
 
-这对 reliable ML 是一个直接提醒：低维 toy data 上看起来很自然的 local method，进入高维 feature space 后可能因为 sample sparsity 和 distance concentration 而失效。
+### Local Neighborhood Sparsity
+
+假设 data points 近似均匀分布在 unit hypercube $[0,1]^d$ 中，并且 query point $x$ 离边界足够远。先考虑 $L_{\infty}$ 半径为 $r$ 的 local neighborhood，它是一个边长为 $2r$ 的 hypercube。
+
+$$\mathrm{Vol}_{\infty}(r)=(2r)^d.$$
+
+如果训练集中有 $m$ 个样本，那么这个 local neighborhood 中的样本数 $N_r$ 的期望是：
+
+$$\mathbb{E}[N_r]=m(2r)^d.$$
+
+为了平均至少保留 $k$ 个 local samples，需要：
+
+$$m(2r)^d\geq k.$$
+
+因此：
+
+$$m\geq \frac{k}{(2r)^d}.$$
+
+对固定的 local radius $r<1/2$，分母中的 $(2r)^d$ 会随 dimension $d$ 指数衰减，所以所需 sample size 必须随 $d$ 指数增长。
+
+例如 $r=0.1$ 时，$(2r)^d=0.2^d$。即使只想平均保留 $k=10$ 个 local samples，也需要：
+
+$$m\geq 10\cdot 5^d.$$
+
+这就是“local neighborhoods become sparse”的数学含义。
+
+还有一个更几何的直觉。由于数据近似均匀，volume ratio 就是 probability ratio。把半径从 $r$ 稍微扩大到 $(1+\epsilon)r$ 时，新增 boundary shell 相对于原 neighborhood 的体积比例为：
+
+$$\frac{\mathrm{Vol}_{\infty}((1+\epsilon)r)-\mathrm{Vol}_{\infty}(r)}{\mathrm{Vol}_{\infty}(r)}=(1+\epsilon)^d-1.$$
+
+如果只保留去掉边缘后的 inner core，也就是半径从 $r$ 缩到 $(1-\epsilon)r$，core 相对于原 neighborhood 的体积比例为：
+
+$$\frac{\mathrm{Vol}_{\infty}((1-\epsilon)r)}{\mathrm{Vol}_{\infty}(r)}=(1-\epsilon)^d.$$
+
+当 $d$ 增大时，固定的相对边缘变化会被 exponent $d$ 放大：outer shell 的概率质量相对于原主体快速增加，而 inner core 的概率质量快速趋近于 $0$。因此在高维中，local neighborhood 的概率质量对半径和边界非常敏感，所谓“主体区域”并不会像低维直觉那样稳定占据主要质量。
+
+Euclidean ball 版本也有同样的问题。对半径为 $r$ 的 $L_2$ ball，忽略边界效应：
+
+$$\mathrm{Vol}_{2}(r)=V_d r^d.$$
+
+其中：
+
+$$V_d=\frac{\pi^{d/2}}{\Gamma(d/2+1)}.$$
+
+因此：
+
+$$\mathbb{E}[N_r]=mV_dr^d.$$
+
+为了让 $\mathbb{E}[N_r]\geq k$，需要：
+
+$$m\geq \frac{k}{V_dr^d}.$$
+
+关键因子仍然是 $r^d$。即使暂时不讨论 $V_d$ 本身如何随 $d$ 变化，只要 $r<1$，local volume 就会随着 dimension 增加而快速 collapse。
+
+LWR 假设每个 query point $x$ 周围有足够样本来稳定拟合 local model $\theta(x)$。在高维中，除非 $m$ 指数增长，否则这个统计前提通常不成立。
+
+![Neighborhood volume decays exponentially with dimension](../../assets/figures/lecture03-neighborhood-volume-decay.png)
+
+![Sample size required for fixed local coverage grows exponentially](../../assets/figures/lecture03-sample-size-exponential-growth.png)
+
+### Distance Concentration
+
+令 $X,Y\in[0,1]^d$ 是两个 independent random points，且各坐标 independent。定义 squared Euclidean distance：
+
+$$D^2=\left|X-Y\right|_2^2=\sum_{j=1}^{d}(X_j-Y_j)^2.$$
+
+令：
+
+$$Z_j=(X_j-Y_j)^2.$$
+
+于是：
+
+$$D^2=\sum_{j=1}^{d}Z_j.$$
+
+若 $X_j,Y_j\sim\mathrm{Uniform}(0,1)$ 且相互独立，则：
+
+$$\mathbb{E}[Z_j]=\mathbb{E}[(X_j-Y_j)^2]=\frac{1}{6}.$$
+
+同时：
+
+$$\mathbb{E}[Z_j^2]=\mathbb{E}[(X_j-Y_j)^4]=\frac{1}{15}.$$
+
+所以：
+
+$$\mathrm{Var}(Z_j)=\frac{1}{15}-\left(\frac{1}{6}\right)^2=\frac{7}{180}.$$
+
+由于 coordinates independent：
+
+$$\mathbb{E}[D^2]=\sum_{j=1}^{d}\mathbb{E}[Z_j]=\frac{d}{6}.$$
+
+$$\mathrm{Var}(D^2)=\sum_{j=1}^{d}\mathrm{Var}(Z_j)=\frac{7d}{180}.$$
+
+因此 $D^2$ 的 coefficient of variation 是：
+
+$$\frac{\sqrt{\mathrm{Var}(D^2)}}{\mathbb{E}[D^2]}=\frac{\sqrt{7d/180}}{d/6}=\sqrt{\frac{7}{5d}}.$$
+
+这说明 distance 的 absolute scale 会随着 $d$ 增长，但 relative fluctuation 会按 $1/\sqrt{d}$ 缩小。因此 distances 会越来越集中在均值附近。
+
+如果从一个 query point 到 $m$ 个 training points 分别计算距离，每个 squared distance 都是 $d$ 个 coordinate-level random terms 的和。单个 squared distance 的 typical fluctuation 是 $O(\sqrt{d})$，而 mean 是 $O(d)$。
+
+对 fixed 或 subexponential $m$，许多 sampled distances 之间的 spread 增长得远慢于 mean。非严格但有用的直觉是：
+
+$$\frac{D_{\max}^2-D_{\min}^2}{\mathbb{E}[D^2]}=O\left(\sqrt{\frac{\log m}{d}}\right).$$
+
+当 $d$ 很大且 $\log m\ll d$ 时，nearest distance 和 farthest distance 的 relative difference 会变小。
+
+这并不是说所有 distances 完全相等，而是说 Euclidean distance 提供的 ranking signal 相对于 distance scale 本身变弱了。
+
+![Distances concentrate as dimension increases](../../assets/figures/lecture03-distance-concentration-derivation.png)
+
+## Consequence for Gaussian Kernel Weights
+
+LWR 常用的 Gaussian kernel weight 是：
+
+$$w^{(i)}(x)=\exp\left(-\frac{\left|x^{(i)}-x\right|_2^2}{2\tau^2}\right).$$
+
+如果 $\tau$ 固定，而 typical squared distance 像 $d/6$ 一样增长，那么 typical weight 近似为：
+
+$$w^{(i)}(x)\approx \exp\left(-\frac{d}{12\tau^2}\right).$$
+
+因此随着 $d$ 增大，weights 可能变得极小，effective neighbors 很少。
+
+如果让 $\tau^2$ 随 $d$ 一起放大，weights 不会全部 vanish；但由于 distance differences 的相对幅度变小，weights 又会变得接近 uniform。
+
+这形成了一个 high-dimensional dilemma：
+
+* small $\tau$：几乎没有 effective neighbors；
+* large $\tau$：所有点看起来权重相近，LWR 退化为接近 global fitting；
+* intermediate $\tau$：经常不稳定，并且高度依赖具体数据分布。
+
+![LWR Gaussian weights degenerate in high dimensions](../../assets/figures/lecture03-lwr-weights-high-dimensional-degeneracy.png)
+
+这就是 LWR 在 low-dimensional visual examples 中很有力量、但在 high-dimensional feature spaces 中很脆弱的更深原因。LWR 假设 locality 同时是 statistically populated 和 geometrically meaningful；高维同时破坏这两个条件：local neighborhoods 除非数据指数增长否则接近空，而 distance-based weighting 又因为 distances concentrate 变得不够 informative。
+
+对 reliable ML 来说，locality-based methods 必须报告或监控：
+
+* effective sample size around each query；
+* bandwidth sensitivity；
+* local condition number of weighted design matrix；
+* distance concentration diagnostics；
+* feature scaling and metric validity；
+* whether learned local behavior is stable under perturbations。
 
 ## 7. Probability vs Likelihood
 
