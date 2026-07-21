@@ -644,10 +644,10 @@ $$\theta^Tx=0.$$
 
 | Aspect | Logistic Regression | Perceptron |
 | ------ | ------------------- | ---------- |
-| Output | $P(y=1|x;\theta)$ in $(0,1)$ | hard class label or signed score |
-| Activation | sigmoid $g(\theta^Tx)$ | step function or sign function |
+| Output | $`P(y=1\mid x;\theta)`$ in $`(0,1)`$ | hard class label $`\hat{y}`$ or signed score |
+| Activation | sigmoid $`g(\theta^Tx)`$ | step function or sign function |
 | Objective | Bernoulli negative log likelihood | mistake-driven update, often no smooth global loss in basic form |
-| Update rule | gradient descent or Newton method on cross-entropy | update only on mistakes |
+| Update rule | gradient descent or Newton method on cross-entropy | update only on mistakes, e.g. $`\theta\leftarrow\theta+y^{(i)}x^{(i)}`$ |
 | Probability interpretation | Yes, conditional Bernoulli model | No calibrated probability by default |
 | Convergence assumptions | Convex objective, but data separation can cause coefficient divergence | finite convergence under linear separability |
 | Robustness | Can use regularization and probabilistic diagnostics | Sensitive to order, margin, and noisy non-separable data |
@@ -695,6 +695,71 @@ Gradient descent 只使用 slope，Newton method 同时使用 slope 和 curvatur
 把 Newton method 写成 root finding。令 $F(\theta)=f'(\theta)$，目标是找到 $F(\theta^\star)=0$。Newton update 是：
 
 $$\theta_{t+1}=\theta_t-\frac{F(\theta_t)}{F'(\theta_t)}.$$
+
+另一种说明 Newton method 收敛的方式，是先把它看成 fixed-point iteration。定义：
+
+```math
+g(x)=x-\frac{F(x)}{F'(x)}
+```
+
+于是 Newton update 可以写成：
+
+```math
+x_{t+1}=g(x_t)
+```
+
+严谨的顺序不是一开始就假设 $\{x_t\}$ 已经有极限，而是先在某个局部区间 $I$ 上证明 $g$ 是 contraction。也就是说，证明 $g(I)\subseteq I$，并且存在 $q<1$ 使得：
+
+```math
+|g'(x)|\le q<1,\quad x\in I
+```
+
+由 mean value theorem，这等价于在区间内压缩任意两点之间的距离：
+
+```math
+|g(u)-g(v)|\le q|u-v|,
+\quad u,v\in I
+```
+
+由压缩映射定理，若 $x_0\in I$，则迭代序列 $\{x_t\}$ 在不需要显式求出每个 $x_t$ 的情况下，就可以直接知道极限存在。记这个极限为：
+
+```math
+L=\lim_{t\to\infty}x_t
+```
+
+因为移位后的收敛数列极限相同，所以：
+
+```math
+\lim_{t\to\infty}x_{t+1}=L
+```
+
+对迭代公式两边取极限：
+
+```math
+\lim_{t\to\infty}x_{t+1}
+=
+\lim_{t\to\infty}\left(x_t-\frac{F(x_t)}{F'(x_t)}\right)
+```
+
+利用 $F$ 和 $F'$ 的连续性，并假设 $F'(L)\neq0$，得到：
+
+```math
+L=L-\frac{F(L)}{F'(L)}
+```
+
+两边消去 $L$：
+
+```math
+\frac{F(L)}{F'(L)}=0
+```
+
+因此：
+
+```math
+F(L)=0
+```
+
+这个 argument 的作用是分清两件事：contraction 先证明 sequence converges；取极限再证明 converged limit is a root。后面的 quadratic convergence 则进一步说明，当初始点已经足够接近 root 时，误差不仅变小，而且会以平方速度变小。
 
 在 smoothness 和 local regularity 条件下，可以得到：
 

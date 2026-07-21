@@ -114,7 +114,95 @@ $$|\theta_{t+1}-\theta^\star|\leq C|\theta_t-\theta^\star|^2.$$
 
 This is quadratic convergence: once close enough, the number of correct digits can roughly double at each step.
 
-## 7. Proof Sketch with Taylor Expansion
+## 7. Constructing Convergence by Fixed-point Argument
+
+Before proving the quadratic error rate, it is useful to separate two questions:
+
+* Does the sequence actually converge?
+* If it converges, what equation does the limit satisfy?
+
+Write Newton's root-finding update as a fixed-point iteration. Define:
+
+```math
+g(x)=x-\frac{F(x)}{F'(x)}
+```
+
+Then:
+
+```math
+x_{t+1}=g(x_t)
+```
+
+For a simple root $x^\star$ with $F(x^\star)=0$ and $F'(x^\star)\neq0$, the derivative of the Newton map is:
+
+```math
+g'(x)
+=
+1-\frac{F'(x)^2-F(x)F''(x)}{F'(x)^2}
+=
+\frac{F(x)F''(x)}{F'(x)^2}
+```
+
+At the root, this gives:
+
+```math
+g'(x^\star)=0
+```
+
+By continuity, there is a small interval $I$ around $x^\star$ where $g(I)\subseteq I$ and where the map is a contraction:
+
+```math
+|g'(x)|\le q<1,
+\quad x\in I
+```
+
+By the mean value theorem, for any $u,v\in I$:
+
+```math
+|g(u)-g(v)|\le q|u-v|
+```
+
+The contraction mapping theorem then implies that if $x_0\in I$, the sequence $\{x_t\}$ converges to a unique fixed point $L\in I$. This proves existence of the limit without explicitly solving for every iterate:
+
+```math
+L=\lim_{t\to\infty}x_t
+```
+
+Since a shifted convergent sequence has the same limit:
+
+```math
+\lim_{t\to\infty}x_{t+1}=L
+```
+
+Take limits on both sides of the Newton update:
+
+```math
+\lim_{t\to\infty}x_{t+1}
+=
+\lim_{t\to\infty}\left(x_t-\frac{F(x_t)}{F'(x_t)}\right)
+```
+
+Using continuity of $F$ and $F'$, and assuming $F'(L)\neq0$:
+
+```math
+L=L-\frac{F(L)}{F'(L)}
+```
+
+Cancel $L$ on both sides:
+
+```math
+\frac{F(L)}{F'(L)}=0
+```
+
+Therefore:
+
+```math
+F(L)=0
+```
+
+So the contraction argument establishes convergence, and the limiting argument identifies the limit as a root. The Taylor expansion proof below then strengthens this by showing the local error decreases quadratically.
+
+## 8. Proof Sketch with Taylor Expansion
 
 Let:
 
@@ -160,7 +248,7 @@ Then:
 
 $$|e_{t+1}|\leq C|e_t|^2.$$
 
-## 8. When Newton Fails
+## 9. When Newton Fails
 
 Newton method can fail or behave poorly when:
 
@@ -174,7 +262,7 @@ Newton method can fail or behave poorly when:
 
 These failure modes explain why practical Newton methods are often damped, regularized, or replaced by quasi-Newton methods.
 
-## 9. Connection to Logistic Regression and CS229
+## 10. Connection to Logistic Regression and CS229
 
 For logistic regression, the negative log likelihood has gradient:
 
