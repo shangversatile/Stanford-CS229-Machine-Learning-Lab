@@ -797,7 +797,7 @@ F(\theta^\star)
 F(\theta_t)+F'(\theta_t)(\theta^\star-\theta_t)+\frac{1}{2}F''(\xi_t)(\theta^\star-\theta_t)^2
 ```
 
-为什么左边可以写成 $0$？因为 $\theta^\star$ 是真实的 root。为什么会出现 $\xi_t$？这是 Lagrange remainder / mean value theorem 的结论：Taylor 展开的误差可以用某个介于 $\theta_t$ 与 $\theta^\star$ 之间的点 $\xi_t$ 上的二阶导数精确表达。
+为什么左边可以写成 $0$？因为 $\theta^\star$ 是真实的 root。为什么这里是等号而不是约等号？因为这里使用的不是截断后的 Taylor approximation，而是带 Lagrange remainder 的 Taylor theorem。中值定理保证存在某个介于 $\theta_t$ 与 $\theta^\star$ 之间的点 $\xi_t$，使得 remainder 可以被 $F''(\xi_t)$ 精确表示。因此这一行是 exact equality；如果把 remainder 丢掉，才会变成近似式。
 
 把 $F(\theta^\star)=0$ 和 $\theta^\star-\theta_t=-e_t$ 代入：
 

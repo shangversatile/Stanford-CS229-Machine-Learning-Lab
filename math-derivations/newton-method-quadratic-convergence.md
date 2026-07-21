@@ -220,6 +220,8 @@ Apply Taylor expansion of $F(\theta^\star)$ around $\theta_t$:
 
 $$0=F(\theta^\star)=F(\theta_t)+F'(\theta_t)(\theta^\star-\theta_t)+\frac{1}{2}F''(\xi_t)(\theta^\star-\theta_t)^2.$$
 
+This line is an exact equality, not an approximation. The reason is that we are using Taylor's theorem with Lagrange remainder, not a truncated Taylor approximation. The mean value theorem guarantees that there exists some $\xi_t$ between $\theta_t$ and $\theta^\star$ such that the remainder is exactly represented by $F''(\xi_t)$. If the remainder term were dropped, then the expression would become an approximation.
+
 Since $\theta^\star-\theta_t=-e_t$:
 
 $$0=F(\theta_t)-F'(\theta_t)e_t+\frac{1}{2}F''(\xi_t)e_t^2.$$
