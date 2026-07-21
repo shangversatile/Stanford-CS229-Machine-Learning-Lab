@@ -96,6 +96,9 @@ By the end of this course lab, the repository should contain:
 * [x] Lecture 1 note completed
 * [x] Lecture 2 linear regression derivation completed
 * [x] Lecture 3 note completed
+* [x] ML vs probabilistic modeling perspective added
+* [x] Frequentist vs Bayesian contrast added
+* [x] Markdown math rendering audited
 * [x] PS1 supervised learning gate initialized
 * [x] Locally weighted regression derivation completed
 * [x] Logistic regression gradient derivation completed

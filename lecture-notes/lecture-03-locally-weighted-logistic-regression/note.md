@@ -10,6 +10,187 @@ Global Linear Regression -> Local Linear Approximation -> Probability vs Likelih
 
 这条线索说明了一件事：machine learning 不是固定套用某个 objective，而是根据 data geometry、output space、noise assumption 和 computation constraint 来重新设计模型。
 
+# Two Perspectives: Machine Learning View vs Probabilistic View
+
+## 1. Why Two Perspectives Matter
+
+同一个模型可以从两个角度阅读。官方 Lecture 3 的主线把 locally weighted regression、logistic regression 和 Newton method 连在一起；要真正理解这条线，不能只看公式长什么样，还要看这些公式到底是在表达 empirical objective，还是在表达 probabilistic modeling assumption。
+
+Machine learning view 关心的是：
+
+* 应该使用什么 hypothesis class？
+* 用什么 loss 衡量 prediction error？
+* 要最小化什么 empirical objective？
+* 模型如何 generalize 到 unseen data？
+
+Probabilistic view 关心的是：
+
+* 假设怎样的 data-generating distribution？
+* 哪些量是 random variables？
+* observed data 诱导出什么 likelihood？
+* 哪个 parameter 让 observed data 最 plausible？
+
+这两种说法不是互相竞争的解释，而是对同一个 training objective 的两种阅读方式。Machine learning view 强调预测、泛化和优化；probabilistic view 强调模型假设、似然和参数估计。CS229 早期几节课会不断在这两种语言之间切换。
+
+## 2. Machine Learning / Empirical Risk View
+
+设 training data 为：
+
+$$D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}.$$
+
+选择一个 hypothesis：
+
+$$h_{\theta}:\mathcal{X}\to\mathcal{Y}.$$
+
+选择一个 loss：
+
+$$\ell(h_{\theta}(x),y).$$
+
+最小化 empirical risk：
+
+$$J_{\mathrm{ERM}}(\theta)=\frac{1}{m}\sum_{i=1}^{m}\ell(h_{\theta}(x^{(i)}),y^{(i)}).$$
+
+因此：
+
+$$\hat{\theta}_{\mathrm{ERM}}=\underset{\theta}{\mathrm{argmin}}\ J_{\mathrm{ERM}}(\theta).$$
+
+从 ML view 看，linear regression 是“选择 linear hypothesis 和 squared loss”。Logistic regression 是“选择 sigmoid probability output 和 cross-entropy loss”。这套语言很适合讨论 optimization、generalization、regularization 和 robustness。
+
+## 3. Probabilistic / Statistical Modeling View
+
+另一种说法从 conditional distribution 开始：
+
+$$p(y|x;\theta).$$
+
+假设 training examples 条件独立：
+
+$$p(y^{(1)},\dots,y^{(m)}|X;\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta).$$
+
+定义 likelihood：
+
+$$L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta).$$
+
+Maximum likelihood estimation 是：
+
+$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmax}}\ L(\theta).$$
+
+Log likelihood 是：
+
+$$\ell(\theta)=\sum_{i=1}^{m}\log p(y^{(i)}|x^{(i)};\theta).$$
+
+Negative log likelihood 是：
+
+$$J_{\mathrm{NLL}}(\theta)=-\ell(\theta).$$
+
+所以也可以写成 minimization：
+
+$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmin}}\ J_{\mathrm{NLL}}(\theta).$$
+
+从 probabilistic view 看，loss 不是任意选的。它来自我们对 conditional distribution 的假设：Gaussian conditional model 导出 squared loss，Bernoulli conditional model 导出 cross-entropy。
+
+## 4. Linear Regression: Two Views Meet
+
+Machine learning view 写成：
+
+$$h_{\theta}(x)=\theta^Tx.$$
+
+$$J(\theta)=\frac{1}{2}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+
+Probabilistic view 假设：
+
+$$y^{(i)}=\theta^Tx^{(i)}+\epsilon^{(i)}.$$
+
+$$\epsilon^{(i)}\sim\mathcal{N}(0,\sigma^2).$$
+
+于是：
+
+$$p(y^{(i)}|x^{(i)};\theta)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{\left(y^{(i)}-\theta^Tx^{(i)}\right)^2}{2\sigma^2}\right).$$
+
+Negative log likelihood 与 squared error 只差 constant 和 positive scaling，所以：
+
+$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmin}}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+
+这解释了为什么 least squares 可以同时被读作 empirical error minimization 和 Gaussian maximum likelihood estimation。前者强调预测误差，后者说明 squared loss 隐含了 independent homoscedastic Gaussian noise assumption。
+
+## 5. Logistic Regression: Two Views Meet
+
+Machine learning view 先选择 bounded probabilistic output：
+
+$$h_{\theta}(x)=\frac{1}{1+e^{-\theta^Tx}}.$$
+
+然后使用 cross-entropy loss：
+
+$$J(\theta)=-\sum_{i=1}^{m}\left[y^{(i)}\log h_{\theta}(x^{(i)})+\left(1-y^{(i)}\right)\log\left(1-h_{\theta}(x^{(i)})\right)\right].$$
+
+Probabilistic view 假设 Bernoulli conditional model：
+
+$$p(y|x;\theta)=h_{\theta}(x)^y\left(1-h_{\theta}(x)\right)^{1-y}.$$
+
+它的 negative log likelihood 正好就是 binary cross-entropy objective。
+
+这说明 logistic regression 不是 linear regression 加一个 threshold。它是一个 Bernoulli conditional model，而它的 MLE objective 自然变成 cross-entropy。
+
+## 6. Why This Is Mostly Frequentist in Early CS229
+
+在早期 CS229 的 MLE 推导中，$\theta$ 被当作 fixed but unknown parameter。随机性来自 data，而不是来自 $\theta$ 本身。
+
+这就是 frequentist interpretation：
+
+$$\theta\ \text{is fixed but unknown.}$$
+
+$$D\ \text{is random because it is sampled from the data-generating process.}$$
+
+$$\hat{\theta}(D)\ \text{is random because it depends on the sampled dataset.}$$
+
+因此 estimator 是 random 的，因为换一批样本会得到不同的 $\hat{\theta}$；但 true parameter 在这个解释中不是 random variable。
+
+## 7. Bayesian Contrast
+
+Bayesian modeling 的出发点不同：$\theta$ 被建模为 random variable。
+
+先指定 prior：
+
+$$p(\theta).$$
+
+观察到 data $D$ 后，用 Bayes rule 更新到 posterior：
+
+$$p(\theta|D)=\frac{p(D|\theta)p(\theta)}{p(D)}.$$
+
+其中 evidence 是：
+
+$$p(D)=\int p(D|\theta)p(\theta)d\theta.$$
+
+MAP estimate 是：
+
+$$\hat{\theta}_{\mathrm{MAP}}=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)p(\theta).$$
+
+MLE 只最大化 likelihood；MAP 最大化 likelihood times prior。Full Bayesian prediction 不只使用一个 point estimate，而是对 posterior parameter uncertainty 做平均：
+
+$$p(y_*|x_*,D)=\int p(y_*|x_*;\theta)p(\theta|D)d\theta.$$
+
+## 8. Frequentist vs Bayesian Summary Table
+
+| Aspect | Frequentist / MLE View | Bayesian View |
+| ------ | ---------------------- | ------------- |
+| Parameter $\theta$ | Fixed but unknown | Random variable |
+| Data $D$ | Random sample | Observed evidence |
+| Main object | Estimator $\hat{\theta}(D)$ | Posterior $p(\theta\mid D)$ |
+| Prior | Not used in MLE | Required |
+| Objective | Maximize likelihood | Infer posterior / MAP / posterior predictive |
+| Uncertainty | Sampling distribution / confidence intervals | Posterior uncertainty |
+| CS229 early notes | Mostly this view | Later appears in regularization / Bayesian section |
+
+## 9. Research-Level Interpretation
+
+ML view 对 algorithm design 和 optimization 很有用：它让我们讨论 hypothesis class、loss landscape、gradient, generalization error 和 robustness。Probabilistic view 对解释 loss function 是否合适很关键：它让我们检查 assumed noise model、output distribution、independence assumption 和 calibration 是否可信。
+
+Reliable ML 需要两个角度同时成立：
+
+* ML view 检查 empirical performance、generalization、optimization 和 robustness；
+* probabilistic view 检查 assumed noise model、output distribution、independence assumption 和 calibration 是否 plausible。
+
+一个模型可能很好地 minimize empirical loss，但 probability calibration 很差。反过来，一个 probabilistic model 也可能数学上优雅但和真实数据机制 misspecified。可靠建模必须同时测试这两件事。
+
 ## 2. From Global Linear Regression to Local Models
 
 Ordinary linear regression 学习一个全局参数向量 $\theta$。训练结束后，预测只需要保存 $\theta$，训练数据本身可以丢弃。它的强假设是：同一个 linear relationship 对整个 input space 都足够好。

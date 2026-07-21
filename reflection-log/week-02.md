@@ -70,3 +70,9 @@ Before moving forward, implement logistic regression only after the gradient and
 ## PS1 Gate Initialized
 
 After completing Lecture 3, the learning flow now pauses at PS1 Supervised Learning Gate. Lecture 4 should be completed next, but later topics should not be started until PS1-related derivation and implementation tasks are mapped and attempted.
+
+## Lecture 3 Perspective Update
+
+Lecture 3 was updated to separate the machine learning perspective from the probabilistic modeling perspective. The early CS229 derivations are mainly frequentist: parameters are fixed but unknown, data are random, and MLE estimates the parameter. Bayesian modeling was added as a contrast through priors, posteriors, MAP, and posterior predictive distributions.
+
+Formula rendering was audited with the stricter Markdown math checker and kept in repository-compatible form.
