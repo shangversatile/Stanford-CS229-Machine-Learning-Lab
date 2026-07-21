@@ -1,58 +1,88 @@
 # Probability, Likelihood, and Maximum Likelihood Estimation
 
-This note focuses on likelihood and maximum likelihood estimation. For the broader bridge between empirical risk minimization and probabilistic modeling, see [ml-vs-probabilistic-modeling.md](ml-vs-probabilistic-modeling.md).
+This note focuses on probability, likelihood, and maximum likelihood estimation.
+
+For the full conceptual comparison between ERM, MLE, and Bayesian modeling, see:
+
+`ml-vs-probabilistic-modeling.md`
 
 ## 1. Probability vs Likelihood
 
-Probability and likelihood use the same mathematical expression but hold different quantities fixed.
+Probability and likelihood can use the same mathematical expression, but they read it as different functions.
 
 In the probability view, the parameter is fixed and the data are random:
 
-$$p(y|x;\theta).$$
+```math
+p(y|x;\theta)\quad\text{as a function of }y
+```
 
 This asks: if the model parameter is $\theta$, how likely is each possible observation $y$?
 
-In the likelihood view, the observed data are fixed and the parameter is variable:
+In the likelihood view, the observed data are fixed and the parameter varies:
 
-$$L(\theta)=p(D|\theta).$$
+```math
+L(\theta)=p(D|\theta)\quad\text{as a function of }\theta
+```
 
 This asks: among possible parameters, which $\theta$ makes the already observed dataset $D$ most plausible?
 
-Likelihood is not a probability distribution over $\theta$ in ordinary MLE. It becomes part of a probability distribution over $\theta$ only after a Bayesian prior is introduced.
+Likelihood is not a probability distribution over $\theta$ in ordinary MLE. It becomes part of a probability distribution over $\theta$ only after a Bayesian prior is introduced. Early CS229 uses this mainly as frequentist MLE: $\theta$ is fixed but unknown, data are random before observation, and the estimator changes when the sampled dataset changes.
 
 ## 2. Why Likelihood Is a Function of $\theta$
 
 Suppose the conditional model is:
 
-$$p(y|x;\theta).$$
+```math
+p(y|x;\theta)
+```
 
-Once a dataset $D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}$ has been observed, the values $x^{(i)}$ and $y^{(i)}$ are no longer random inside the optimization problem. The parameter $\theta$ is the unknown quantity being compared.
+Once a dataset has been observed,
+
+```math
+D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}
+```
+
+the values $x^{(i)}$ and $y^{(i)}$ are fixed inside the optimization problem. The parameter $\theta$ is the unknown quantity being compared.
 
 Under conditional independence, the likelihood is:
 
-$$L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta).$$
+```math
+L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta)
+```
 
 Taking logs gives:
 
-$$\ell(\theta)=\sum_{i=1}^{m}\log p(y^{(i)}|x^{(i)};\theta).$$
+```math
+\ell_{\mathrm{log}}(\theta)=\sum_{i=1}^{m}\log p(y^{(i)}|x^{(i)};\theta)
+```
 
 MLE is therefore:
 
-$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmax}}\ L(\theta).$$
+```math
+\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmax}}\ L(\theta)
+```
 
 Equivalently:
 
-$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmin}}\left[-\ell(\theta)\right].$$
+```math
+\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmin}}\left[-\ell_{\mathrm{log}}(\theta)\right]
+```
 
 ## 3. Frequentist Interpretation of MLE
 
-Early CS229 MLE derivations are mainly frequentist. The parameter is fixed but unknown, while the data are random samples from a data-generating process.
+Early CS229 MLE derivations are mainly frequentist. The parameter is treated as fixed but unknown, while the data are random samples from a data-generating process.
 
-$$\theta\ \text{is fixed but unknown.}$$
+```math
+\theta\ \text{is fixed but unknown}
+```
 
-$$D\ \text{is random.}$$
+```math
+D\ \text{is random because it is sampled from the data-generating process}
+```
 
-$$\hat{\theta}(D)\ \text{is random because it depends on }D.$$
+```math
+\hat{\theta}(D)\ \text{is random because it depends on }D
+```
 
 The true parameter is not assigned a probability distribution. Instead, the estimator $\hat{\theta}(D)$ has a sampling distribution because different random datasets would produce different estimates.
 
@@ -60,15 +90,21 @@ The true parameter is not assigned a probability distribution. Instead, the esti
 
 Bayesian modeling treats $\theta$ as a random variable and specifies a prior:
 
-$$p(\theta).$$
+```math
+p(\theta)
+```
 
 After observing data:
 
-$$p(\theta|D)=\frac{p(D|\theta)p(\theta)}{p(D)}.$$
+```math
+p(\theta|D)=\frac{p(D|\theta)p(\theta)}{p(D)}
+```
 
 The evidence term is:
 
-$$p(D)=\int p(D|\theta)p(\theta)d\theta.$$
+```math
+p(D)=\int p(D|\theta)p(\theta)d\theta
+```
 
 The posterior $p(\theta|D)$ is a probability distribution over parameters. It captures parameter uncertainty after seeing the data.
 
@@ -76,43 +112,63 @@ The posterior $p(\theta|D)$ is a probability distribution over parameters. It ca
 
 MLE ignores the prior and maximizes likelihood:
 
-$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta).$$
+```math
+\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)
+```
 
 MAP uses the posterior and therefore includes the prior:
 
-$$\hat{\theta}_{\mathrm{MAP}}=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)p(\theta).$$
+```math
+\hat{\theta}_{\mathrm{MAP}}=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)p(\theta)
+```
 
 Taking logs makes the prior contribution explicit:
 
-$$\hat{\theta}_{\mathrm{MAP}}=\underset{\theta}{\mathrm{argmax}}\left[\log p(D|\theta)+\log p(\theta)\right].$$
+```math
+\hat{\theta}_{\mathrm{MAP}}=\underset{\theta}{\mathrm{argmax}}\left[\log p(D|\theta)+\log p(\theta)\right]
+```
 
 Full Bayesian prediction uses the whole posterior rather than one point estimate:
 
-$$p(y_*|x_*,D)=\int p(y_*|x_*;\theta)p(\theta|D)d\theta.$$
+```math
+p(y_*|x_*,D)=\int p(y_*|x_*;\theta)p(\theta|D)d\theta
+```
 
 ## 6. How Gaussian MLE Produces Squared Loss
 
 Linear regression can be given a probabilistic interpretation by assuming additive Gaussian noise:
 
-$$y^{(i)}=\theta^Tx^{(i)}+\epsilon^{(i)}.$$
+```math
+y^{(i)}=\theta^Tx^{(i)}+\epsilon^{(i)}
+```
 
-$$\epsilon^{(i)}\sim\mathcal{N}(0,\sigma^2).$$
+```math
+\epsilon^{(i)}\sim\mathcal{N}(0,\sigma^2)
+```
 
 Then:
 
-$$p(y^{(i)}|x^{(i)};\theta)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{\left(y^{(i)}-\theta^Tx^{(i)}\right)^2}{2\sigma^2}\right).$$
+```math
+p(y^{(i)}|x^{(i)};\theta)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{\left(y^{(i)}-\theta^Tx^{(i)}\right)^2}{2\sigma^2}\right)
+```
 
 For independent samples:
 
-$$L(\theta)=\prod_{i=1}^{m}\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{\left(y^{(i)}-\theta^Tx^{(i)}\right)^2}{2\sigma^2}\right).$$
+```math
+L(\theta)=\prod_{i=1}^{m}\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{\left(y^{(i)}-\theta^Tx^{(i)}\right)^2}{2\sigma^2}\right)
+```
 
 The log likelihood is:
 
-$$\ell(\theta)=-m\log(\sqrt{2\pi}\sigma)-\frac{1}{2\sigma^2}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+```math
+\ell_{\mathrm{log}}(\theta)=-m\log(\sqrt{2\pi}\sigma)-\frac{1}{2\sigma^2}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2
+```
 
 The first term does not depend on $\theta$, and $1/(2\sigma^2)$ is positive. Therefore:
 
-$$\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmin}}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2.$$
+```math
+\hat{\theta}_{\mathrm{MLE}}=\underset{\theta}{\mathrm{argmin}}\sum_{i=1}^{m}\left(y^{(i)}-\theta^Tx^{(i)}\right)^2
+```
 
 Thus ordinary least squares is MLE under independent homoscedastic Gaussian noise.
 
@@ -120,23 +176,33 @@ Thus ordinary least squares is MLE under independent homoscedastic Gaussian nois
 
 For binary classification, $y\in\{0,1\}$. Logistic regression models:
 
-$$h_{\theta}(x)=\frac{1}{1+e^{-\theta^Tx}}.$$
+```math
+h_{\theta}(x)=\frac{1}{1+e^{-\theta^Tx}}
+```
 
 The Bernoulli conditional model is:
 
-$$p(y|x;\theta)=h_{\theta}(x)^y\left(1-h_{\theta}(x)\right)^{1-y}.$$
+```math
+p(y|x;\theta)=h_{\theta}(x)^y\left(1-h_{\theta}(x)\right)^{1-y}
+```
 
 For independent examples:
 
-$$L(\theta)=\prod_{i=1}^{m}h_{\theta}(x^{(i)})^{y^{(i)}}\left(1-h_{\theta}(x^{(i)})\right)^{1-y^{(i)}}.$$
+```math
+L(\theta)=\prod_{i=1}^{m}h_{\theta}(x^{(i)})^{y^{(i)}}\left(1-h_{\theta}(x^{(i)})\right)^{1-y^{(i)}}
+```
 
 The log likelihood is:
 
-$$\ell(\theta)=\sum_{i=1}^{m}\left[y^{(i)}\log h_{\theta}(x^{(i)})+\left(1-y^{(i)}\right)\log\left(1-h_{\theta}(x^{(i)})\right)\right].$$
+```math
+\ell_{\mathrm{log}}(\theta)=\sum_{i=1}^{m}\left[y^{(i)}\log h_{\theta}(x^{(i)})+\left(1-y^{(i)}\right)\log\left(1-h_{\theta}(x^{(i)})\right)\right]
+```
 
 The negative log likelihood is:
 
-$$J_{\mathrm{NLL}}(\theta)=-\sum_{i=1}^{m}\left[y^{(i)}\log h_{\theta}(x^{(i)})+\left(1-y^{(i)}\right)\log\left(1-h_{\theta}(x^{(i)})\right)\right].$$
+```math
+J_{\mathrm{NLL}}(\theta)=-\sum_{i=1}^{m}\left[y^{(i)}\log h_{\theta}(x^{(i)})+\left(1-y^{(i)}\right)\log\left(1-h_{\theta}(x^{(i)})\right)\right]
+```
 
 This is binary cross-entropy. It heavily penalizes confidently wrong predictions because log probability goes to negative infinity near zero.
 
