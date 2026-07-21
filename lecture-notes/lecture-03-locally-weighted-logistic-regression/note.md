@@ -761,31 +761,174 @@ F(L)=0
 
 这个 argument 的作用是分清两件事：contraction 先证明 sequence converges；取极限再证明 converged limit is a root。后面的 quadratic convergence 则进一步说明，当初始点已经足够接近 root 时，误差不仅变小，而且会以平方速度变小。
 
-在 smoothness 和 local regularity 条件下，可以得到：
+在 smoothness 和 local regularity 条件下，可以得到 quadratic convergence：
 
-$$|\theta_{t+1}-\theta^\star|\leq C|\theta_t-\theta^\star|^2.$$
+```math
+|\theta_{t+1}-\theta^\star|\leq C|\theta_t-\theta^\star|^2
+```
 
-简要证明如下。令误差 $e_t=\theta_t-\theta^\star$。对 $F$ 在 $\theta_t$ 附近展开到 $\theta^\star$：
+下面把证明过程逐句拆开。
 
-$$0=F(\theta^\star)=F(\theta_t)+F'(\theta_t)(\theta^\star-\theta_t)+\frac{1}{2}F''(\xi_t)(\theta^\star-\theta_t)^2.$$
+### Quadratic Convergence Proof, Line by Line
 
-整理得到：
+第一步是定义当前 iterate 到真实 root 的误差：
 
-$$F(\theta_t)=F'(\theta_t)e_t-\frac{1}{2}F''(\xi_t)e_t^2.$$
-
-代入 Newton update：
-
-$$e_{t+1}=\theta_{t+1}-\theta^\star=e_t-\frac{F(\theta_t)}{F'(\theta_t)}.$$
+```math
+e_t=\theta_t-\theta^\star
+```
 
 因此：
 
-$$e_{t+1}=\frac{F''(\xi_t)}{2F'(\theta_t)}e_t^2.$$
+```math
+\theta^\star-\theta_t=-e_t
+```
 
-若在局部邻域中 $|F''(\xi_t)|$ 有界，且 $|F'(\theta_t)|$ 远离 $0$，就存在常数 $C$ 使：
+这里 $\theta^\star$ 是 true root，所以按定义有：
 
-$$|e_{t+1}|\leq C|e_t|^2.$$
+```math
+F(\theta^\star)=0
+```
 
-需要的条件包括：initial point 足够接近 optimum，$F'(\theta^\star)\neq0$，second derivative bounded，multivariate 情况下 Hessian well-conditioned。
+根据带 Lagrange remainder 的二阶 Taylor expansion，把 $F(\theta^\star)$ 在 $\theta_t$ 附近展开：
+
+```math
+F(\theta^\star)
+=
+F(\theta_t)+F'(\theta_t)(\theta^\star-\theta_t)+\frac{1}{2}F''(\xi_t)(\theta^\star-\theta_t)^2
+```
+
+为什么左边可以写成 $0$？因为 $\theta^\star$ 是真实的 root。为什么会出现 $\xi_t$？这是 Lagrange remainder / mean value theorem 的结论：Taylor 展开的误差可以用某个介于 $\theta_t$ 与 $\theta^\star$ 之间的点 $\xi_t$ 上的二阶导数精确表达。
+
+把 $F(\theta^\star)=0$ 和 $\theta^\star-\theta_t=-e_t$ 代入：
+
+```math
+0
+=
+F(\theta_t)+F'(\theta_t)(-e_t)+\frac{1}{2}F''(\xi_t)(-e_t)^2
+```
+
+由于 $(-e_t)^2=e_t^2$，所以：
+
+```math
+0
+=
+F(\theta_t)-F'(\theta_t)e_t+\frac{1}{2}F''(\xi_t)e_t^2
+```
+
+把 $F(\theta_t)$ 孤立到等式左边：
+
+```math
+F(\theta_t)
+=
+F'(\theta_t)e_t-\frac{1}{2}F''(\xi_t)e_t^2
+```
+
+把这个关系记为式 1。它的含义是：$F(\theta_t)$ 的一阶部分正好是 $F'(\theta_t)e_t$，二阶 remainder 是 $-\frac{1}{2}F''(\xi_t)e_t^2$。
+
+Newton update 是：
+
+```math
+\theta_{t+1}=\theta_t-\frac{F(\theta_t)}{F'(\theta_t)}
+```
+
+为了研究下一步误差，两边同时减去 $\theta^\star$：
+
+```math
+\theta_{t+1}-\theta^\star
+=
+\theta_t-\theta^\star-\frac{F(\theta_t)}{F'(\theta_t)}
+```
+
+根据误差定义，上式就是：
+
+```math
+e_{t+1}=e_t-\frac{F(\theta_t)}{F'(\theta_t)}
+```
+
+现在把式 1 代入分子 $F(\theta_t)$：
+
+```math
+e_{t+1}
+=
+e_t-\frac{F'(\theta_t)e_t-\frac{1}{2}F''(\xi_t)e_t^2}{F'(\theta_t)}
+```
+
+拆开分数：
+
+```math
+e_{t+1}
+=
+e_t-
+\left(
+\frac{F'(\theta_t)e_t}{F'(\theta_t)}
+-
+\frac{\frac{1}{2}F''(\xi_t)e_t^2}{F'(\theta_t)}
+\right)
+```
+
+注意第一项正好约掉：
+
+```math
+\frac{F'(\theta_t)e_t}{F'(\theta_t)}=e_t
+```
+
+所以一阶误差项完全抵消：
+
+```math
+e_{t+1}
+=
+e_t-e_t+\frac{\frac{1}{2}F''(\xi_t)e_t^2}{F'(\theta_t)}
+```
+
+得到精确的误差递推关系：
+
+```math
+e_{t+1}=\frac{F''(\xi_t)}{2F'(\theta_t)}e_t^2
+```
+
+这一步就是 Newton method 二次收敛的核心：linear error term 被 Newton update 精确消掉，留下的是 proportional to $e_t^2$ 的二阶项。
+
+两边取绝对值：
+
+```math
+|e_{t+1}|
+=
+\frac{|F''(\xi_t)|}{2|F'(\theta_t)|}|e_t|^2
+```
+
+现在使用两个局部假设。Smoothness 表示二阶导数在局部邻域内不会爆炸，存在上界 $M_2$：
+
+```math
+|F''(\xi_t)|\le M_2
+```
+
+Local regularity 表示一阶导数不贴近 $0$，也就是 tangent 不会变成几乎水平的 dead corner，存在下界 $M_1>0$：
+
+```math
+|F'(\theta_t)|\ge M_1>0
+```
+
+因此系数部分有统一上界：
+
+```math
+\frac{|F''(\xi_t)|}{2|F'(\theta_t)|}
+\le
+\frac{M_2}{2M_1}
+```
+
+令：
+
+```math
+C=\frac{M_2}{2M_1}
+```
+
+最终得到：
+
+```math
+|e_{t+1}|\le C|e_t|^2
+```
+
+这就是 quadratic convergence statement。它比普通的 linear convergence 更强：当 $|e_t|$ 已经很小时，下一步误差大约按平方级别缩小。需要的条件包括：initial point 足够接近 optimum，$F'(\theta^\star)\neq0$，second derivative bounded，并且 multivariate 情况下 Hessian well-conditioned。
 
 ![Newton quadratic convergence](../../assets/figures/lecture03-newton-quadratic-convergence.png)
 
