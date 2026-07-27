@@ -103,6 +103,13 @@ By the end of this course lab, the repository should contain:
 * [x] Locally weighted regression derivation completed
 * [x] Logistic regression gradient derivation completed
 * [x] Newton method derivation completed
+* [x] Lecture 4 note completed
+* [x] Perceptron derivation completed
+* [x] Exponential-family properties completed
+* [x] GLM construction derivation completed
+* [x] Softmax derivation completed
+* [x] Lecture 4 original exercise sheet created
+* [ ] PS1 gate remains incomplete
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed
 

@@ -6,8 +6,10 @@
 * [x] Lecture 2 note completed
 * [x] Lecture 3 watched
 * [x] Lecture 3 note completed
-* [ ] Lecture 4 watched
-* [ ] Lecture 4 note completed
+* [x] Lecture 4 watched
+* [x] Lecture 4 note completed
+
+Lecture 4 is marked watched/note-completed because the user supplied Lecture 4 reflections and explicitly requested completion of the Lecture 4 note package. Assignment exercises and implementation tasks remain open.
 
 ## Derivation Tasks
 

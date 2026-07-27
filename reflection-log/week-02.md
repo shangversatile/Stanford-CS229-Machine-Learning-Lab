@@ -76,3 +76,16 @@ After completing Lecture 3, the learning flow now pauses at PS1 Supervised Learn
 Lecture 3 was updated to separate the machine learning perspective from the probabilistic modeling perspective. The early CS229 derivations are mainly frequentist: parameters are fixed but unknown, data are random, and MLE estimates the parameter. Bayesian modeling was added as a contrast through priors, posteriors, MAP, and posterior predictive distributions.
 
 Formula rendering was audited with the stricter Markdown math checker and kept in repository-compatible form.
+
+## Lecture 4 Conceptual Corrections
+
+Lecture 4 completion corrected several modeling-level misunderstandings:
+
+* Multiclass classification corresponds to categorical or multinomial modeling, not Poisson. Poisson is for count data with a rate interpretation.
+* Perceptron and logistic regression may share the same linear score $\theta^Tx$, but Perceptron is mistake-driven while logistic regression is likelihood-driven and probabilistic.
+* $T(y)$ is a sufficient statistic, not automatically equal to $y$. For example, unknown-variance Gaussian models need statistics such as $y$ and $y^2$, and multinomial models use indicator vectors.
+* The log-partition function $a(\eta)$ is the engine of exponential-family moments: its gradient gives the mean of $T(Y)$ and its Hessian gives the covariance.
+* In a GLM, the response function maps the natural linear predictor into the conditional mean $\mathbb E[T(Y)\mid x;\theta]$; it is not the parameter estimate itself.
+* Softmax is a joint multinomial model with coupled probabilities that sum to one, not a set of independent one-vs-rest logistic regressions.
+
+The main reliability lesson is that model choice starts from response semantics and support, then checks variance behavior, link choice, identifiability, calibration, and distribution shift.

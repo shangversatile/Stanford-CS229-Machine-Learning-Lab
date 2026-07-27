@@ -3,6 +3,8 @@
 The script is read-only. It recursively scans Markdown files, distinguishes
 ordinary code fences from GitHub ```math fences, prints each issue with its
 path and line number, and exits with a nonzero status when findings exist.
+Lecture 4 files are checked against the newer fenced-math display policy while
+older notes still allow legacy one-line $$...$$ display formulas.
 """
 
 from __future__ import annotations
@@ -39,6 +41,17 @@ RAW_COMMAND_LINE = re.compile(
 FENCE_START = re.compile(r"^\s*(`{3,}|~{3,})")
 INLINE_CODE_SPAN = re.compile(r"`[^`]*`")
 DOLLAR_BACKTICK_INLINE_MATH = re.compile(r"\$`([^`]*)`\$")
+
+LECTURE04_FENCED_MATH_ONLY_FILES = {
+    Path("lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md"),
+    Path("math-derivations/perceptron-vector-geometry.md"),
+    Path("math-derivations/exponential-family-anatomy.md"),
+    Path("math-derivations/log-partition-mean-variance-convexity.md"),
+    Path("math-derivations/glm-construction-recipe.md"),
+    Path("math-derivations/glm-response-distribution-map.md"),
+    Path("math-derivations/softmax-glm-cross-entropy.md"),
+    Path("assignments/ps1-supervised-learning/lecture04-original-exercises.md"),
+}
 
 
 def _closing_fence(line: str, marker: str, length: int) -> bool:
@@ -126,6 +139,11 @@ def _opening_fence(line: str) -> tuple[str, int] | None:
     return fence[0], len(fence)
 
 
+def _requires_fenced_math_display(path: Path) -> bool:
+    """Return whether path must avoid double-dollar display formulas."""
+    return path.relative_to(ROOT) in LECTURE04_FENCED_MATH_ONLY_FILES
+
+
 def audit_markdown(root: Path) -> list[tuple[Path, int, str, str]]:
     """Return findings as path, line number, reason, and offending line."""
     findings: list[tuple[Path, int, str, str]] = []
@@ -176,6 +194,17 @@ def audit_markdown(root: Path) -> list[tuple[Path, int, str, str]]:
             for reason, pattern in FORBIDDEN_PATTERNS:
                 if pattern.search(checked_line):
                     findings.append((path, line_number, reason, line))
+
+            if _requires_fenced_math_display(path) and "$$" in checked_line:
+                findings.append(
+                    (
+                        path,
+                        line_number,
+                        "Lecture 4 files must use fenced math blocks instead of double-dollar display math",
+                        line,
+                    )
+                )
+                continue
 
             display_issue = _display_math_issue(line)
             if display_issue is not None:
