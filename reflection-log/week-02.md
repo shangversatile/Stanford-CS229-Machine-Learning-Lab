@@ -95,3 +95,9 @@ The main reliability lesson is that model choice starts from response semantics 
 Lecture 4 was refined so the GLM logic now starts from response semantics rather than from a preferred loss or activation function. The updated note separates official CS229 core derivations from extension-level distribution intuition, makes the conceptual and mathematical interludes easier to navigate, and connects support, conditional distribution, exponential-family form, response function, NLL, and diagnostics into one modeling workflow.
 
 The key understanding target is now: given a new supervised-learning problem, first define what $Y$ can be and how it is generated, then justify the conditional distribution before deriving the response function and loss.
+
+## Lecture 4 Exponential-Family Origin Update
+
+The Lecture 4 notes now make explicit why exponential family and GLMs arise naturally rather than appearing as a memorized formula. The key connection is that ordinary linear regression is too narrow for binary, count, multiclass, positive, probability-valued, and heteroscedastic responses, while GLMs preserve a linear predictor by placing linearity on the natural parameter.
+
+The deeper understanding target is now: sufficient statistics explain likelihood compression, maximum entropy explains the exponential tilt, and the log-partition function explains normalization, moment generation, Fisher information, and convexity. These properties are consequences of normalization, sufficiency, and convex duality; they still require reliability diagnostics for support, link choice, misspecification, separation, calibration, and shift.

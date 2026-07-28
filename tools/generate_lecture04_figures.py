@@ -364,6 +364,82 @@ def figure_response_distribution_map() -> Path:
     return save(fig, "lecture04-response-distribution-map.png")
 
 
+
+def figure_why_exponential_family_emerges() -> Path:
+    """Show why exponential-family GLMs emerge from modeling constraints."""
+    fig, ax = plt.subplots(figsize=(12.4, 6.2))
+    ax.set_axis_off()
+
+    steps = [
+        ("ordinary linear\nmodel limits", COLORS["red"]),
+        ("response\nsemantics", COLORS["blue"]),
+        ("distribution\nchoice", COLORS["green"]),
+        ("exponential-family\nform", COLORS["purple"]),
+        ("sufficient statistic\nT(y)", COLORS["orange"]),
+        ("log-partition\na(eta)", COLORS["green"]),
+        ("natural parameter\neta", COLORS["blue"]),
+        (r"eta = theta^T x", COLORS["orange"]),
+        ("response mean\nh = grad a", COLORS["purple"]),
+        ("likelihood / NLL\noptimization", COLORS["red"]),
+    ]
+    positions = [
+        (0.10, 0.72),
+        (0.30, 0.72),
+        (0.50, 0.72),
+        (0.70, 0.72),
+        (0.90, 0.72),
+        (0.90, 0.32),
+        (0.70, 0.32),
+        (0.50, 0.32),
+        (0.30, 0.32),
+        (0.10, 0.32),
+    ]
+
+    for (label, color), position in zip(steps, positions):
+        draw_box(ax, position, label, color)
+
+    for start, end in zip(positions[:-1], positions[1:]):
+        draw_connector(ax, start, end)
+
+    ax.text(
+        0.50,
+        0.92,
+        "Why the exponential-family GLM form emerges",
+        ha="center",
+        va="center",
+        fontsize=15,
+        fontweight="semibold",
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.70,
+        0.56,
+        r"$p(y;\eta)=b(y)\exp(\eta^TT(y)-a(\eta))$",
+        ha="center",
+        va="center",
+        fontsize=12,
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.50,
+        0.13,
+        r"normalization + sufficiency + max entropy -> $h_\theta(x)=\nabla a(\theta^Tx)$ and convex-friendly NLL",
+        ha="center",
+        va="center",
+        fontsize=11,
+        color=COLORS["gray"],
+    )
+    ax.text(
+        0.50,
+        0.03,
+        "The response function is derived from the distribution, not selected as a generic activation.",
+        ha="center",
+        va="center",
+        fontsize=10.5,
+        color=COLORS["gray"],
+    )
+    return save(fig, "lecture04-why-exponential-family-emerges.png")
+
 def figure_glm_construction_pipeline() -> Path:
     """Show the GLM construction pipeline."""
     fig, ax = plt.subplots(figsize=(11.2, 3.8))
@@ -566,6 +642,7 @@ def main() -> None:
         figure_perceptron_vector_update,
         figure_perceptron_vs_logistic_response,
         figure_exponential_family_anatomy,
+        figure_why_exponential_family_emerges,
         figure_log_partition_moments,
         figure_response_distribution_map,
         figure_glm_construction_pipeline,

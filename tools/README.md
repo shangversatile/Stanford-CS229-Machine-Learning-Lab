@@ -39,7 +39,7 @@ Run the following command from the repository root to regenerate the Lecture 4 e
 python tools/generate_lecture04_figures.py
 ```
 
-The deterministic script uses only NumPy and Matplotlib. It creates ten PNG files in `assets/figures/` covering Perceptron vector updates, Perceptron versus logistic response behavior, exponential-family anatomy, log-partition moments, response-distribution mapping, the GLM construction pipeline, canonical Gaussian/Bernoulli/Poisson responses, softmax probability coupling, the softmax simplex, and the Newton curvature bridge.
+The deterministic script uses only NumPy and Matplotlib. It creates eleven PNG files in `assets/figures/` covering Perceptron vector updates, Perceptron versus logistic response behavior, exponential-family anatomy, why exponential-family GLMs emerge, log-partition moments, response-distribution mapping, the GLM construction pipeline, canonical Gaussian/Bernoulli/Poisson responses, softmax probability coupling, the softmax simplex, and the Newton curvature bridge.
 
 ## Markdown Math Audit
 

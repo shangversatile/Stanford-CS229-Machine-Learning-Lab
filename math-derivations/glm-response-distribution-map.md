@@ -1,6 +1,6 @@
-﻿# GLM Response and Distribution Map
+# GLM Response and Distribution Map
 
-Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [GLM workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [hypothesis-function interpretation](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function).
+Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [GLM workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [hypothesis-function interpretation](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For the deeper origin story, see [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Why distribution choice comes before loss choice
 

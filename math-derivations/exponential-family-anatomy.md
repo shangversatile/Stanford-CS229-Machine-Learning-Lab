@@ -1,6 +1,6 @@
 # Exponential Family Anatomy
 
-Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family) and [Lecture 4 Section 10](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function).
+Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [Lecture 4 Section 10](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Normalized form
 
@@ -202,6 +202,23 @@ Rearrange:
 
 The natural-parameter-dependent part is linear in the sample statistic and subtracts $ma(\eta)$. Since $a(\eta)$ is convex, the log-likelihood is concave in $\eta$ and the NLL is convex in $\eta$ for the regular canonical setting.
 
+## Why this form is natural rather than arbitrary
+
+The canonical form is not a random algebraic trick. It is natural from several independent directions; see the longer explanation in [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+
+For iid data, the likelihood aggregates evidence through the sample statistic:
+
+```math
+\sum_{i=1}^{m}T(y^{(i)})
+```
+
+This is the sufficiency viewpoint: once support and regularity conditions hold, fixed-dimensional sufficient statistics for all sample sizes lead essentially to exponential-family likelihoods. Maximum entropy gives a second route: if only expectations of chosen statistics are constrained, the least committed distribution has density or mass proportional to:
+
+```math
+b(y)\exp\left(\eta^TT(y)\right)
+```
+
+Normalization then forces the log-partition term $a(\eta)$, whose derivatives generate means and covariance. Thus sufficiency explains why $T(y)$ appears, maximum entropy explains why the exponential tilt appears, and normalization explains why the same $a(\eta)$ controls moments and convexity.
 ## 9. Modeling lesson
 
 Exponential family is not the set of all distributions. It is a family with a special algebraic structure: sufficient statistics enter linearly, the log-partition function normalizes the distribution, and derivatives of the log-partition function produce moments. GLMs use that structure to turn a response distribution into a principled response function and likelihood.

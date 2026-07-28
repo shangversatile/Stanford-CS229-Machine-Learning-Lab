@@ -4,6 +4,9 @@
 
 Consider an exponential-family distribution:
 
+The log-partition function appears first as a normalizer, but it later becomes the mathematical engine for response means, variance, Fisher information, and convexity. The deeper motivation is explained in [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+
+
 ```math
 p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 ```

@@ -1,6 +1,6 @@
 # GLM Construction Recipe
 
-Cross-link: see the main Lecture 4 note sections [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow) and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function), plus the standalone [GLM response and distribution map](glm-response-distribution-map.md).
+Cross-link: see the main Lecture 4 note sections [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function), plus the standalone [GLM response and distribution map](glm-response-distribution-map.md) and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Workflow diagram
 
@@ -23,6 +23,28 @@ response semantics
 
 This order matters because the loss is a consequence of the distribution, not the starting point.
 
+## Historical and modeling motivation
+
+GLMs were introduced to keep the useful parts of linear regression without pretending every supervised-learning response is a real-valued Gaussian measurement. The historical modeling compromise is:
+
+* keep a linear predictor for interpretability and computation;
+* choose a response distribution that matches the support and variance behavior of $Y$;
+* connect covariates to the distribution through the natural parameter;
+* estimate parameters by the likelihood induced by that distribution.
+
+In canonical form, the systematic component is:
+
+```math
+\eta=\theta^Tx
+```
+
+and the prediction is the mean map induced by the log-partition function:
+
+```math
+h_\theta(x)=\nabla a(\theta^Tx)
+```
+
+This is why sigmoid, exponential, identity, and softmax responses are derived from Bernoulli, Poisson, Gaussian, and multinomial likelihoods rather than chosen as interchangeable activation functions.
 ## 2. Official CS229 assumptions and modern GLM terms
 
 | CS229 assumption/design | Modern GLM term | What it means |
