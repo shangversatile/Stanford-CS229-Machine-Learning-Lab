@@ -102,7 +102,7 @@ h_\theta(x)=\nabla a(\theta^Tx)
 Training estimates the parameter:
 
 ```math
-\hat\theta=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)
+\hat\theta=\underset{\theta}{\mathrm{argmax}}\ p(D\mid\theta)
 ```
 
 or equivalently minimizes NLL:

@@ -896,13 +896,13 @@ In a GLM, the hypothesis function is not the parameter that maximizes probabilit
 Training estimates parameters from the dataset:
 
 ```math
-\hat\theta=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)
+\hat\theta=\underset{\theta}{\mathrm{argmax}}\ p(D\mid\theta)
 ```
 
 Prediction uses the learned parameter inside the conditional mean:
 
 ```math
-h_{\hat\theta}(x)=\mathbb E[T(Y)|x;\hat\theta]
+h_{\hat\theta}(x)=\mathbb E[T(Y)\mid x;\hat\theta]
 ```
 
 The hypothesis function is therefore not “the parameter that maximizes the probability.” The learned parameter is $\hat\theta$; the prediction is $h_{\hat\theta}(x)$, the conditional mean implied by the fitted model.
@@ -936,7 +936,7 @@ h_\theta(x)=\mu=g^{-1}(\theta^Tx)
 The exponential-family moment identity gives the same object through the log-partition function:
 
 ```math
-\mu=\mathbb E[T(Y)|\eta]=\nabla a(\eta)
+\mu=\mathbb E[T(Y)\mid \eta]=\nabla a(\eta)
 ```
 
 So in the canonical case:
@@ -1529,5 +1529,5 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled mode
 | What uncertainty model? | conditional distribution | Gaussian, Bernoulli, Poisson |
 | What statistic matters? | $T(y)$ | scalar, one-hot vector |
 | What is linear? | natural parameter $\eta$ | $\eta=\theta^Tx$ |
-| What is predicted? | conditional mean | $h_\theta(x)=\mathbb E[T(Y)|x;\theta]$ |
+| What is predicted? | conditional mean | $h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]$ |
 | What is optimized? | NLL | squared loss, cross-entropy |
