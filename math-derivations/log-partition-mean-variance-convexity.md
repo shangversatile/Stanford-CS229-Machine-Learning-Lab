@@ -44,17 +44,17 @@ e^{-a(\eta)}
 e^{-a(\eta)}Z(\eta)
 ```
 
-Since $a(\eta)=\log Z(\eta)$:
+Since $`a(\eta)=\log Z(\eta)`$:
 
 ```math
 e^{-a(\eta)}Z(\eta)=1
 ```
 
-Thus $a(\eta)$ is exactly the term that normalizes the density or mass function.
+Thus $`a(\eta)`$ is exactly the term that normalizes the density or mass function.
 
 ## 3. Mean Identity
 
-Differentiate $Z(\eta)$:
+Differentiate $`Z(\eta)`$:
 
 ```math
 \nabla Z(\eta)
@@ -74,7 +74,7 @@ Then:
 \frac{\nabla Z(\eta)}{Z(\eta)}
 ```
 
-Substitute the expression for $\nabla Z(\eta)$:
+Substitute the expression for $`\nabla Z(\eta)`$:
 
 ```math
 \nabla a(\eta)
@@ -122,7 +122,7 @@ Using the quotient/product rule:
 \frac{\nabla Z(\eta)\nabla Z(\eta)^T}{Z(\eta)^2}
 ```
 
-The second derivative of $Z$ is:
+The second derivative of $`Z`$ is:
 
 ```math
 \nabla^2Z(\eta)
@@ -165,7 +165,7 @@ So:
 \nabla^2a(\eta)=\mathrm{Cov}_\eta(T(Y))
 ```
 
-For scalar $T(Y)$:
+For scalar $`T(Y)`$:
 
 ```math
 a''(\eta)=\mathrm{Var}_\eta(T(Y))
@@ -173,7 +173,7 @@ a''(\eta)=\mathrm{Var}_\eta(T(Y))
 
 ## 5. Convexity of the Log-Partition Function
 
-For any vector $v$:
+For any vector $`v`$:
 
 ```math
 v^T\nabla^2a(\eta)v
@@ -196,7 +196,7 @@ Therefore:
 \nabla^2a(\eta)\succeq0
 ```
 
-So $a(\eta)$ is convex. It is strictly convex only when no nonzero direction $v$ makes $v^TT(Y)$ almost surely constant under the family.
+So $`a(\eta)`$ is convex. It is strictly convex only when no nonzero direction $`v`$ makes $`v^TT(Y)`$ almost surely constant under the family.
 
 ## 6. Concavity of Log-Likelihood
 
@@ -235,7 +235,7 @@ Hence:
 \nabla^2\ell(\eta)\preceq0
 ```
 
-So log-likelihood is concave in $\eta$.
+So log-likelihood is concave in $`\eta`$.
 
 ## 7. Convexity of NLL
 
@@ -276,7 +276,7 @@ Finite MLE may fail when:
 Numerical stability may fail when:
 
 * Hessian is ill-conditioned;
-* fitted probabilities are extremely close to $0$ or $1$;
+* fitted probabilities are extremely close to $`0`$ or $`1`$;
 * count rates are extremely large or small;
 * features are poorly scaled.
 

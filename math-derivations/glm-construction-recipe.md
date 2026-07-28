@@ -28,7 +28,7 @@ This order matters because the loss is a consequence of the distribution, not th
 GLMs were introduced to keep the useful parts of linear regression without pretending every supervised-learning response is a real-valued Gaussian measurement. The historical modeling compromise is:
 
 * keep a linear predictor for interpretability and computation;
-* choose a response distribution that matches the support and variance behavior of $Y$;
+* choose a response distribution that matches the support and variance behavior of $`Y`$;
 * connect covariates to the distribution through the natural parameter;
 * estimate parameters by the likelihood induced by that distribution.
 
@@ -49,25 +49,25 @@ This is why sigmoid, exponential, identity, and softmax responses are derived fr
 
 | CS229 assumption/design | Modern GLM term | What it means |
 | ----------------------- | --------------- | ------------- |
-| $Y\mid x;\theta$ follows an exponential-family distribution | random component | choose a conditional response distribution |
-| $h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]$ | prediction target / response mean | prediction is the conditional mean of the sufficient statistic |
-| $\eta=\theta^Tx$ in the canonical scalar case | systematic component | the natural parameter is linear in features |
+| $`Y\mid x;\theta`$ follows an exponential-family distribution | random component | choose a conditional response distribution |
+| $`h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]`$ | prediction target / response mean | prediction is the conditional mean of the sufficient statistic |
+| $`\eta=\theta^Tx`$ in the canonical scalar case | systematic component | the natural parameter is linear in features |
 | natural parameter equals linear predictor | canonical link | the link maps mean to the natural parameter used in the exponential family |
 | sigmoid, identity, exponential, softmax responses | inverse-link / response function | map the linear predictor back to a legal mean or probability |
 
-CS229 sometimes uses $g$ for the response function, especially in logistic regression. Many statistics texts use $g$ for the link. Always check the direction of the map.
+CS229 sometimes uses $`g`$ for the response function, especially in logistic regression. Many statistics texts use $`g`$ for the link. Always check the direction of the map.
 
 ## 3. Full GLM construction workflow
 
-1. Define the response variable $Y$ precisely. Decide whether $Y$ is a measurement, event, class label, count, positive duration, probability, or probability vector.
+1. Define the response variable $`Y`$ precisely. Decide whether $`Y`$ is a measurement, event, class label, count, positive duration, probability, or probability vector.
 2. Identify support and measurement mechanism. Support rules out invalid model families, and mechanism says what kind of randomness is plausible.
-3. Choose a candidate conditional distribution for $Y\mid x$. This choice encodes support, uncertainty, and mean-variance behavior.
+3. Choose a candidate conditional distribution for $`Y\mid x`$. This choice encodes support, uncertainty, and mean-variance behavior.
 4. Write the PMF/PDF. A concrete probability model is needed before writing the likelihood.
 5. Rewrite the distribution in exponential-family form. Put it into the template where the natural parameter and log-partition function are visible.
-6. Identify $T(y)$, $\eta$, $a(\eta)$, and $b(y)$. These four objects determine what is summarized from data, what is linearized, what normalizes probabilities, and what remains independent of parameters.
+6. Identify $`T(y)`$, $`\eta`$, $`a(\eta)`$, and $`b(y)`$. These four objects determine what is summarized from data, what is linearized, what normalizes probabilities, and what remains independent of parameters.
 7. Decide whether to use canonical link. Canonical links often simplify gradients and curvature, but domain constraints may justify another link.
-8. Set the linear predictor. For scalar canonical GLMs, set $\eta=\theta^Tx$; for softmax, use class-specific linear scores.
-9. Derive the response mean. Use $h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]=\nabla a(\eta)$ when in canonical exponential-family form.
+8. Set the linear predictor. For scalar canonical GLMs, set $`\eta=\theta^Tx`$; for softmax, use class-specific linear scores.
+9. Derive the response mean. Use $`h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]=\nabla a(\eta)`$ when in canonical exponential-family form.
 10. Write likelihood over all samples. This states how the observations combine under conditional independence.
 11. Convert likelihood into NLL. The NLL is the loss implied by the distribution.
 12. Optimize parameters. Estimate the shared parameters using an optimization method appropriate for the NLL geometry.
@@ -114,9 +114,9 @@ h_\theta(x)=\nabla a(\theta^Tx)
 
 | Distribution | Link direction | Response direction |
 | ------------ | -------------- | ------------------ |
-| Gaussian | $g(\mu)=\mu$ | $\mu=\eta$ |
-| Bernoulli | $g(\mu)=\log(\mu/(1-\mu))$ | $\mu=1/(1+e^{-\eta})$ |
-| Poisson | $g(\mu)=\log\mu$ | $\mu=e^\eta$ |
+| Gaussian | $`g(\mu)=\mu`$ | $`\mu=\eta`$ |
+| Bernoulli | $`g(\mu)=\log(\mu/(1-\mu))`$ | $`\mu=1/(1+e^{-\eta})`$ |
+| Poisson | $`g(\mu)=\log\mu`$ | $`\mu=e^\eta`$ |
 | Multinomial / softmax | log-odds against a reference class | normalized class probabilities |
 
 ## 5. Training versus prediction
@@ -261,7 +261,7 @@ b(y)=\frac{1}{y!}
 h_\theta(x)=\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
 ```
 
-**NLL.** Ignoring constants independent of $\theta$:
+**NLL.** Ignoring constants independent of $`\theta`$:
 
 ```math
 J(\theta)=\sum_{i=1}^{m}\left(e^{\theta^Tx^{(i)}}-y^{(i)}\theta^Tx^{(i)}\right)
@@ -273,10 +273,10 @@ This objective is tied to count-rate modeling. It should not be used for multicl
 
 | Model | Response support | Natural parameter | Response function | NLL name |
 | ----- | ---------------- | ----------------- | ----------------- | -------- |
-| Gaussian GLM | $\mathbb R$ | $\eta=\mu$ | $h_\theta(x)=\theta^Tx$ | squared loss |
-| Bernoulli GLM | $\{0,1\}$ | $\eta=\log(\phi/(1-\phi))$ | sigmoid | binary cross-entropy |
-| Poisson GLM | $\mathbb N_0$ | $\eta=\log\lambda$ | exponential | Poisson NLL |
-| Softmax GLM | $\{1,\dots,K\}$ | class log-odds/scores | softmax | multiclass cross-entropy |
+| Gaussian GLM | $`\mathbb R`$ | $`\eta=\mu`$ | $`h_\theta(x)=\theta^Tx`$ | squared loss |
+| Bernoulli GLM | $`\{0,1\}`$ | $`\eta=\log(\phi/(1-\phi))`$ | sigmoid | binary cross-entropy |
+| Poisson GLM | $`\mathbb N_0`$ | $`\eta=\log\lambda`$ | exponential | Poisson NLL |
+| Softmax GLM | $`\{1,\dots,K\}`$ | class log-odds/scores | softmax | multiclass cross-entropy |
 
 ## 9. Diagnostics after construction
 

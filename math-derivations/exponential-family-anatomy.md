@@ -43,11 +43,11 @@ e^{-a(\eta)}Z(\eta)
 =1
 ```
 
-So $a(\eta)$ is not decoration. It is the term that makes the expression a valid probability distribution.
+So $`a(\eta)`$ is not decoration. It is the term that makes the expression a valid probability distribution.
 
 ## 3. Natural parameter
 
-The natural parameter $\eta$ is the parameter that appears linearly against the sufficient statistic in canonical form. It is often not the parameter used in ordinary distribution descriptions.
+The natural parameter $`\eta`$ is the parameter that appears linearly against the sufficient statistic in canonical form. It is often not the parameter used in ordinary distribution descriptions.
 
 Bernoulli common parameter:
 
@@ -81,14 +81,14 @@ In a canonical GLM, this natural parameter is set equal to a linear predictor:
 
 ## 4. Sufficient statistic
 
-The sufficient statistic $T(y)$ is the part of the observation that interacts with the natural parameter. It is not always equal to $y$.
+The sufficient statistic $`T(y)`$ is the part of the observation that interacts with the natural parameter. It is not always equal to $`y`$.
 
 | Model | Common sufficient statistic | Why it matters |
 | ----- | --------------------------- | -------------- |
-| Bernoulli | $T(y)=y$ | the single binary value is the success count |
-| Fixed-variance Gaussian | $T(y)=y$ | the mean is the only unknown response parameter |
-| Unknown-variance Gaussian | $T(y)=(y,y^2)$ | mean and second moment both carry parameter information |
-| Poisson | $T(y)=y$ | total count summarizes evidence for the rate |
+| Bernoulli | $`T(y)=y`$ | the single binary value is the success count |
+| Fixed-variance Gaussian | $`T(y)=y`$ | the mean is the only unknown response parameter |
+| Unknown-variance Gaussian | $`T(y)=(y,y^2)`$ | mean and second moment both carry parameter information |
+| Poisson | $`T(y)=y`$ | total count summarizes evidence for the rate |
 | Categorical / multinomial | one-hot or count vector | class counts summarize evidence for probabilities |
 
 For iid data, the parameter-dependent information aggregates through:
@@ -125,11 +125,11 @@ Because covariance matrices are positive semidefinite:
 \nabla^2a(\eta)\succeq0
 ```
 
-Thus $a(\eta)$ is convex. This convexity is the source of the favorable geometry in many GLM negative log likelihoods.
+Thus $`a(\eta)`$ is convex. This convexity is the source of the favorable geometry in many GLM negative log likelihoods.
 
 ## 6. Base measure
 
-The base measure $b(y)$ collects the part of the mass or density independent of $\eta$. It affects support and the full likelihood value, but it does not affect gradients with respect to $\eta$.
+The base measure $`b(y)`$ collects the part of the mass or density independent of $`\eta`$. It affects support and the full likelihood value, but it does not affect gradients with respect to $`\eta`$.
 
 Examples:
 
@@ -173,12 +173,12 @@ h_\theta(x)=\nabla a(\theta^Tx)
 
 This is the distribution-to-response-function bridge:
 
-| Distribution | $a(\eta)$ | $\nabla a(\eta)$ | GLM response |
+| Distribution | $`a(\eta)`$ | $`\nabla a(\eta)`$ | GLM response |
 | ------------ | --------- | ---------------- | ------------ |
-| Gaussian fixed variance | $\eta^2/2$ | $\eta$ | identity |
-| Bernoulli | $\log(1+e^\eta)$ | $e^\eta/(1+e^\eta)$ | sigmoid |
-| Poisson | $e^\eta$ | $e^\eta$ | exponential |
-| Multinomial / softmax | $\log\sum_j e^{\eta_j}$ | normalized probabilities | softmax |
+| Gaussian fixed variance | $`\eta^2/2`$ | $`\eta`$ | identity |
+| Bernoulli | $`\log(1+e^\eta)`$ | $`e^\eta/(1+e^\eta)`$ | sigmoid |
+| Poisson | $`e^\eta`$ | $`e^\eta`$ | exponential |
+| Multinomial / softmax | $`\log\sum_j e^{\eta_j}`$ | normalized probabilities | softmax |
 
 The response function is therefore not an arbitrary activation. It is the inverse-link or mean map implied by the chosen distribution and its log-partition function.
 
@@ -200,7 +200,7 @@ Rearrange:
 \exp\left(\eta^T\sum_{i=1}^{m}T(y^{(i)})-ma(\eta)\right)
 ```
 
-The natural-parameter-dependent part is linear in the sample statistic and subtracts $ma(\eta)$. Since $a(\eta)$ is convex, the log-likelihood is concave in $\eta$ and the NLL is convex in $\eta$ for the regular canonical setting.
+The natural-parameter-dependent part is linear in the sample statistic and subtracts $`ma(\eta)`$. Since $`a(\eta)`$ is convex, the log-likelihood is concave in $`\eta`$ and the NLL is convex in $`\eta`$ for the regular canonical setting.
 
 ## Why this form is natural rather than arbitrary
 
@@ -218,7 +218,7 @@ This is the sufficiency viewpoint: once support and regularity conditions hold, 
 b(y)\exp\left(\eta^TT(y)\right)
 ```
 
-Normalization then forces the log-partition term $a(\eta)$, whose derivatives generate means and covariance. Thus sufficiency explains why $T(y)$ appears, maximum entropy explains why the exponential tilt appears, and normalization explains why the same $a(\eta)$ controls moments and convexity.
+Normalization then forces the log-partition term $`a(\eta)`$, whose derivatives generate means and covariance. Thus sufficiency explains why $`T(y)`$ appears, maximum entropy explains why the exponential tilt appears, and normalization explains why the same $`a(\eta)`$ controls moments and convexity.
 ## 9. Modeling lesson
 
 Exponential family is not the set of all distributions. It is a family with a special algebraic structure: sufficient statistics enter linearly, the log-partition function normalizes the distribution, and derivatives of the log-partition function produce moments. GLMs use that structure to turn a response distribution into a principled response function and likelihood.

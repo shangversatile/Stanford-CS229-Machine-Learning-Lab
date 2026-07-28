@@ -28,7 +28,7 @@ First, keep a linear predictor because it gives interpretable effects and scalab
 \theta^Tx
 ```
 
-Second, choose a response distribution that respects what $Y$ means: binary, count, positive, multiclass, real-valued, or compositional.
+Second, choose a response distribution that respects what $`Y`$ means: binary, count, positive, multiclass, real-valued, or compositional.
 
 Third, derive the response function and likelihood from that distribution rather than choosing a loss or activation by visual habit.
 
@@ -73,13 +73,13 @@ p(y^{(1)},\ldots,y^{(m)};\eta)
 \exp\left(\eta^T\sum_{i=1}^{m}T(y^{(i)})-ma(\eta)\right)
 ```
 
-The only data-dependent object coupled to $\eta$ is:
+The only data-dependent object coupled to $`\eta`$ is:
 
 ```math
 \sum_{i=1}^{m}T(y^{(i)})
 ```
 
-Thus the sample can be compressed, for purposes of estimating $\eta$, into the aggregate sufficient statistic. Bernoulli data compress into successes; Poisson data compress into total count; categorical data compress into class counts; Gaussian fixed-variance data compress into a sum or mean.
+Thus the sample can be compressed, for purposes of estimating $`\eta`$, into the aggregate sufficient statistic. Bernoulli data compress into successes; Poisson data compress into total count; categorical data compress into class counts; Gaussian fixed-variance data compress into a sum or mean.
 
 ## 4. Pitman-Koopman-Darmois intuition
 
@@ -97,11 +97,11 @@ and parameter interaction with those summaries naturally becomes linear in the l
 \eta^T\sum_{i=1}^{m}T(y^{(i)})
 ```
 
-This statement has limits. It relies on regularity conditions. Parameter-dependent support breaks the conclusion; Uniform $(0,\theta)$ is the standard warning example. The theorem should be used as structural intuition, not as a claim that all useful distributions are exponential families.
+This statement has limits. It relies on regularity conditions. Parameter-dependent support breaks the conclusion; Uniform $`(0,\theta)`$ is the standard warning example. The theorem should be used as structural intuition, not as a claim that all useful distributions are exponential families.
 
 ## 5. Maximum entropy derivation
 
-There is a second route from information theory. Suppose we choose statistics $T(y)$ and know their expected value, but we do not want to impose additional structure. The maximum-entropy principle chooses the least committed distribution satisfying those constraints.
+There is a second route from information theory. Suppose we choose statistics $`T(y)`$ and know their expected value, but we do not want to impose additional structure. The maximum-entropy principle chooses the least committed distribution satisfying those constraints.
 
 Set up the entropy maximization:
 
@@ -121,7 +121,7 @@ and:
 \int p(y)T(y)dy=\mu
 ```
 
-Use Lagrange multipliers $\lambda_0$ and $\eta$. The Lagrangian can be written as:
+Use Lagrange multipliers $`\lambda_0`$ and $`\eta`$. The Lagrangian can be written as:
 
 ```math
 \mathcal L(p)
@@ -131,7 +131,7 @@ Use Lagrange multipliers $\lambda_0$ and $\eta$. The Lagrangian can be written a
 +\eta^T\left(\int p(y)T(y)dy-\mu\right)
 ```
 
-Stationarity with respect to $p(y)$ gives:
+Stationarity with respect to $`p(y)`$ gives:
 
 ```math
 -\log p(y)-1+\lambda_0+\eta^TT(y)=0
@@ -143,7 +143,7 @@ Therefore:
 p(y)\propto \exp\left(\eta^TT(y)\right)
 ```
 
-If the background measure or support weighting is represented by $b(y)$, the same calculation gives:
+If the background measure or support weighting is represented by $`b(y)`$, the same calculation gives:
 
 ```math
 p(y)\propto b(y)\exp\left(\eta^TT(y)\right)
@@ -189,7 +189,7 @@ Differentiate again:
 \nabla^2a(\eta)=\mathrm{Cov}_\eta(T(Y))
 ```
 
-This identity explains the apparently magical package of properties. The normalizer generates means. Its second derivative generates covariance. Covariance is positive semidefinite, so $a(\eta)$ is convex. In regular canonical models, this gives concave log likelihood and convex negative log likelihood in the natural parameter.
+This identity explains the apparently magical package of properties. The normalizer generates means. Its second derivative generates covariance. Covariance is positive semidefinite, so $`a(\eta)`$ is convex. In regular canonical models, this gives concave log likelihood and convex negative log likelihood in the natural parameter.
 
 For iid data, the log likelihood is:
 
@@ -241,11 +241,11 @@ The modeling order is semantic before algebraic.
 
 | Response meaning | Support | Natural candidate | Induced response idea |
 | ---------------- | ------- | ----------------- | --------------------- |
-| real measurement | $\mathbb R$ | Gaussian | identity mean |
-| binary event | $\{0,1\}$ | Bernoulli | sigmoid probability |
-| count | $\mathbb N_0$ | Poisson | exponential nonnegative mean |
-| multiclass label | $\{1,\ldots,K\}$ | categorical / multinomial | softmax probabilities |
-| positive duration or size | $\mathbb R_{>0}$ | Gamma / Exponential | positive mean or rate |
+| real measurement | $`\mathbb R`$ | Gaussian | identity mean |
+| binary event | $`\{0,1\}`$ | Bernoulli | sigmoid probability |
+| count | $`\mathbb N_0`$ | Poisson | exponential nonnegative mean |
+| multiclass label | $`\{1,\ldots,K\}`$ | categorical / multinomial | softmax probabilities |
+| positive duration or size | $`\mathbb R_{>0}`$ | Gamma / Exponential | positive mean or rate |
 | probability vector | simplex | Dirichlet-type model | simplex-valued mean |
 
 Support is necessary but not sufficient. The modeler must also ask about variance, tails, zero inflation, dependence, exposure, and measurement mechanism.
