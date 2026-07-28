@@ -243,30 +243,162 @@ p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 
 ## 6. Anatomy of the Exponential Family
 
-| Component | Symbol | Meaning | Modeling role |
-| --------- | ------ | ------- | ------------- |
-| Natural parameter | $`\eta`$ | 控制分布形状的 canonical parameter | GLM 中通常由 linear predictor 给出 |
-| Sufficient statistic | $`T(y)`$ | 数据进入 likelihood 的统计量 | 决定被模型直接匹配的 empirical summary |
-| Log-partition function | $`a(\eta)`$ | normalization 的对数 | 生成 moments 并决定 convex geometry |
-| Base measure | $`b(y)`$ | 与 $`\eta`$ 无关的部分 | 保留 support 和 reference weighting |
-| Dispersion parameter | optional | 控制 scale 或 variance | 有些 GLM 推广会显式加入 |
+### 6.1 Intuition: what each component is doing
 
-$`T(y)`$ 不总是 $`y`$。它是分布族需要从 observation 中提取的 sufficient statistic，而不是“标签本身”的同义词。
+```math
+p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
+```
 
-| Distribution setting | Common sufficient statistic | Why |
-| -------------------- | --------------------------- | --- |
-| Bernoulli | $`T(y)=y`$ | 单个 binary outcome 的成功次数就是信息 |
-| Fixed-variance Gaussian | $`T(y)=y`$ | 已知方差时只需估计 mean |
-| Unknown-variance Gaussian | $`T(y)=(y,y^2)`$ | mean 和 second moment 都携带参数信息 |
-| Multinomial / categorical | indicator vector | 每一类的 one-hot count 是信息 |
+可以把 exponential family 先读成一个 scoring model：分布不是直接给每个 $`y`$ 随便指定概率，而是先从 $`y`$ 读出统计特征，再由参数决定这些统计特征应该被奖励还是惩罚。
 
-对 iid observations，factorization 使全部样本通过 sufficient statistic 的和进入 natural-parameter-dependent likelihood：
+| Component | Formal role | Intuitive role | What happens if it changes |
+| --------- | ----------- | -------------- | -------------------------- |
+| $`y`$ | observed response value | the outcome being explained | different outcomes receive different probability |
+| $`T(y)`$ | sufficient statistic | the information readout extracted from $`y`$ | changes what the model can "see" in $`y`$ |
+| $`\eta`$ | natural parameter | coordinate / control knob for the distribution | changes which readout patterns are rewarded |
+| $`\eta^TT(y)`$ | linear coupling | compatibility score between parameter and observation | higher score means higher unnormalized probability |
+| $`b(y)`$ | base measure | background geometry or counting/volume rule of outcome space | changes baseline preference over $`y`$ |
+| $`a(\eta)`$ | log-partition function | normalization and moment-generating engine | keeps probabilities valid and determines mean/variance |
+
+在 normalization 之前，每个可能的 outcome $`y`$ 先得到一个 unnormalized log-score：
+
+```math
+s_\eta(y)=\eta^TT(y)+\log b(y)
+```
+
+normalized log-probability 则是：
+
+```math
+\log p(y;\eta)=s_\eta(y)-a(\eta)
+```
+
+$`T(y)`$ 把 raw outcome $`y`$ 映射到模型关心的坐标；$`\eta`$ 给这些 statistic dimensions 赋予权重或坐标；二者的 dot product 衡量当前参数和这个 observation readout 的匹配程度。$`a(\eta)`$ 再减去所有 unnormalized mass 的 log-total，使概率能够 sum 或 integrate to one。
+
+关键句是：$`T(y)`$ decides what the model reads from $`y`$; $`\eta`$ decides how the distribution values those readings.
+
+### 6.2 What does "sufficient statistic" mean here?
+
+#### A. Single-observation level
+
+在 single-observation level，$`T(y)`$ 是 $`y`$ 进入 log probability 之前的 transformed representation。它回答的问题是：这个分布族需要从一个 observation 里读出什么信息，才能判断这个 observation 在当前参数下有多合理？
+
+Bernoulli distribution:
+
+```math
+T(y)=y
+```
+
+模型只需要知道 event 是否发生；$`y=1`$ 和 $`y=0`$ 已经包含了单次 Bernoulli observation 对 success probability 的全部信息。
+
+Multiclass categorical distribution:
+
+```math
+T(y)=\begin{bmatrix}\mathbf1\{y=1\}\\ \cdots\\ \mathbf1\{y=K-1\}\end{bmatrix}
+```
+
+模型通过 indicator coordinates 读取 class identity。每个 coordinate 表示某个 reference class 之外的类别是否被观察到。
+
+Gaussian with unknown mean and variance:
+
+```math
+T(y)=\begin{bmatrix}y\\ y^2\end{bmatrix}
+```
+
+如果 mean 和 variance 都未知，模型必须同时读取 location information 和 spread information；只看 $`y`$ 本身不够，$`y^2`$ 也携带参数信息。
+
+这就是为什么 $`T(y)`$ 不总是等于 $`y`$。它取决于这个 distribution family 的参数化需要 observation 的哪些方面。
+
+#### B. Dataset level
+
+对 iid samples：
+
+```math
+p(y^{(1)},\dots,y^{(m)};\eta)
+=
+\left(\prod_{i=1}^{m}b(y^{(i)})\right)
+\exp\left(\eta^T\sum_{i=1}^{m}T(y^{(i)})-ma(\eta)\right)
+```
+
+dataset 中所有和参数有关的信息都通过下面这个量进入 likelihood：
 
 ```math
 \sum_{i=1}^{m}T(y^{(i)})
 ```
 
-这就是为什么 exponential family 会自然连接到 MLE：重复观测把 sample evidence 聚合成一个 statistic，而不是保留每个 $`y^{(i)}`$ 的全部细节。
+这就是 statistic 被称为 "sufficient" 的意思：一旦知道 $`\sum_i T(y^{(i)})`$，likelihood 如何依赖 $`\eta`$ 就完全确定了。raw sample 当然还可能包含其他细节，但在这个 model family 内，那些细节不会再改变 likelihood as a function of $`\eta`$。
+
+| Model | $`T(y)`$ | Dataset sufficient statistic | What information it preserves |
+| ----- | ------ | ---------------------------- | ----------------------------- |
+| Bernoulli | $`y`$ | $`\sum_i y^{(i)}`$ | number of successes |
+| Gaussian, known variance | $`y`$ | $`\sum_i y^{(i)}`$ | mean/location information |
+| Gaussian, unknown variance | $`(y,y^2)`$ | $`(\sum_i y^{(i)},\sum_i (y^{(i)})^2)`$ | location and spread |
+| Categorical | one-hot vector | class-count vector | category frequencies |
+
+因此 Bernoulli iid data 的 sufficient statistic 是 success count；known-variance Gaussian 的 sufficient statistic 是 sum 或 sample mean；unknown-variance Gaussian 需要 sum 和 sum of squares；categorical data 则被压缩成 class counts。
+
+### 6.3 What does it mean that $`\eta`$ is the natural coordinate?
+
+natural parameter 被称为 "natural"，因为在这个 coordinate system 里，log density 对 statistic $`T(y)`$ 是线性的：
+
+```math
+\log p(y;\eta)=\eta^TT(y)-a(\eta)+\log b(y)
+```
+
+在这个坐标下，改变 $`\eta_j`$ 会直接改变 distribution 对 statistic component $`T_j(y)`$ 的偏好。
+
+先看 log probability 对 $`\eta`$ 的 gradient：
+
+```math
+\nabla_\eta\log p(y;\eta)=T(y)-\nabla a(\eta)
+```
+
+而 log-partition function 的 moment identity 给出：
+
+```math
+\nabla a(\eta)=\mathbb E_\eta[T(Y)]
+```
+
+所以小幅改变 $`\Delta\eta`$ 时：
+
+```math
+\Delta\log p(y;\eta)\approx \Delta\eta^T\left(T(y)-\mathbb E_\eta[T(Y)]\right)
+```
+
+直觉上，如果 $`T_j(y)`$ 比当前 expected value 更大，增加 $`\eta_j`$ 会提高这个 outcome 的 log probability；如果 $`T_j(y)`$ 比 expected value 更小，增加 $`\eta_j`$ 会降低它的 relative probability。因此 $`\eta_j`$ 是一个 knob，会把 probability mass 往 $`T_j(y)`$ 更大的 outcomes 倾斜。
+
+这就是把 $`\eta`$ 说成 distribution 的 coordinate/controller 的严格含义：它不是任意名字，而是在 sufficient-statistic coordinates 上调节 probability mass 的参数。
+
+### 6.4 From distribution coordinates to supervised learning
+
+在 unconditional distribution 里，$`\eta`$ 只是一个固定的 distribution coordinate。GLM 把这件事变成 supervised learning：每个 input $`x`$ 都得到自己的 natural parameter。
+
+```math
+\eta(x)=\theta^Tx
+```
+
+如果 natural parameter 是 vector-valued，则可以写成：
+
+```math
+\eta_k(x)=\theta_k^Tx
+```
+
+因此 feature vector $`x`$ 不是直接预测 raw $`y`$。它预测的是 conditional distribution of $`Y|x`$ 的 natural coordinate。
+
+```math
+p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
+```
+
+prediction mean 由同一个 log-partition function 决定：
+
+```math
+h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
+```
+
+这就是从 statistics 到 machine learning 的桥：features 决定 distribution coordinate $`\eta(x)`$；distribution 再决定 prediction 应该是什么意思。
+
+* Bernoulli: $`T(y)=y`$，$`\eta(x)=\theta^Tx`$ controls log-odds，$`h_\theta(x)`$ 是 success probability。
+* Poisson: $`T(y)=y`$，$`\eta(x)=\theta^Tx`$ controls log-rate，$`h_\theta(x)`$ 是 expected count。
+* Softmax: $`T(y)`$ 是 one-hot vector，$`\eta_k(x)=\theta_k^Tx`$ controls class log-odds，$`h_\theta(x)`$ 是 class-probability vector。
 
 ![Exponential-family anatomy](../../assets/figures/lecture04-exponential-family-anatomy.png)
 

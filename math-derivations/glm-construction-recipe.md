@@ -45,6 +45,35 @@ h_\theta(x)=\nabla a(\theta^Tx)
 ```
 
 This is why sigmoid, exponential, identity, and softmax responses are derived from Bernoulli, Poisson, Gaussian, and multinomial likelihoods rather than chosen as interchangeable activation functions.
+## Reading $`y`$ and controlling the distribution
+
+A GLM is not simply "choose an activation function." It is a structured modeling workflow:
+
+1. choose what statistic $`T(y)`$ the distribution reads from the response;
+2. choose how input features determine the natural coordinate $`\eta(x)`$;
+3. use $`a(\eta)`$ to map the natural coordinate to the mean response;
+4. fit $`\theta`$ by likelihood.
+
+In canonical form this becomes:
+
+```math
+p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
+```
+
+with:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+and:
+
+```math
+h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
+```
+
+Thus $`T(y)`$ defines what the model reads from the observed response, while $`\eta(x)`$ defines how features control the conditional distribution. The response function is derived after those choices; it is not selected independently of the likelihood.
+
 ## 2. Official CS229 assumptions and modern GLM terms
 
 | CS229 assumption/design | Modern GLM term | What it means |

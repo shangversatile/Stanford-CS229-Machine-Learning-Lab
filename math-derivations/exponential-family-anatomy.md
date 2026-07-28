@@ -12,6 +12,195 @@ p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 
 The form is useful because it separates four jobs: how data enter the likelihood, which parameter is canonical, how the distribution is normalized, and what support/base weighting remains.
 
+## Component intuition
+
+The canonical form is:
+
+```math
+p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
+```
+
+A useful first reading is: exponential family is a normalized scoring model over possible outcomes. It does not let the parameter touch raw observations in arbitrary ways. It first reads selected statistics from $`y`$, then uses the natural parameter to value those readings.
+
+| Component | Formal role | Intuitive role | What happens if it changes |
+| --------- | ----------- | -------------- | -------------------------- |
+| $`y`$ | observed response value | the outcome being explained | different outcomes receive different probability |
+| $`T(y)`$ | sufficient statistic | the information readout extracted from $`y`$ | changes what the model can "see" in $`y`$ |
+| $`\eta`$ | natural parameter | coordinate / control knob for the distribution | changes which readout patterns are rewarded |
+| $`\eta^TT(y)`$ | linear coupling | compatibility score between parameter and observation | higher score means higher unnormalized probability |
+| $`b(y)`$ | base measure | background geometry or counting/volume rule of outcome space | changes baseline preference over $`y`$ |
+| $`a(\eta)`$ | log-partition function | normalization and moment-generating engine | keeps probabilities valid and determines mean/variance |
+
+Before normalization, the unnormalized log-score of outcome $`y`$ is:
+
+```math
+s_\eta(y)=\eta^TT(y)+\log b(y)
+```
+
+After normalization:
+
+```math
+\log p(y;\eta)=s_\eta(y)-a(\eta)
+```
+
+So $`a(\eta)`$ is the log-total unnormalized mass. For a discrete outcome space it corresponds to the log of a sum; for a continuous outcome space it corresponds to the log of an integral. Its job is to make the final probabilities sum or integrate to one.
+
+The key mental model is: $`T(y)`$ decides what the model reads from $`y`$; $`\eta`$ decides how the distribution values those readings.
+
+## Sufficient statistic: single-observation view and dataset view
+
+The phrase "sufficient statistic" has two related levels in this setting.
+
+At the single-observation level, $`T(y)`$ is the transformed representation of $`y`$ that appears in the log probability. It is the model's readout from one observed response.
+
+For Bernoulli:
+
+```math
+T(y)=y
+```
+
+The model only needs to know whether the event happened. A single Bernoulli observation carries evidence through success versus failure.
+
+For multiclass categorical data with a reference class:
+
+```math
+T(y)=\begin{bmatrix}\mathbf1\{y=1\}\\ \cdots\\ \mathbf1\{y=K-1\}\end{bmatrix}
+```
+
+The model reads class identity through indicator coordinates. The statistic is not the integer label as a magnitude; class $`3`$ does not mean "three times" class $`1`$. It means one mutually exclusive category was observed.
+
+For Gaussian data with both mean and variance unknown:
+
+```math
+T(y)=\begin{bmatrix}y\\ y^2\end{bmatrix}
+```
+
+The model must read both location and spread information. The first coordinate tracks where observations lie; the second coordinate tracks squared magnitude, which is needed for variance or second-moment information.
+
+This is why $`T(y)`$ is not always equal to $`y`$. It depends on what aspects of the observation are relevant to the parameters in the chosen distribution family.
+
+At the dataset level, iid factorization shows exactly why the statistic is called sufficient. Starting from one observation and multiplying over $`m`$ iid samples gives:
+
+```math
+p(y^{(1)},\dots,y^{(m)};\eta)
+=
+\left(\prod_{i=1}^{m}b(y^{(i)})\right)
+\exp\left(\eta^T\sum_{i=1}^{m}T(y^{(i)})-ma(\eta)\right)
+```
+
+All parameter-dependent information in the dataset enters through:
+
+```math
+\sum_{i=1}^{m}T(y^{(i)})
+```
+
+Once this aggregate is known, the likelihood's dependence on $`\eta`$ is fully determined. The raw sample may contain order, individual identities, or other details, but those details do not change the likelihood as a function of $`\eta`$ within this iid exponential-family model.
+
+| Model | $`T(y)`$ | Dataset sufficient statistic | What information it preserves |
+| ----- | ------ | ---------------------------- | ----------------------------- |
+| Bernoulli | $`y`$ | $`\sum_i y^{(i)}`$ | number of successes |
+| Gaussian, known variance | $`y`$ | $`\sum_i y^{(i)}`$ | mean/location information |
+| Gaussian, unknown variance | $`(y,y^2)`$ | $`(\sum_i y^{(i)},\sum_i (y^{(i)})^2)`$ | location and spread |
+| Poisson | $`y`$ | $`\sum_i y^{(i)}`$ | total count / rate evidence |
+| Categorical | one-hot vector | class-count vector | category frequencies |
+
+This is a model-relative statement. A statistic is sufficient for a parameter inside a specified family. If the family changes, the readout may change too.
+
+## Natural parameter as distribution coordinate
+
+The natural parameter is called natural because it is the coordinate in which the log density is linear in $`T(y)`$:
+
+```math
+\log p(y;\eta)=\eta^TT(y)-a(\eta)+\log b(y)
+```
+
+In this coordinate system, changing coordinate $`\eta_j`$ directly changes the distribution's preference for statistic component $`T_j(y)`$.
+
+Different common parameters become natural coordinates after reparameterization. Bernoulli's success probability $`\phi`$ becomes log-odds:
+
+```math
+\eta=\log\frac{\phi}{1-\phi}
+```
+
+Poisson's rate $`\lambda`$ becomes log-rate:
+
+```math
+\eta=\log\lambda
+```
+
+The coordinate is natural not because it is always the most familiar parameter, but because it is the coordinate that couples linearly to the observation statistic.
+
+The local control interpretation follows from the gradient:
+
+```math
+\nabla_\eta\log p(y;\eta)=T(y)-\nabla a(\eta)
+```
+
+and the moment identity:
+
+```math
+\nabla a(\eta)=\mathbb E_\eta[T(Y)]
+```
+
+Therefore, for a small change $`\Delta\eta`$:
+
+```math
+\Delta\log p(y;\eta)\approx \Delta\eta^T\left(T(y)-\mathbb E_\eta[T(Y)]\right)
+```
+
+If $`T_j(y)`$ is larger than its current expectation, increasing $`\eta_j`$ raises the log probability of that outcome. If $`T_j(y)`$ is smaller than expected, increasing $`\eta_j`$ lowers its relative probability. Thus $`\eta_j`$ tilts probability mass toward outcomes with larger $`T_j(y)`$.
+
+## The coupling term $`\eta^TT(y)`$
+
+The expression $`\eta^TT(y)`$ is the bridge between the parameter side and the observation side.
+
+$`T(y)`$ lives on the observation side: it says which statistical coordinates were read from the observed response. $`\eta`$ lives on the parameter side: it says how strongly the distribution values each coordinate. Their dot product is a compatibility score:
+
+```math
+\eta^TT(y)=\sum_j \eta_jT_j(y)
+```
+
+A larger value means the current parameter assigns a higher unnormalized score to outcomes with that statistic pattern. The base measure adds a parameter-independent baseline score, and the log-partition function subtracts the log-total score so the result is a valid probability distribution.
+
+This coupling also explains likelihood fitting. Training increases compatibility between the learned natural parameter and the statistics observed in data, while normalization prevents the model from raising all scores for free.
+
+## From natural parameter to GLM
+
+In an unconditional exponential-family distribution, $`\eta`$ is fixed. A GLM turns it into a supervised-learning model by making the natural coordinate depend on features:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+For vector-valued natural parameters, as in softmax-style multiclass modeling, each coordinate can have its own linear predictor:
+
+```math
+\eta_k(x)=\theta_k^Tx
+```
+
+The conditional distribution becomes:
+
+```math
+p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
+```
+
+The prediction is the conditional mean of the sufficient statistic:
+
+```math
+h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
+```
+
+This is the bridge from statistics to machine learning. The feature vector $`x`$ does not directly predict raw $`y`$; it predicts the natural coordinate of the distribution of $`Y|x`$. The chosen distribution then determines what the prediction means.
+
+| Model | Statistic readout | Natural coordinate from features | Prediction meaning |
+| ----- | ----------------- | -------------------------------- | ------------------ |
+| Bernoulli | $`T(y)=y`$ | $`\eta(x)=\theta^Tx`$ controls log-odds | probability of success |
+| Poisson | $`T(y)=y`$ | $`\eta(x)=\theta^Tx`$ controls log-rate | expected count |
+| Gaussian, known variance | $`T(y)=y`$ | $`\eta(x)=\theta^Tx`$ controls location | conditional mean |
+| Softmax | one-hot vector | $`\eta_k(x)=\theta_k^Tx`$ controls class log-odds | class-probability vector |
+
+A GLM is therefore not just "choose an activation function." It is a probabilistic construction: choose the response distribution, identify what $`T(y)`$ reads, let features control $`\eta(x)`$, use $`a(\eta)`$ to get the mean response, and fit $`\theta`$ by likelihood.
+
 ## 2. Normalization
 
 Define the unnormalized normalizer:
@@ -219,6 +408,7 @@ b(y)\exp\left(\eta^TT(y)\right)
 ```
 
 Normalization then forces the log-partition term $`a(\eta)`$, whose derivatives generate means and covariance. Thus sufficiency explains why $`T(y)`$ appears, maximum entropy explains why the exponential tilt appears, and normalization explains why the same $`a(\eta)`$ controls moments and convexity.
+
 ## 9. Modeling lesson
 
 Exponential family is not the set of all distributions. It is a family with a special algebraic structure: sufficient statistics enter linearly, the log-partition function normalizes the distribution, and derivatives of the log-partition function produce moments. GLMs use that structure to turn a response distribution into a principled response function and likelihood.

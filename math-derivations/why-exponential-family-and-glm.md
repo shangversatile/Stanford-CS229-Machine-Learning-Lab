@@ -81,6 +81,32 @@ The only data-dependent object coupled to $`\eta`$ is:
 
 Thus the sample can be compressed, for purposes of estimating $`\eta`$, into the aggregate sufficient statistic. Bernoulli data compress into successes; Poisson data compress into total count; categorical data compress into class counts; Gaussian fixed-variance data compress into a sum or mean.
 
+## Why $`T(y)`$ and $`\eta`$ are dual objects
+
+The exponential-family form makes the observation side and the parameter side meet in one term:
+
+```math
+\eta^TT(y)
+```
+
+$`T(y)`$ lives on the observation side. It is the statistic read from the response value: success/failure for Bernoulli, count for Poisson, one-hot identity for categorical data, or location and squared-magnitude information for a Gaussian with unknown variance.
+
+$`\eta`$ lives on the parameter side. It is the natural coordinate of the distribution: log-odds for Bernoulli, log-rate for Poisson, class log-odds for softmax, or the canonical coordinate attached to Gaussian moments.
+
+Their dot product is a compatibility score. If the current $`\eta`$ gives high weight to the statistic pattern read from $`y`$, the unnormalized probability of that outcome rises. The log-partition function then converts all such scores into valid probabilities by subtracting the log-total unnormalized mass:
+
+```math
+\log p(y;\eta)=\eta^TT(y)+\log b(y)-a(\eta)
+```
+
+In a GLM, features determine $`\eta`$:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+So $`x`$ changes the conditional distribution by changing how it weights the sufficient-statistic directions. This is the core reason GLMs connect supervised features to probability models: $`x`$ controls the parameter-side coordinate, $`T(y)`$ defines the observation-side readout, and $`\eta(x)^TT(y)`$ scores their compatibility.
+
 ## 4. Pitman-Koopman-Darmois intuition
 
 The Pitman-Koopman-Darmois theorem explains why exponential family is not just a convenient format. Under regularity assumptions such as iid sampling, common support that does not depend on the parameter, and a fixed-dimensional sufficient statistic that works for all sample sizes, the resulting family is essentially an exponential family.
