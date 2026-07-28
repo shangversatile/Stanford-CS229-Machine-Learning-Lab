@@ -1529,5 +1529,11 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled mode
 | What uncertainty model? | conditional distribution | Gaussian, Bernoulli, Poisson |
 | What statistic matters? | $T(y)$ | scalar, one-hot vector |
 | What is linear? | natural parameter $\eta$ | $\eta=\theta^Tx$ |
-| What is predicted? | conditional mean | $h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]$ |
+| What is predicted? | conditional mean | fitted mean or class probabilities |
 | What is optimized? | NLL | squared loss, cross-entropy |
+
+The long prediction formula is kept outside the table so Markdown renders it reliably:
+
+```math
+h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]
+```
