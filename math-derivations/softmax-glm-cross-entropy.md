@@ -90,8 +90,7 @@ Use normalization:
 Substitute:
 
 ```math
-\phi_K
-\sum_{k=1}^{K-1}e^{\eta_k}\phi_K
+\phi_K\left(1+\sum_{k=1}^{K-1}e^{\eta_k}\right)
 =
 1
 ```

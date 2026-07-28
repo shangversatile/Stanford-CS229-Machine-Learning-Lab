@@ -109,6 +109,7 @@ By the end of this course lab, the repository should contain:
 * [x] GLM construction derivation completed
 * [x] Softmax derivation completed
 * [x] Lecture 4 original exercise sheet created
+* [x] Lecture 4 GLM distribution map and navigation refined
 * [ ] PS1 gate remains incomplete
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed

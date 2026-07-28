@@ -2,29 +2,31 @@
 
 Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.stanford.edu/notes_archive/cs229-notes1.pdf), especially the sections on Perceptron, exponential family, generalized linear models, and softmax regression.
 
-| Navigation | Focus |
-| ---------- | ----- |
-| [1. Core Question](#1-core-question) | 从 response semantics 到 parameter learning 的完整建模链条 |
-| [2. Perceptron](#2-perceptron-as-a-non-probabilistic-linear-classifier) | 非概率 linear classifier 和 mistake-driven update |
-| [3. Perceptron Before GLM](#3-why-perceptron-is-discussed-before-glm) | 与 logistic regression 的同分数、不同语义对比 |
-| [4. Newton Bridge](#4-newton-method-as-an-optimization-bridge) | 从 Lecture 3 的优化工具过渡到 GLM likelihood |
-| [5. Exponential Family Motivation](#5-why-exponential-family-is-introduced) | 为什么需要统一概率族 |
-| [6. Exponential Family Anatomy](#6-anatomy-of-the-exponential-family) | natural parameter, sufficient statistic, log partition, base measure |
-| [Interlude A](#conceptual-interlude-a-from-output-space-to-distribution-and-response-function) | output semantics, distribution choice, response function |
-| [7. Log Partition](#7-log-partition-function-as-the-mathematical-engine) | mean, covariance, convexity identities |
-| [Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | MLE concavity and NLL convexity |
-| [8. GLM Components](#8-glm-three-components-and-official-assumptions) | GLM 三个组件和 link/response convention |
-| [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | 从任务语义到 likelihood 的完整 recipe |
-| [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | $h_\theta(x)$ 作为 conditional mean |
-| [11. Gaussian GLM](#11-gaussian-glm) | fixed-variance Gaussian 到 squared loss |
-| [12. Bernoulli GLM](#12-bernoulli-glm) | Bernoulli 到 sigmoid |
-| [13. Poisson GLM](#13-poisson-glm) | count data 到 exponential response |
-| [14. Multinomial Form](#14-multinomial-exponential-family-form) | reference class 和 one-hot sufficient statistic |
-| [15. Softmax Response](#15-softmax-response-function) | coupled multiclass probabilities |
-| [16. Softmax Cross-Entropy](#16-softmax-likelihood-and-cross-entropy) | likelihood, NLL, gradient |
-| [17. Reliability View](#17-reliability-view) | GLM 假设诊断和失效模式 |
-| [18. Connection to PS1](#18-connection-to-ps1) | PS1 gate 的概念前置 |
-| [19. Takeaways](#19-takeaways) | 从算法集合到模型构造系统 |
+## Navigation
+
+| Module | Purpose |
+|---|---|
+| [1. Core Question](#1-core-question) | What Lecture 4 is really trying to unify |
+| [2. Perceptron](#2-perceptron-as-a-non-probabilistic-linear-classifier) | Linear classification without probabilistic modeling |
+| [3. Perceptron vs GLM](#3-why-perceptron-is-discussed-before-glm) | Why linear score alone does not define a model |
+| [4. Newton Bridge](#4-newton-method-as-an-optimization-bridge) | Why nonlinear likelihood models need iterative optimization |
+| [5. Exponential Family Motivation](#5-why-exponential-family-is-introduced) | Why this family is introduced |
+| [6. Exponential Family Anatomy](#6-anatomy-of-the-exponential-family) | What $\eta$, $T(y)$, $a(\eta)$, and $b(y)$ mean |
+| [Conceptual Interlude A](#conceptual-interlude-a-from-response-space-to-probability-distribution) | How output space guides distribution choice |
+| [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine) | Why $a(\eta)$ controls mean, variance, and convexity |
+| [Mathematical Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
+| [8. GLM Components](#8-glm-three-components-and-official-assumptions) | Random component, systematic component, link, response |
+| [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | How to build a GLM from data semantics |
+| [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $h_\theta(x)$ is a conditional mean |
+| [11. Gaussian GLM](#11-gaussian-glm) | Real-valued regression |
+| [12. Bernoulli GLM](#12-bernoulli-glm) | Binary classification |
+| [13. Poisson GLM](#13-poisson-glm) | Count regression |
+| [14. Multinomial Form](#14-multinomial-exponential-family-form) | Multiclass sufficient statistic |
+| [15. Softmax Response](#15-softmax-response-function) | Multiclass probability model |
+| [16. Softmax Cross-Entropy](#16-softmax-likelihood-and-cross-entropy) | Multiclass NLL and gradient |
+| [17. Reliability View](#17-reliability-view) | Failure modes and diagnostics |
+| [18. PS1 Connection](#18-connection-to-ps1) | Assignment-gate connection |
+| [19. Takeaways](#19-takeaways) | Final synthesis |
 
 ## 1. Core Question
 
@@ -269,13 +271,31 @@ $T(y)$ 不总是 $y$。它是分布族需要从 observation 中提取的 suffici
 
 ---
 
-## Conceptual Interlude A: From Output Space to Distribution and Response Function
+# Conceptual Interlude A: From Response Space to Probability Distribution
+
+> This interlude is a modeling map. It explains how the semantic type of $Y$ constrains the probability distribution and therefore the GLM response function.
 
 ---
 
-## A. Output Semantics Before Algorithm Choice
+## A. The modeling question comes before the algorithm
 
-先定义两个常用支持集：
+Before choosing a loss, optimizer, or activation-looking function, define what the response variable means. The first modeling questions are:
+
+* What kind of object is $Y$?
+* What values can $Y$ legally take?
+* Is $Y$ continuous, binary, categorical, count-valued, positive, or probability-valued?
+* What uncertainty structure is plausible?
+* Is variance constant, mean-dependent, heavy-tailed, bounded, or compositional?
+
+The output space does not uniquely determine the distribution, but it rules out many invalid distributions. For example, a count target should not be modeled with unconstrained Gaussian regression when negative predictions are impossible or harmful. A Gaussian model can still be a useful approximation in some large-count regimes, but then the approximation and its failure modes must be explicit.
+
+## B. Response support is necessary but not sufficient
+
+A support set is the set of values a random variable can legally take.
+
+```math
+\mathbb R=(-\infty,\infty)
+```
 
 ```math
 \mathbb R_{>0}=(0,\infty)
@@ -285,114 +305,298 @@ $T(y)$ 不总是 $y$。它是分布族需要从 observation 中提取的 suffici
 \mathbb R_{\geq0}=[0,\infty)
 ```
 
-Output semantics 先于算法选择。下面的表不是机械配对，而是建模起点：
-
-| Response type | Support | Candidate distribution | Typical response meaning | Key caveat |
-| ------------- | ------- | ---------------------- | ------------------------ | ---------- |
-| Real-valued continuous | $\mathbb R$ | Gaussian | 测量值、残差近似对称的连续量 | heavy tails 或 heteroscedasticity 会破坏 squared-loss 解释 |
-| Binary | $\{0,1\}$ | Bernoulli | event happens or not | calibration 和 class imbalance 需要诊断 |
-| Multiclass | $\{1,\ldots,K\}$ | categorical / multinomial | 单个样本属于一个类别 | 不是 Poisson；类别概率必须 jointly normalized |
-| Counts | $\{0,1,2,\ldots\}$ | Poisson | 固定 exposure 下的事件次数 | Poisson implies mean equals variance；overdispersion 常见 |
-| Positive continuous | $\mathbb R_{>0}$ | Gamma / Exponential | waiting time、duration、amount | skewness 和 tail behavior 很重要 |
-| Scalar probability | $(0,1)$ | Beta | rate、proportion、uncertain probability | boundary mass at $0$ or $1$ 需单独处理 |
-| Probability vector | simplex | Dirichlet | category probability vector | components dependent because sum to one |
-
-Multiclass 不对应 Poisson。Poisson 的随机变量是非负整数 count，类别标签虽然也可编码成整数，但整数编码没有自然的 count mechanism。把 class label 2 理解成 class label 1 的“两倍”没有意义；把 event count 2 理解成两个事件才有意义。
-
-Support alone 不能唯一决定 distribution。选择分布还要看：
-
-* variance structure：variance 是否随 mean 变化；
-* skewness：分布是否明显偏斜；
-* tails：极端值是否比 Gaussian 更常见；
-* zero mass：是否有大量零值或 structural zero；
-* dependence：样本是否 iid，类别是否互斥；
-* mechanism：数据是否来自 arrival process、duration process、measurement noise 或 compositional normalization。
-
-## B. Distribution Definitions
-
-Gaussian distribution 适合 real-valued continuous response：
-
 ```math
-p(y;\mu,\sigma^2)
-=
-\frac{1}{\sqrt{2\pi\sigma^2}}
-\exp\left(
--\frac{(y-\mu)^2}{2\sigma^2}
-\right)
+\Delta^{K-1}=\left\{p\in\mathbb R^K:p_k\geq0,\ \sum_{k=1}^{K}p_k=1\right\}
 ```
 
-Bernoulli distribution 适合 binary event：
+Support tells us where predictions or random outcomes are allowed to live. But choosing a distribution also requires thinking about variance, skewness, tails, discreteness, zero-inflation, dependence, and mechanism. Two distributions can share the same support while encoding very different assumptions; Gamma and Exponential are both positive continuous families, but Gamma can express a wider range of positive skew and variance behavior.
+
+## C. Distribution map: support, meaning, and model role
+
+| Response type | Support | Task type | Candidate distribution | Mean | Variance pattern | GLM response | Official CS229 status |
+| ------------- | ------- | --------- | ---------------------- | ---- | ---------------- | ------------ | --------------------- |
+| Real-valued continuous | $\mathbb R$ | regression | Gaussian | $\mu$ | constant if variance is fixed | identity | fully derived |
+| Binary | $\{0,1\}$ | binary classification | Bernoulli | $\phi$ | $\phi(1-\phi)$ | sigmoid | fully derived |
+| Multiclass categorical | $\{1,\dots,K\}$ | multiclass classification | categorical / multinomial one-trial | $\phi_k$ | coupled categorical covariance | softmax | fully derived |
+| Count-valued | $\mathbb N_0=\{0,1,2,\dots\}$ | count regression | Poisson | $\lambda$ | variance equals mean | exponential | mentioned / problem-set related / useful GLM example |
+| Positive continuous | $\mathbb R_{>0}$ | waiting time, duration, survival-like positive response | Exponential / Gamma | positive mean | right-skewed, often mean-dependent | usually inverse or log-linked depending parameterization | mentioned as exponential-family members |
+| Scalar probability | $(0,1)$ | rate/proportion as target | Beta | $\alpha/(\alpha+\beta)$ | bounded, shape-dependent | mean in $(0,1)$, link chosen separately | mentioned as distribution over probabilities |
+| Probability vector | $\Delta^{K-1}$ | composition/proportion vector | Dirichlet | simplex-valued mean | negative covariance across components | simplex-valued mean | mentioned as distribution over probabilities |
+
+The important distinction is that multiclass is not Poisson. Poisson is for count data generated by a rate mechanism. A category ID such as $3$ is not three events; it is a label for one mutually exclusive class.
+
+## D. Distribution-by-distribution explanations
+
+#### Gaussian: real-valued continuous response
+
+**When to use.** Use Gaussian modeling when $Y$ is a real-valued measurement and additive, roughly symmetric noise is plausible. Examples include temperature residuals, height after controlling for features, or a continuous sensor measurement.
+
+**Random variable.** $Y\in\mathbb R$ with location parameter $\mu$ and variance parameter $\sigma^2>0$.
+
+**Density.**
 
 ```math
-p(y;\phi)=\phi^y(1-\phi)^{1-y},
-\quad y\in\{0,1\}
+p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
 ```
 
-Categorical distribution 适合单个 multiclass outcome：
+**Mean and variance.**
 
 ```math
-P(Y=k;\phi)=\phi_k,
-\quad
-\sum_{k=1}^{K}\phi_k=1
+\mathbb E[Y]=\mu,\qquad \mathrm{Var}(Y)=\sigma^2
 ```
 
-Multinomial distribution 适合 $n$ 次 categorical trials 的 count vector：
+**GLM meaning.** In the fixed-variance canonical Gaussian GLM, the response mean is identity: $h_\theta(x)=\theta^Tx$. Squared loss appears because it is the Gaussian negative log likelihood up to constants.
+
+**Failure modes.** Heavy tails, asymmetric residuals, bounded outcomes, nonconstant variance, or harmful negative predictions can make a Gaussian conditional model misleading.
+
+#### Bernoulli: binary response
+
+**When to use.** Use Bernoulli modeling when each observation is a yes/no event: default or no default, click or no click, disease present or absent.
+
+**Random variable.** $Y\in\{0,1\}$ with success probability $\phi\in(0,1)$.
+
+**PMF.**
 
 ```math
-p(c_1,\ldots,c_K;\phi)
-=
-\frac{n!}{\prod_{k=1}^{K}c_k!}
-\prod_{k=1}^{K}\phi_k^{c_k}
+p(y;\phi)=\phi^y(1-\phi)^{1-y},\qquad y\in\{0,1\}
 ```
 
-Poisson distribution 适合 count response：
+**Mean and variance.**
 
 ```math
-p(y;\lambda)=\frac{\lambda^ye^{-\lambda}}{y!},
-\quad y\in\{0,1,2,\ldots\}
+\mathbb E[Y]=\phi,\qquad \mathrm{Var}(Y)=\phi(1-\phi)
 ```
 
-Exponential distribution 是 positive waiting time 的简单模型：
+**GLM meaning.** The natural parameter is log-odds. Setting log-odds equal to $\theta^Tx$ gives the sigmoid response and binary cross-entropy NLL.
+
+**Failure modes.** Class imbalance, complete separation, label noise, uncalibrated probabilities, and time-varying base rates can break the practical interpretation even when the support is correct.
+
+#### Categorical / Multinomial one-trial: multiclass response
+
+**When to use.** Use categorical modeling when each sample belongs to exactly one of $K$ mutually exclusive classes, such as digit identity, species class, or topic label.
+
+**Random variable.** $Y\in\{1,\dots,K\}$ with class probabilities $\phi_1,\dots,\phi_K$ satisfying $\phi_k\geq0$ and $\sum_k\phi_k=1$.
+
+**PMF.**
 
 ```math
-p(y;\lambda)=\lambda e^{-\lambda y},
-\quad y>0
+p(y=k;\phi)=\phi_k,\qquad \sum_{k=1}^{K}\phi_k=1
 ```
 
-Gamma distribution 是更灵活的 positive continuous model：
+For one-hot vector $T(Y)$:
 
 ```math
-p(y;\alpha,\beta)
-=
-\frac{\beta^\alpha}{\Gamma(\alpha)}
-y^{\alpha-1}e^{-\beta y},
-\quad y>0
+\mathbb E[T_k(Y)]=\phi_k
 ```
 
-Beta distribution 建模 scalar probability 或 proportion：
+**Covariance.**
 
 ```math
-p(y;\alpha,\beta)
-=
-\frac{\Gamma(\alpha+\beta)}
-{\Gamma(\alpha)\Gamma(\beta)}
-y^{\alpha-1}(1-y)^{\beta-1},
-\quad 0<y<1
+\mathrm{Cov}(T_i(Y),T_j(Y))=
+\begin{cases}
+\phi_i(1-\phi_i), & i=j\\
+-\phi_i\phi_j, & i\neq j
+\end{cases}
 ```
 
-Dirichlet distribution 建模 probability vector：
+**GLM meaning.** Softmax is the response function because all class probabilities must be jointly normalized. Raising one class probability lowers available probability mass for others.
+
+**Failure modes.** Treating class IDs as ordered numbers, using Poisson on labels, or fitting independent one-vs-rest probabilities without normalization can produce invalid multiclass probability semantics.
+
+#### Poisson: count-valued response
+
+**When to use.** Use Poisson modeling for nonnegative integer counts under a rate/exposure mechanism, such as arrivals per hour, defects per batch, or calls per minute.
+
+**Random variable.** $Y\in\mathbb N_0=\{0,1,2,\dots\}$ with rate $\lambda>0$.
+
+**PMF.**
 
 ```math
-p(p_1,\ldots,p_K;\alpha)
-=
-\frac{\Gamma\left(\sum_{k=1}^{K}\alpha_k\right)}
-{\prod_{k=1}^{K}\Gamma(\alpha_k)}
-\prod_{k=1}^{K}p_k^{\alpha_k-1}
+p(y;\lambda)=\frac{\lambda^y e^{-\lambda}}{y!},\qquad y\in\mathbb N_0
 ```
 
-Official Lecture 4 notes explicitly derive Bernoulli, Gaussian, Poisson, and multinomial/softmax in exponential-family/GLM form. Exponential、Gamma、Beta、Dirichlet 也是重要 exponential-family members 或相关 modeling examples，但这里主要用于说明 response semantics，并不把它们全部展开为完整 GLM derivation。
+**Mean and variance.**
 
-![Response distribution map](../../assets/figures/lecture04-response-distribution-map.png)
+```math
+\mathbb E[Y]=\lambda,\qquad \mathrm{Var}(Y)=\lambda
+```
+
+**GLM meaning.** The natural parameter is $\eta=\log\lambda$. Setting $\eta=\theta^Tx$ gives $h_\theta(x)=e^{\theta^Tx}$, a nonnegative conditional mean.
+
+**Failure modes.** Overdispersion, underdispersion, excess zeros, varying exposure, dependence between events, and bursty arrival processes often require offsets, quasi-Poisson, negative binomial, or richer count models.
+
+#### Exponential: positive waiting-time response
+
+**When to use.** Use Exponential modeling for positive waiting times when a memoryless mechanism is plausible, such as the time until the next event in a simple constant-rate process.
+
+**Random variable.** $Y\in\mathbb R_{>0}$ with rate $\lambda>0$.
+
+**Density.**
+
+```math
+p(y;\lambda)=\lambda e^{-\lambda y},\qquad y>0
+```
+
+**Mean and variance.**
+
+```math
+\mathbb E[Y]=\frac{1}{\lambda},\qquad \mathrm{Var}(Y)=\frac{1}{\lambda^2}
+```
+
+**GLM meaning.** It shows how a positive continuous response can be tied to a rate or mean parameter. It is useful conceptually in Lecture 4 as an exponential-family member, even though the note does not develop a full Exponential GLM workflow.
+
+**Failure modes.** Non-memoryless hazards, delayed effects, censoring, heavy tails, or a point mass near zero make a plain Exponential model too restrictive.
+
+#### Gamma: positive continuous response
+
+**When to use.** Use Gamma modeling for positive continuous outcomes with right skew, such as costs, durations, rainfall amounts, or biological concentrations.
+
+**Random variable.** $Y\in\mathbb R_{>0}$ with shape $\alpha>0$ and rate $\beta>0$.
+
+**Density.**
+
+```math
+p(y;\alpha,\beta)=\frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y},\qquad y>0
+```
+
+**Mean and variance.**
+
+```math
+\mathbb E[Y]=\frac{\alpha}{\beta},\qquad \mathrm{Var}(Y)=\frac{\alpha}{\beta^2}
+```
+
+**GLM meaning.** Gamma GLMs are common for positive responses where variance grows with the mean. Link choice is separate from support; log and inverse links are both used depending on parameterization and modeling goals.
+
+**Failure modes.** Exact zeros, extreme heavy tails, multimodality, censoring, or mixtures of mechanisms can violate a single Gamma conditional model.
+
+#### Beta: scalar probability response
+
+**When to use.** Use Beta modeling when the response itself is a scalar probability or proportion in $(0,1)$, such as a conversion rate measured over a unit interval or a fractional occupancy target.
+
+**Random variable.** $Y\in(0,1)$ with shape parameters $\alpha>0$ and $\beta>0$.
+
+**Density.**
+
+```math
+p(y;\alpha,\beta)=\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}y^{\alpha-1}(1-y)^{\beta-1},\qquad 0<y<1
+```
+
+**Mean.**
+
+```math
+\mathbb E[Y]=\frac{\alpha}{\alpha+\beta}
+```
+
+**Variance.**
+
+```math
+\mathrm{Var}(Y)=\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}
+```
+
+**GLM meaning.** Beta is not the usual distribution for a binary label; Bernoulli is. Beta is for random variables whose observed values are probabilities or proportions.
+
+**Failure modes.** Exact $0$ or $1$ values, denominators with different reliability, and aggregated binomial counts can require boundary handling or a binomial model with exposure instead.
+
+#### Dirichlet: probability-vector response
+
+**When to use.** Use Dirichlet modeling when the response itself is a composition or probability vector, such as topic proportions, mixture weights, or normalized budget shares.
+
+**Random variable.** $p\in\Delta^{K-1}$ with concentration vector $\alpha_k>0$.
+
+**Density.**
+
+```math
+p(p;\alpha)=\frac{\Gamma(\sum_{k=1}^{K}\alpha_k)}{\prod_{k=1}^{K}\Gamma(\alpha_k)}\prod_{k=1}^{K}p_k^{\alpha_k-1}
+```
+
+with:
+
+```math
+p\in\Delta^{K-1}
+```
+
+**Mean.**
+
+```math
+\mathbb E[p_k]=\frac{\alpha_k}{\sum_{j=1}^{K}\alpha_j}
+```
+
+**Covariance.**
+
+```math
+\mathrm{Cov}(p_i,p_j)=
+\begin{cases}
+\frac{\alpha_i(\alpha_0-\alpha_i)}{\alpha_0^2(\alpha_0+1)}, & i=j\\
+-\frac{\alpha_i\alpha_j}{\alpha_0^2(\alpha_0+1)}, & i\neq j
+\end{cases}
+```
+
+where:
+
+```math
+\alpha_0=\sum_{k=1}^{K}\alpha_k
+```
+
+**GLM meaning.** Dirichlet models a probability vector as the response or as a distribution over probability parameters. Basic softmax classification instead models a class label whose conditional mean is a probability vector.
+
+**Failure modes.** Structural zeros, stronger correlations than Dirichlet allows, multimodal compositions, or subcomposition effects can require logistic-normal or other compositional models.
+
+## E. What this distribution controls inside a GLM
+
+The chosen distribution controls:
+
+1. legal output support;
+2. conditional mean form;
+3. mean-variance relationship;
+4. likelihood;
+5. loss function;
+6. Hessian/curvature;
+7. calibration interpretation;
+8. failure diagnostics.
+
+For Gaussian regression, choosing a fixed-variance Gaussian makes $\theta^Tx$ the conditional mean and turns MLE into squared-loss minimization. For Bernoulli classification, choosing Bernoulli makes the prediction a calibrated event probability when the model is correct and turns NLL into binary cross-entropy. For Poisson regression, choosing the distribution enforces a nonnegative mean prediction through $e^{\theta^Tx}$ and ties variance to the mean. For softmax classification, choosing categorical/multinomial modeling makes probabilities coupled through one normalization denominator and turns NLL into multiclass cross-entropy.
+
+## F. Official CS229 core vs extension layer
+
+| Distribution | Lecture 4 role |
+| ------------ | -------------- |
+| Gaussian | Official core derivation |
+| Bernoulli | Official core derivation |
+| Multinomial / Softmax | Official core derivation |
+| Poisson | Mentioned and natural GLM extension / problem-set-level |
+| Gamma / Exponential | Mentioned as exponential-family examples |
+| Beta / Dirichlet | Mentioned as distributions over probabilities |
+| Others | Outside this lecture |
+
+The official Lecture 4 core is the derivation pattern: write a distribution in exponential-family form, identify the natural parameter, set that parameter to a linear predictor, and derive the response mean. The extension layer broadens modeling intuition without claiming that every listed family is fully developed in the lecture.
+
+## G. Common misunderstandings
+
+1. Multiclass is not Poisson. Multiclass labels are mutually exclusive categories; Poisson variables are nonnegative event counts.
+2. Softmax is not independent one-vs-rest logistic regression. Softmax probabilities are coupled and sum to one by construction.
+3. Support does not uniquely determine a distribution. Positive continuous data could be Exponential, Gamma, log-normal, Weibull, or another family depending on mechanism and tails.
+4. $h_\theta(x)$ is not the likelihood-maximizing parameter; it is the conditional mean under the learned model.
+5. The response function is not merely an arbitrary activation function. In a GLM it comes from a distributional assumption plus a link function.
+6. Beta and Dirichlet are not the usual starting point for basic classification; they model probability-valued random variables or priors over probability parameters.
+
+## H. Applying the map to real modeling problems
+
+Use the same reasoning pattern every time: define $Y$, write its legal support, name the data-generating mechanism, choose a first candidate distribution, then state what would falsify that choice.
+
+| Problem | First modeling read | Candidate start | What to check next |
+| ------- | ------------------- | --------------- | ------------------ |
+| Loan default | one binary event per applicant | Bernoulli / logistic GLM | calibration, separation, class imbalance, subgroup shift |
+| Arrivals per hour | nonnegative event count under exposure | Poisson GLM with possible exposure offset | overdispersion, excess zeros, time dependence |
+| Medical cost | positive continuous, right-skewed amount | Gamma GLM or log-normal model | exact zeros, heavy tails, mixture of patient groups |
+| Time until repair | positive duration | Exponential as simple baseline, Gamma or survival model if richer | censoring, nonconstant hazard, delayed effects |
+| Image class label | one mutually exclusive class | categorical / softmax GLM | rare classes, label ambiguity, calibration |
+| Click-through rate as an observed proportion | probability-valued or aggregated binomial outcome | Beta if direct proportion, binomial if successes/trials known | boundary values, denominator size, heterogeneity |
+| Topic mixture vector | probability vector response | Dirichlet or compositional model | structural zeros, component dependence, multimodality |
+
+A strong answer does not say only “the label is numeric, so use regression.” It says what the number means. If the number is a class ID, use categorical/softmax; if it is a count, use a count model; if it is a positive amount, use a positive continuous model; if it is a probability, use a model whose random variable lives in $(0,1)$ or on the simplex.
+---
+
+Return to main Lecture 4 flow: [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine).
 
 ## 7. Log-Partition Function as the Mathematical Engine
 
@@ -521,11 +725,13 @@ v^T\mathrm{Cov}_{\eta}(T(Y))v
 
 ---
 
-## Mathematical Interlude B: Why Exponential-Family MLE Is Convex-Friendly
+# Mathematical Interlude B: Why Exponential-Family MLE Is Convex-Friendly
+
+> This interlude explains why exponential-family likelihoods have favorable optimization geometry through the log-partition function.
 
 ---
 
-对 iid data $y^{(1)},\ldots,y^{(m)}$，log-likelihood 为：
+For iid data $y^{(1)},\ldots,y^{(m)}$, the log-likelihood is:
 
 ```math
 \ell(\eta)
@@ -538,7 +744,7 @@ v^T\mathrm{Cov}_{\eta}(T(Y))v
 ma(\eta)
 ```
 
-等价写成：
+Equivalently:
 
 ```math
 \ell(\eta)
@@ -548,7 +754,7 @@ ma(\eta)
 +\sum_{i=1}^{m}\log b(y^{(i)})
 ```
 
-因为 sample statistic 对 $\eta$ 是 linear，而 $\log b(y^{(i)})$ 与 $\eta$ 无关，二阶导数只来自 $-ma(\eta)$：
+The sample statistic term is linear in $\eta$, and $\log b(y^{(i)})$ is independent of $\eta$. Therefore the second derivative comes only from $-ma(\eta)$:
 
 ```math
 \nabla^2\ell(\eta)
@@ -556,7 +762,7 @@ ma(\eta)
 -m\nabla^2a(\eta)
 ```
 
-由上一节 $\nabla^2a(\eta)=\mathrm{Cov}(T(Y))$：
+Using $\nabla^2a(\eta)=\mathrm{Cov}(T(Y))$:
 
 ```math
 \nabla^2\ell(\eta)
@@ -565,26 +771,26 @@ ma(\eta)
 \preceq0
 ```
 
-结论：
+The conclusions are:
 
-* log-likelihood is concave in the natural parameter；
-* negative log likelihood is convex；
-* MLE estimate itself 不是“concave”的对象，concavity 描述的是 objective；
-* strict convexity、finite MLE 和 unique optimum 还需要 rank、identifiability、support 和 existence 条件。
+* log-likelihood is concave in the natural parameter;
+* negative log likelihood is convex in the natural parameter;
+* the MLE estimate itself is not a concave object, because concavity describes the objective;
+* strict convexity, finite MLE, and unique optimum also need rank, identifiability, support, and existence conditions.
 
-在 scalar natural parameter GLM 中，设：
+In a scalar natural-parameter GLM, set:
 
 ```math
 \eta_i=\theta^Tx^{(i)}
 ```
 
-单样本 NLL 忽略常数后为：
+Ignoring constants, the single-sample NLL is:
 
 ```math
 J_i(\theta)=a(\eta_i)-\eta_iT(y^{(i)})
 ```
 
-其 gradient 为：
+Its gradient is:
 
 ```math
 \nabla_\theta J_i
@@ -592,7 +798,7 @@ J_i(\theta)=a(\eta_i)-\eta_iT(y^{(i)})
 \left(a'(\eta_i)-T(y^{(i)})\right)x^{(i)}
 ```
 
-其 Hessian 为：
+Its Hessian is:
 
 ```math
 \nabla_\theta^2J_i
@@ -600,7 +806,7 @@ J_i(\theta)=a(\eta_i)-\eta_iT(y^{(i)})
 a''(\eta_i)x^{(i)}x^{(i)T}
 ```
 
-利用 $a''(\eta_i)=\mathrm{Var}(T(Y^{(i)})\mid x^{(i)})$：
+Using $a''(\eta_i)=\mathrm{Var}(T(Y^{(i)})\mid x^{(i)})$:
 
 ```math
 \nabla_{\theta}^{2}J_{\mathrm{NLL}}
@@ -610,7 +816,11 @@ a''(\eta_i)x^{(i)}x^{(i)T}
 x^{(i)}x^{(i)T}
 ```
 
-所以 GLM Hessian 可以读成 variance-weighted feature geometry：features 决定方向，conditional variance 决定每个样本对 curvature 的权重。
+So a GLM Hessian can be read as variance-weighted feature geometry: features determine directions, and conditional variance determines how much curvature each sample contributes.
+
+---
+
+Return to main Lecture 4 flow: [8. GLM Components](#8-glm-three-components-and-official-assumptions).
 
 ## 8. GLM Three Components and Official Assumptions
 
@@ -626,66 +836,127 @@ Terminology convention 很重要。许多 statistics texts 使用 $g$ 表示 lin
 
 ## 9. The Complete GLM Modeling Workflow
 
-完整 GLM workflow：
+A GLM is built by moving from response semantics to distribution, then from distribution to likelihood and prediction.
 
-1. Identify response semantics and support：先判断 $y$ 是 real value、binary、multiclass、count 还是 positive continuous。
-2. Choose a plausible exponential-family conditional distribution：分布要匹配 support、variance behavior、tail、zero mass 和 mechanism。
-3. Identify $T(y)$, $\eta$, $a(\eta)$, and $b(y)$：写出 canonical form，确认 normalized。
-4. Choose a link；use canonical link when appropriate：canonical link 让 natural parameter 等于 linear predictor，通常带来简单 gradient 和 convex geometry。
-5. Define the linear predictor：例如 scalar case 设 $\eta=\theta^Tx$，multiclass case 设每类 score 为 $\theta_k^Tx$。
-6. Derive the response mean：用 $h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]=\nabla a(\eta)$。
-7. Write likelihood and NLL：把 conditional distributions 乘起来并取负对数。
-8. Estimate shared parameters from all samples：所有样本共同估计同一个 $\theta$ 或 $\Theta$。
-9. Predict using conditional means or probabilities：regression 输出 mean，classification 输出 probability 或 thresholded label。
-10. Diagnose misspecification and reliability：检查 support mismatch、calibration、overdispersion、dependence、separation 和 shift。
+1. Define the response variable $Y$ precisely. This prevents a numeric code from being mistaken for a measurement, count, or probability.
+2. Identify support and measurement mechanism. Support rules out illegal distributions, while mechanism explains whether the data are measurements, events, arrivals, durations, or compositions.
+3. Choose a candidate conditional distribution for $Y\mid x$. The distribution encodes uncertainty, support, and a mean-variance relationship.
+4. Write its PMF/PDF. This makes the likelihood concrete instead of choosing a loss by habit.
+5. Rewrite it in exponential-family form. The canonical form reveals the natural parameter and the log-partition function.
+6. Identify $T(y)$, $\eta$, $a(\eta)$, and $b(y)$. These components tell us what statistic is modeled, what is linearized, what normalizes the distribution, and what support/base weighting remains.
+7. Decide whether to use canonical link. The canonical link often gives simpler gradients and convex-friendly likelihood geometry, but noncanonical links may be useful for domain reasons.
+8. Set the linear predictor. In the scalar canonical case this means $\eta=\theta^Tx$; in multiclass models it means class-specific scores.
+9. Derive the response mean. The prediction is $\mathbb E[T(Y)\mid x;\theta]$, not an arbitrary nonlinear transformation.
+10. Write likelihood over all samples. Multiplying conditional probabilities states the iid or conditional-independence assumption being used for training.
+11. Convert likelihood into NLL. The NLL is the loss induced by the chosen distribution.
+12. Optimize parameters. Training estimates the shared parameter values that make the observed data most plausible under the model family.
+13. Predict using conditional mean or class probability. Regression reports a mean, binary classification reports an event probability or thresholded label, and multiclass classification reports coupled class probabilities.
+14. Diagnose model assumptions. After fitting, check support, calibration, residual structure, overdispersion, separation, identifiability, and train/deployment shift.
 
-Frequentist MLE 的含义也要清楚：
+Frequentist MLE should be read carefully:
 
-* $\theta$ 是 fixed but unknown parameter；
-* data 是 random，因为它来自 sampling/data-generating process；
-* $\hat\theta(D)$ 是 estimator，它随 dataset $D$ 改变；
-* training 选择让 observed sample 最 plausible 的 parameter，而不是把 $\theta$ 当作随机变量求 posterior。
+* $\theta$ is a fixed but unknown parameter;
+* data are random because they come from a sampling or data-generating process;
+* $\hat\theta(D)$ is an estimator that changes with the dataset $D$;
+* training chooses the parameter that makes the observed sample plausible, not a posterior distribution over $\theta$.
+
+Bernoulli mini-example:
+
+```text
+Binary outcome: loan default yes/no.
+Y in {0,1}.
+Choose Bernoulli.
+Natural parameter is log-odds.
+Set log-odds = theta^T x.
+Response mean becomes sigmoid.
+Likelihood becomes Bernoulli likelihood.
+NLL becomes binary cross-entropy.
+```
+
+Poisson mini-example:
+
+```text
+Count outcome: number of arrivals per hour.
+Y in N0.
+Choose Poisson.
+Natural parameter is log lambda.
+Set log rate = theta^T x.
+Response mean becomes exp(theta^T x).
+NLL becomes Poisson deviance-like objective.
+```
 
 ![GLM construction pipeline](../../assets/figures/lecture04-glm-construction-pipeline.png)
 
 ## 10. Deep Meaning of the Hypothesis Function
 
-在 GLM 中，hypothesis function 不是随手选的 nonlinear curve，而是 conditional mean：
+In a GLM, the hypothesis function is not the parameter that maximizes probability. It is the model prediction after parameters have been learned.
+
+### A. Separate parameter learning from prediction
+
+Training estimates parameters from the dataset:
 
 ```math
-h_\theta(x)
-=
-\mathbb E[T(Y)\mid x;\theta]
+\hat\theta=\underset{\theta}{\mathrm{argmax}}\ p(D|\theta)
 ```
 
-因为 exponential family 有 moment identity：
+Prediction uses the learned parameter inside the conditional mean:
 
 ```math
-\mathbb E[T(Y)\mid x;\theta]
-=
-\nabla a(\eta)
+h_{\hat\theta}(x)=\mathbb E[T(Y)|x;\hat\theta]
 ```
 
-在 canonical GLM 中 $\eta=\theta^Tx$，所以：
+The hypothesis function is therefore not “the parameter that maximizes the probability.” The learned parameter is $\hat\theta$; the prediction is $h_{\hat\theta}(x)$, the conditional mean implied by the fitted model.
+
+### B. Response function as inverse link
+
+Statistics convention usually defines the link function as the map from mean to linear predictor:
 
 ```math
-h_\theta(x)
-=
-\mathbb E[T(Y)\mid x;\theta]
-=
-\nabla a(\eta)
-=
-\nabla a(\theta^Tx)
+g(\mu)=\eta
 ```
 
-这说明：
+The response function is the inverse map:
 
-* $h_\theta(x)$ 不是 parameter estimate；parameter estimate 是 $\hat\theta$。
-* $h_\theta(x)$ 是当前 parameter 定义的 conditional distribution 下的 mean。
-* $\theta$ 通过 likelihood 被估计，而不是直接等于 prediction。
-* response function 把 linear natural parameter 映射回合法 output space，例如 $(0,1)$、$\mathbb R_{\geq0}$ 或 simplex。
+```math
+\mu=g^{-1}(\eta)
+```
 
-它和 neural-network activation functions 有表面相似性：都是 nonlinear map。但 GLM response function 来自 distributional structure 和 link function；neural-network activation 不一定是 probabilistic inverse-link，也不一定定义 normalized likelihood。
+In a canonical GLM:
+
+```math
+\eta=\theta^Tx
+```
+
+Therefore:
+
+```math
+h_\theta(x)=\mu=g^{-1}(\theta^Tx)
+```
+
+The exponential-family moment identity gives the same object through the log-partition function:
+
+```math
+\mu=\mathbb E[T(Y)|\eta]=\nabla a(\eta)
+```
+
+So in the canonical case:
+
+```math
+h_\theta(x)=\nabla a(\theta^Tx)
+```
+
+Examples:
+
+| Distribution | Natural linear predictor | Response mean |
+| ------------ | ------------------------ | ------------- |
+| Gaussian | $\eta=\theta^Tx$ | identity: $h_\theta(x)=\theta^Tx$ |
+| Bernoulli | log-odds $\eta=\theta^Tx$ | sigmoid: $h_\theta(x)=1/(1+e^{-\theta^Tx})$ |
+| Poisson | log-rate $\eta=\theta^Tx$ | exponential: $h_\theta(x)=e^{\theta^Tx}$ |
+| Multinomial | class scores $\eta_k=\theta_k^Tx$ | softmax probabilities |
+
+### C. Activation-function comparison
+
+It is legitimate to notice that sigmoid, exponential, and softmax are nonlinear maps from scores to outputs. But GLM response functions are not chosen only for computational convenience. They are derived from distributional assumptions and link functions, so they carry a likelihood, a mean-variance relationship, a calibration interpretation, and model-specific diagnostics.
 
 ## 11. Gaussian GLM
 
@@ -1006,8 +1277,7 @@ e^{\eta_k}=\frac{\phi_k}{\phi_K}
 利用 $\sum_{k=1}^{K}\phi_k=1$：
 
 ```math
-\phi_K
-\sum_{k=1}^{K-1}e^{\eta_k}\phi_K
+\phi_K\left(1+\sum_{k=1}^{K-1}e^{\eta_k}\right)
 =
 1
 ```
@@ -1239,3 +1509,25 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled mode
 * GLM 把 response semantics、distribution、link、linear predictor 和 likelihood 接成一条链。
 * Softmax 是 multinomial conditional model，不是多个独立 sigmoid 的拼接。
 * Reliability analysis 要同时检查 support、distribution、link、feature geometry、optimization 和 deployment shift。
+
+## Fast Review Checklist
+
+- [ ] I can explain why multiclass uses categorical/multinomial rather than Poisson.
+- [ ] I can distinguish support, distribution, link function, response function, and loss.
+- [ ] I can derive sigmoid from Bernoulli.
+- [ ] I can derive exponential response from Poisson.
+- [ ] I can explain why softmax probabilities are coupled.
+- [ ] I can explain what $T(y)$ does when it is not equal to $y$.
+- [ ] I can explain why $a'(\eta)$ gives the mean and $a''(\eta)$ gives variance.
+- [ ] I can choose a candidate distribution for a new supervised-learning problem and justify it.
+
+## Concept Map Summary
+
+| Modeling question | Mathematical object | Example |
+|---|---|---|
+| What can $Y$ be? | support | $\mathbb R$, $\{0,1\}$, $\mathbb N_0$, simplex |
+| What uncertainty model? | conditional distribution | Gaussian, Bernoulli, Poisson |
+| What statistic matters? | $T(y)$ | scalar, one-hot vector |
+| What is linear? | natural parameter $\eta$ | $\eta=\theta^Tx$ |
+| What is predicted? | conditional mean | $h_\theta(x)=\mathbb E[T(Y)|x;\theta]$ |
+| What is optimized? | NLL | squared loss, cross-entropy |

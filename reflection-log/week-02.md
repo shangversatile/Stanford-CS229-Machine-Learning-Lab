@@ -89,3 +89,9 @@ Lecture 4 completion corrected several modeling-level misunderstandings:
 * Softmax is a joint multinomial model with coupled probabilities that sum to one, not a set of independent one-vs-rest logistic regressions.
 
 The main reliability lesson is that model choice starts from response semantics and support, then checks variance behavior, link choice, identifiability, calibration, and distribution shift.
+
+## Lecture 4 Distribution Map Refinement
+
+Lecture 4 was refined so the GLM logic now starts from response semantics rather than from a preferred loss or activation function. The updated note separates official CS229 core derivations from extension-level distribution intuition, makes the conceptual and mathematical interludes easier to navigate, and connects support, conditional distribution, exponential-family form, response function, NLL, and diagnostics into one modeling workflow.
+
+The key understanding target is now: given a new supervised-learning problem, first define what $Y$ can be and how it is generated, then justify the conditional distribution before deriving the response function and loss.

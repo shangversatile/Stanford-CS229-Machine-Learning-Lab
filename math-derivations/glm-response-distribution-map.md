@@ -1,163 +1,358 @@
-# GLM Response Distribution Map
+﻿# GLM Response and Distribution Map
 
-## 1. Why Response Semantics Come First
+Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [GLM workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [hypothesis-function interpretation](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function).
 
-The response variable determines what predictions must mean. A real-valued measurement, a binary event, a category, a count, and a probability vector have different supports and different statistical mechanisms.
+## 1. Why distribution choice comes before loss choice
 
-The common mistake is to treat numeric encodings as mathematical meaning. Multiclass labels encoded as $0,1,2$ are not count data. A class label of $2$ is not twice class label $1$；it is a category identifier. Poisson is for counts; multiclass classification uses categorical or multinomial models.
+A loss is not the first modeling decision. The first decision is what the response variable $Y$ means and what kind of random outcome it is. Once a conditional distribution for $Y\mid x$ is chosen, the likelihood and negative log likelihood follow.
 
-## 2. Distribution Summary
+This is why squared loss, binary cross-entropy, multiclass cross-entropy, and Poisson NLL are not interchangeable penalties. They correspond to different response spaces and different uncertainty assumptions.
 
-| Response semantics | Support | Candidate distribution | Key modeling meaning |
-| ------------------ | ------- | ---------------------- | -------------------- |
-| Continuous measurement | $\mathbb R$ | Gaussian | additive symmetric noise |
-| Binary event | $\{0,1\}$ | Bernoulli | probability of success |
-| Single multiclass label | $\{1,\ldots,K\}$ | categorical | one class per sample |
-| Class counts over trials | count vector | multinomial | counts from repeated categorical trials |
-| Event count | $\{0,1,2,\ldots\}$ | Poisson | count/rate process |
-| Waiting time | $\mathbb R_{>0}$ | Exponential | memoryless duration |
-| Positive skewed amount | $\mathbb R_{>0}$ | Gamma | positive continuous with flexible variance |
-| Scalar probability | $(0,1)$ | Beta | random proportion |
-| Probability vector | simplex | Dirichlet | random categorical probability vector |
-
-## 3. Gaussian
-
-Definition:
+## 2. Support sets and response semantics
 
 ```math
-p(y;\mu,\sigma^2)
-=
-\frac{1}{\sqrt{2\pi\sigma^2}}
-\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
+\mathbb R=(-\infty,\infty)
 ```
-
-Use when response is continuous, can plausibly take values on a real line, and residuals are roughly symmetric with finite variance. Fixed-variance Gaussian GLM gives identity response and squared-loss MLE.
-
-## 4. Bernoulli
-
-Definition:
 
 ```math
-p(y;\phi)=\phi^y(1-\phi)^{1-y},
-\quad y\in\{0,1\}
+\mathbb R_{>0}=(0,\infty)
 ```
-
-Use when each observation records whether an event happened. Bernoulli GLM with canonical link gives sigmoid response and binary cross-entropy NLL.
-
-## 5. Categorical and Multinomial
-
-Categorical definition:
 
 ```math
-P(Y=k;\phi)=\phi_k,
-\quad
-\sum_{k=1}^{K}\phi_k=1
+\mathbb R_{\geq0}=[0,\infty)
 ```
-
-One-hot form:
 
 ```math
-p(y;\phi)
-=
-\prod_{k=1}^{K}\phi_k^{\mathbf1\{y=k\}}
+\mathbb N_0=\{0,1,2,\ldots\}
 ```
-
-Multinomial count definition:
 
 ```math
-p(c_1,\ldots,c_K;\phi)
-=
-\frac{n!}{\prod_{k=1}^{K}c_k!}
-\prod_{k=1}^{K}\phi_k^{c_k}
+\Delta^{K-1}=\left\{p\in\mathbb R^K:p_k\geq0,\ \sum_{k=1}^{K}p_k=1\right\}
 ```
 
-Categorical is for one class per sample. Multinomial is for counts across $n$ categorical trials. Softmax regression is the GLM response for categorical/multinomial class probabilities.
+Support is necessary because the model should not assign predictions or random outcomes to impossible values. It is not sufficient because variance, skew, tail behavior, zero inflation, dependence, and measurement mechanism still matter.
 
-## 6. Poisson
+## 3. Detailed distribution table
 
-Definition:
+| Response type | Support | Task type | Candidate distribution | Mean | Variance pattern | GLM response | Lecture 4 status |
+| ------------- | ------- | --------- | ---------------------- | ---- | ---------------- | ------------ | ---------------- |
+| Real-valued continuous | $\mathbb R$ | regression | Gaussian | $\mu$ | constant if variance fixed | identity | official core derivation |
+| Binary event | $\{0,1\}$ | binary classification | Bernoulli | $\phi$ | $\phi(1-\phi)$ | sigmoid | official core derivation |
+| Single multiclass label | $\{1,\dots,K\}$ | multiclass classification | categorical / multinomial one-trial | $\phi_k$ | coupled categorical covariance | softmax | official core derivation |
+| Count-valued | $\mathbb N_0$ | count regression | Poisson | $\lambda$ | variance equals mean | exponential | mentioned / problem-set-level extension |
+| Positive continuous | $\mathbb R_{>0}$ | durations, costs, waiting times | Exponential / Gamma | positive mean | right-skewed, mean-dependent | inverse or log-linked depending parameterization | mentioned examples |
+| Scalar probability | $(0,1)$ | probability or proportion target | Beta | $\alpha/(\alpha+\beta)$ | bounded, shape-dependent | mean in $(0,1)$ with separate link | extension for probability-valued data |
+| Probability vector | $\Delta^{K-1}$ | composition target | Dirichlet | simplex-valued mean | negative covariance from sum-to-one constraint | simplex-valued mean | extension for probability-vector data |
+
+## 4. Gaussian
+
+**Support.** $Y\in\mathbb R$.
+
+**PMF/PDF.**
 
 ```math
-p(y;\lambda)=\frac{\lambda^ye^{-\lambda}}{y!},
-\quad y\in\{0,1,2,\ldots\}
+p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
 ```
 
-Use when $y$ is a nonnegative integer count from a rate process. Poisson GLM with log link gives:
+**Parameters.** Mean $\mu\in\mathbb R$ and variance $\sigma^2>0$.
+
+**Mean and variance.**
 
 ```math
-\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
+\mathbb E[Y]=\mu,\qquad \mathrm{Var}(Y)=\sigma^2
 ```
 
-Core caveat: Poisson implies:
+**Task meaning.** Real-valued regression with additive measurement noise.
+
+**Lecture 4 role.** Official CS229 Lecture 4 core derivation, typically with fixed variance.
+
+**GLM role.** Fixed-variance canonical Gaussian gives identity response $h_\theta(x)=\theta^Tx$ and squared-loss NLL.
+
+**Failure modes.** Heavy tails, asymmetric residuals, heteroscedasticity, bounded outcomes, or invalid negative predictions.
+
+## 5. Bernoulli
+
+**Support.** $Y\in\{0,1\}$.
+
+**PMF/PDF.**
 
 ```math
-\mathbb E[Y]=\mathrm{Var}(Y)=\lambda
+p(y;\phi)=\phi^y(1-\phi)^{1-y},\qquad y\in\{0,1\}
 ```
 
-If observed variance is much larger than mean, overdispersion diagnostics are needed.
+**Parameters.** Success probability $\phi\in(0,1)$.
 
-## 7. Exponential
-
-Definition:
+**Mean and variance.**
 
 ```math
-p(y;\lambda)=\lambda e^{-\lambda y},
-\quad y>0
+\mathbb E[Y]=\phi,\qquad \mathrm{Var}(Y)=\phi(1-\phi)
 ```
 
-Use for waiting times with a memoryless mechanism. It is too restrictive when hazard changes over time or tails are heavier than exponential.
+**Task meaning.** Binary event prediction.
 
-## 8. Gamma
+**Lecture 4 role.** Official CS229 Lecture 4 core derivation.
 
-Definition:
+**GLM role.** Natural parameter is log-odds. Canonical linear predictor produces sigmoid response and binary cross-entropy NLL.
+
+**Failure modes.** Complete separation, class imbalance, label noise, poor calibration, and distribution shift in base rates.
+
+## 6. Categorical and Multinomial
+
+**Support.** For one class per sample, $Y\in\{1,\dots,K\}$. For count vectors over $n$ categorical trials, $c_k\in\mathbb N_0$ and $\sum_k c_k=n$.
+
+**PMF/PDF.** Categorical one-trial form:
 
 ```math
-p(y;\alpha,\beta)
-=
-\frac{\beta^\alpha}{\Gamma(\alpha)}
-y^{\alpha-1}e^{-\beta y},
-\quad y>0
+p(y=k;\phi)=\phi_k,\qquad \sum_{k=1}^{K}\phi_k=1
 ```
 
-Use for positive continuous outcomes with skewness, such as durations, costs, or intensities. Gamma can model variance increasing with the mean more flexibly than Gaussian.
-
-## 9. Beta
-
-Definition:
+One-hot statistic:
 
 ```math
-p(y;\alpha,\beta)
-=
-\frac{\Gamma(\alpha+\beta)}
-{\Gamma(\alpha)\Gamma(\beta)}
-y^{\alpha-1}(1-y)^{\beta-1},
-\quad 0<y<1
+T_k(Y)=\mathbf1\{Y=k\}
 ```
-
-Use for scalar probabilities or proportions inside the open interval. If observations include exact $0$ or $1$, a plain Beta model may need zero-one inflation or boundary handling.
-
-## 10. Dirichlet
-
-Definition for $p_k>0$ and $\sum_k p_k=1$:
 
 ```math
-p(p_1,\ldots,p_K;\alpha)
-=
-\frac{\Gamma\left(\sum_{k=1}^{K}\alpha_k\right)}
-{\prod_{k=1}^{K}\Gamma(\alpha_k)}
-\prod_{k=1}^{K}p_k^{\alpha_k-1}
+\mathbb E[T_k(Y)]=\phi_k
 ```
 
-Use when the response itself is a probability vector. The components are dependent because they must sum to one.
+Multinomial count form:
 
-## 11. Final Distinction
+```math
+p(c_1,\ldots,c_K;\phi)=\frac{n!}{\prod_{k=1}^{K}c_k!}\prod_{k=1}^{K}\phi_k^{c_k}
+```
 
-| Problem | Correct family direction | Incorrect shortcut |
-| ------- | ------------------------ | ------------------ |
-| Predict one of $K$ classes | categorical / softmax | Poisson on class IDs |
-| Predict number of events | Poisson or count model | softmax over arbitrary maximum count without count mechanism |
-| Predict a real-valued measurement | Gaussian or robust continuous model | Bernoulli unless thresholded event is the target |
-| Predict a probability vector | Dirichlet or compositional model | independent regressions that ignore sum-to-one |
+**Parameters.** Probability vector $\phi\in\Delta^{K-1}$.
 
-Distribution choice is a modeling assumption, not a datatype conversion.
+**Mean and covariance for one-hot categorical statistic.**
 
+```math
+\mathrm{Cov}(T_i(Y),T_j(Y))=
+\begin{cases}
+\phi_i(1-\phi_i), & i=j\\
+-\phi_i\phi_j, & i\neq j
+\end{cases}
+```
+
+**Task meaning.** Mutually exclusive multiclass classification.
+
+**Lecture 4 role.** Official CS229 Lecture 4 core derivation for multinomial/softmax.
+
+**GLM role.** Softmax maps class scores to a normalized probability vector.
+
+**Failure modes.** Poisson on class IDs, ordinal interpretation of nominal labels, independent one-vs-rest probabilities that do not sum to one, or rare classes with unstable estimates.
+
+## 7. Poisson
+
+**Support.** $Y\in\mathbb N_0$.
+
+**PMF/PDF.**
+
+```math
+p(y;\lambda)=\frac{\lambda^y e^{-\lambda}}{y!},\qquad y\in\mathbb N_0
+```
+
+**Parameters.** Rate or mean count $\lambda>0$.
+
+**Mean and variance.**
+
+```math
+\mathbb E[Y]=\lambda,\qquad \mathrm{Var}(Y)=\lambda
+```
+
+**Task meaning.** Count regression for event counts under a rate/exposure mechanism.
+
+**Lecture 4 role.** Mentioned and natural GLM extension / problem-set-level example.
+
+**GLM role.** Natural parameter is $\eta=\log\lambda$. Canonical linear predictor gives $h_\theta(x)=e^{\theta^Tx}$.
+
+**Failure modes.** Overdispersion, excess zeros, changing exposure, event dependence, underdispersion, and bursty processes.
+
+## 8. Exponential
+
+**Support.** $Y\in\mathbb R_{>0}$.
+
+**PMF/PDF.**
+
+```math
+p(y;\lambda)=\lambda e^{-\lambda y},\qquad y>0
+```
+
+**Parameters.** Rate $\lambda>0$.
+
+**Mean and variance.**
+
+```math
+\mathbb E[Y]=\frac{1}{\lambda},\qquad \mathrm{Var}(Y)=\frac{1}{\lambda^2}
+```
+
+**Task meaning.** Positive waiting time under a memoryless constant-rate mechanism.
+
+**Lecture 4 role.** Mentioned as an exponential-family example, not fully developed as a CS229 Lecture 4 GLM derivation here.
+
+**GLM role.** Shows how positive response support can be tied to a rate or mean parameter.
+
+**Failure modes.** Nonconstant hazards, censoring, heavy tails, deterministic delays, and mixtures of waiting-time mechanisms.
+
+## 9. Gamma
+
+**Support.** $Y\in\mathbb R_{>0}$.
+
+**PMF/PDF.** Shape-rate parameterization:
+
+```math
+p(y;\alpha,\beta)=\frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y},\qquad y>0
+```
+
+**Parameters.** Shape $\alpha>0$ and rate $\beta>0$.
+
+**Mean and variance.**
+
+```math
+\mathbb E[Y]=\frac{\alpha}{\beta},\qquad \mathrm{Var}(Y)=\frac{\alpha}{\beta^2}
+```
+
+**Task meaning.** Positive continuous regression for skewed durations, costs, or amounts.
+
+**Lecture 4 role.** Mentioned as an exponential-family example.
+
+**GLM role.** Gamma GLMs often model variance that grows with the mean; inverse and log links are common depending on convention and goal.
+
+**Failure modes.** Exact zeros, extreme tails, multimodality, censoring, and mixtures of mechanisms.
+
+## 10. Beta
+
+**Support.** $Y\in(0,1)$.
+
+**PMF/PDF.**
+
+```math
+p(y;\alpha,\beta)=\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}y^{\alpha-1}(1-y)^{\beta-1},\qquad 0<y<1
+```
+
+**Parameters.** Shape parameters $\alpha>0$ and $\beta>0$.
+
+**Mean.**
+
+```math
+\mathbb E[Y]=\frac{\alpha}{\alpha+\beta}
+```
+
+**Variance.**
+
+```math
+\mathrm{Var}(Y)=\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}
+```
+
+**Task meaning.** Scalar probability or proportion as the observed response.
+
+**Lecture 4 role.** Mentioned as a distribution over probabilities; extension layer for this note.
+
+**GLM role.** A Beta model is for probability-valued observations, not binary labels. The mean is in $(0,1)$ and the link is chosen separately.
+
+**Failure modes.** Exact boundary values, different denominators behind proportions, zero-one inflation, or binomial-count data better modeled with exposure.
+
+## 11. Dirichlet
+
+**Support.** $p\in\Delta^{K-1}$.
+
+**PMF/PDF.**
+
+```math
+p(p;\alpha)=\frac{\Gamma(\sum_{k=1}^{K}\alpha_k)}{\prod_{k=1}^{K}\Gamma(\alpha_k)}\prod_{k=1}^{K}p_k^{\alpha_k-1}
+```
+
+with:
+
+```math
+p\in\Delta^{K-1}
+```
+
+**Parameters.** Concentration vector $\alpha_k>0$.
+
+**Mean.**
+
+```math
+\mathbb E[p_k]=\frac{\alpha_k}{\sum_{j=1}^{K}\alpha_j}
+```
+
+**Covariance.**
+
+```math
+\mathrm{Cov}(p_i,p_j)=
+\begin{cases}
+\frac{\alpha_i(\alpha_0-\alpha_i)}{\alpha_0^2(\alpha_0+1)}, & i=j\\
+-\frac{\alpha_i\alpha_j}{\alpha_0^2(\alpha_0+1)}, & i\neq j
+\end{cases}
+```
+
+where:
+
+```math
+\alpha_0=\sum_{k=1}^{K}\alpha_k
+```
+
+**Task meaning.** Composition or probability-vector response.
+
+**Lecture 4 role.** Mentioned as a distribution over probabilities; extension layer for this note.
+
+**GLM role.** Dirichlet is for a random probability vector. Basic softmax classification predicts a probability vector but observes a categorical label, so the response distribution is categorical rather than Dirichlet.
+
+**Failure modes.** Structural zeros, multimodality, richer component dependence, and compositional effects not captured by a single Dirichlet.
+
+## 12. Official CS229 core vs extension
+
+| Distribution | Lecture 4 role |
+| ------------ | -------------- |
+| Gaussian | Official core derivation |
+| Bernoulli | Official core derivation |
+| Multinomial / Softmax | Official core derivation |
+| Poisson | Mentioned and natural GLM extension / problem-set-level |
+| Gamma / Exponential | Mentioned as exponential-family examples |
+| Beta / Dirichlet | Mentioned as distributions over probabilities |
+| Others | Outside this lecture |
+
+The official core is the construction pattern, not a claim that every useful distribution is fully derived in the lecture. The extension layer is included to make distribution selection usable in real modeling problems.
+
+## 13. How distribution choice changes the learning objective
+
+| Distribution | Conditional mean | NLL shape | Practical interpretation |
+| ------------ | ---------------- | --------- | ------------------------ |
+| Gaussian fixed variance | $\theta^Tx$ | squared error up to constants | penalizes real-valued residuals symmetrically |
+| Bernoulli | sigmoid of $\theta^Tx$ | binary cross-entropy | fits event probabilities |
+| Categorical / softmax | softmax probabilities | multiclass cross-entropy | fits one mutually exclusive class per sample |
+| Poisson | $e^{\theta^Tx}$ | Poisson NLL | fits nonnegative count rates |
+| Gamma | positive mean | Gamma deviance-like objective | fits positive skewed continuous responses |
+| Beta | mean in $(0,1)$ | Beta likelihood | fits probability-valued observations |
+| Dirichlet | simplex mean | Dirichlet likelihood | fits composition-valued observations |
+
+For a canonical scalar exponential-family GLM, the per-sample NLL ignoring constants is:
+
+```math
+J_i(\theta)=a(\eta_i)-\eta_iT(y^{(i)})
+```
+
+with:
+
+```math
+\eta_i=\theta^Tx^{(i)}
+```
+
+This is why the response distribution controls both the response function and the loss.
+
+## 14. Reliability diagnostics
+
+| Check | What to ask | Example failure |
+| ----- | ----------- | --------------- |
+| Support | Can the model predict only legal means? | Gaussian mean used for harmful negative count predictions |
+| Mean-variance relation | Does variance scale as assumed? | Poisson data with variance far above mean |
+| Tail behavior | Are extreme values plausible under the family? | Gaussian underestimates heavy tails |
+| Calibration | Do predicted probabilities match frequencies? | Bernoulli or softmax probabilities overconfident |
+| Dependence | Are samples conditionally independent enough? | time series arrivals treated as iid counts |
+| Zero handling | Are zeros structural or sampling variation? | zero-inflated count data modeled as plain Poisson |
+| Identifiability | Do parameter choices produce unique distributions? | softmax class parameters shift together without changing probabilities |
+| Shift | Does the conditional mechanism persist? | class base rates change after deployment |
+
+## 15. Summary
+
+Distribution choice is the bridge from response semantics to GLM mathematics. Support tells what values are legal; the distribution adds variance, tail, dependence, and mechanism assumptions; exponential-family form exposes $T(y)$, $\eta$, $a(\eta)$, and $b(y)$; the GLM link turns the natural parameter into a linear predictor; and the response mean becomes the hypothesis function used for prediction.
