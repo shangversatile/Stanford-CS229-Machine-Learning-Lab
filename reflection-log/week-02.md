@@ -105,3 +105,7 @@ The deeper understanding target is now: sufficient statistics explain likelihood
 ## Exponential-Family Component Intuition Added
 
 The Lecture 4 note was strengthened to clarify that $`T(y)`$ is the model's statistical readout of the response, while $`\eta`$ is the natural coordinate controlling how the distribution weights that readout. The sufficient statistic was explained at both single-observation and dataset levels, and the GLM connection was clarified through $`\eta(x)=\theta^Tx`$.
+
+## Probability Model Clarification
+
+Added clarification that probability expressions define the distribution of a random variable rather than modifying an observed value. For Gaussian modeling, the mean controls the center of plausible outcomes and the variance controls how quickly plausibility decays away from the center. Parameter learning was clarified as inverse reasoning under a chosen forward probabilistic model.

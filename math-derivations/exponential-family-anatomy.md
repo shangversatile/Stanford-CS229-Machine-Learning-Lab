@@ -47,6 +47,44 @@ So $`a(\eta)`$ is the log-total unnormalized mass. For a discrete outcome space 
 
 The key mental model is: $`T(y)`$ decides what the model reads from $`y`$; $`\eta`$ decides how the distribution values those readings.
 
+## What a probability density says about y
+
+A probability model separates the random variable from the value being evaluated. Before observation, $`Y`$ is random. A lowercase $`y`$ is a possible value of $`Y`$, or the realized value after measurement. Writing a density such as $`p(y;\mu,\sigma^2)`$ does not change $`y`$; it assigns a density score to that value under the parameters.
+
+For a Gaussian model:
+
+```math
+Y\sim\mathcal N(\mu,\sigma^2)
+```
+
+```math
+p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
+```
+
+Because $`Y`$ is continuous, this is a density rather than the exact probability of $`Y=y`$. Probabilities come from intervals:
+
+```math
+P(a\leq Y\leq b)=\int_a^b p(y;\mu,\sigma^2)dy
+```
+
+The mean $`\mu`$ controls the center of plausible values. The variance $`\sigma^2`$ controls how quickly plausibility decays as $`y`$ moves away from that center. A small variance makes the density narrow and punishes distance heavily; a large variance makes the density wider and punishes the same distance less.
+
+Observed data update parameter estimates through likelihood. Once the family has been chosen, learning asks which parameter makes the observed values most plausible:
+
+```math
+D=\{y^{(i)}\}_{i=1}^{m}
+```
+
+```math
+L(\mu,\sigma^2)=\prod_{i=1}^{m}p(y^{(i)};\mu,\sigma^2)
+```
+
+```math
+(\hat\mu,\hat\sigma^2)=\underset{\mu,\sigma^2}{\mathrm{argmax}}\ L(\mu,\sigma^2)
+```
+
+This is inverse reasoning under a chosen forward model: the forward model maps parameters to a distribution over possible observations, while estimation maps observed data back to plausible parameters.
+
 ## Sufficient statistic: single-observation view and dataset view
 
 The phrase "sufficient statistic" has two related levels in this setting.

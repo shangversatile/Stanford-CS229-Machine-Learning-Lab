@@ -68,6 +68,8 @@ p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sig
 
 **GLM role.** Fixed-variance canonical Gaussian gives identity response $`h_\theta(x)=\theta^Tx`$ and squared-loss NLL.
 
+**Clarification.** The Gaussian model does not say the target is deterministic. It says the target is random around a conditional mean, and variance controls the spread around that mean.
+
 **Failure modes.** Heavy tails, asymmetric residuals, heteroscedasticity, bounded outcomes, or invalid negative predictions.
 
 ## 5. Bernoulli

@@ -74,6 +74,48 @@ h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
 
 Thus $`T(y)`$ defines what the model reads from the observed response, while $`\eta(x)`$ defines how features control the conditional distribution. The response function is derived after those choices; it is not selected independently of the likelihood.
 
+## Forward model and inverse parameter estimation
+
+The forward modeling step is to choose a distribution family for the response. That choice is not estimated from one formula alone; it is a modeling assumption based on support, response semantics, and the noise or sampling mechanism. After the family is chosen, inputs control the conditional distribution:
+
+```math
+Y|x;\theta
+```
+
+For a canonical GLM:
+
+```math
+p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
+```
+
+with a linear natural coordinate such as:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+The inverse learning step uses the observed dataset to estimate parameters:
+
+```math
+D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}
+```
+
+```math
+L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta)
+```
+
+```math
+\hat\theta=\underset{\theta}{\mathrm{argmax}}\ L(\theta)
+```
+
+After estimation, prediction plugs in $`\hat\theta`$ and reports the conditional mean, probability, or probability vector implied by the chosen response distribution:
+
+```math
+h_{\hat\theta}(x)=\mathbb E[T(Y)|x;\hat\theta]
+```
+
+So the workflow is: choose a family, define the conditional model, write the likelihood, estimate parameters, then predict the conditional mean or probability. The fitted parameter is not the observation itself; it is the setting that makes the observed responses plausible under the chosen forward model.
+
 ## 2. Official CS229 assumptions and modern GLM terms
 
 | CS229 assumption/design | Modern GLM term | What it means |

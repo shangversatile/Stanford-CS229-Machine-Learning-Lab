@@ -308,6 +308,134 @@ T(y)=\begin{bmatrix}y\\ y^2\end{bmatrix}
 
 这就是为什么 $`T(y)`$ 不总是等于 $`y`$。它取决于这个 distribution family 的参数化需要 observation 的哪些方面。
 
+### What does a probability model say about a random variable?
+
+先区分 random variable 和 observed value。$`Y`$ 是观察之前的随机变量；$`y`$ 是 $`Y`$ 的一个可能取值，或者已经观察到的一次 realization。写下一个 probability model 不是在改变已经给定的 $`y`$，而是在说明：在参数 $`\mu`$ 和 $`\sigma^2`$ 下，不同可能的 $`y`$ 值有多 plausible。
+
+```math
+Y\sim\mathcal N(\mu,\sigma^2)
+```
+
+```math
+p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
+```
+
+对 continuous variable，$`p(y;\mu,\sigma^2)`$ 是 density，不是 $`Y=y`$ 这个 exact event 的 probability。真正的 probability 来自对区间上的 density 积分：
+
+```math
+P(a\leq Y\leq b)=\int_a^b p(y;\mu,\sigma^2)dy
+```
+
+所以 Gaussian density 的意思是：如果随机变量 $`Y`$ 的分布中心是 $`\mu`$，方差是 $`\sigma^2`$，那么每个候选值 $`y`$ 会得到一个 density score。$`\mu`$ 控制 distribution centered 在哪里；$`\sigma^2`$ 控制离中心越远时 plausibility 下降得多快。
+
+核心 exponential term 是：
+
+```math
+\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
+```
+
+这项直接表达了 observation 和 center 的距离惩罚：
+
+* 如果 $`y`$ 接近 $`\mu`$，平方距离小，density 高；
+* 如果 $`y`$ 远离 $`\mu`$，平方距离大，density 低；
+* 较大的 $`\sigma^2`$ 会让离 $`\mu`$ 的距离被较轻地惩罚，因此分布更宽；
+* 较小的 $`\sigma^2`$ 会让离 $`\mu`$ 的距离被较重地惩罚，因此分布更集中。
+
+### From unconditional probability to supervised conditional modeling
+
+在 supervised learning 里，我们通常不是只建模一个 unconditional $`Y`$，而是建模给定 input 后的 conditional random variable：
+
+```math
+Y|x;\theta
+```
+
+Gaussian regression 的条件模型是：
+
+```math
+Y|x;\theta\sim\mathcal N(\theta^Tx,\sigma^2)
+```
+
+于是 observed response $`y`$ 的 conditional density 是：
+
+```math
+p(y|x;\theta)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y-\theta^Tx)^2}{2\sigma^2}\right)
+```
+
+这里的 $`\theta^Tx`$ 不是说 $`Y`$ 必须等于 $`\theta^Tx`$。它说的是：在给定 $`x`$ 后，$`Y`$ 的 conditional distribution 以 $`\theta^Tx`$ 为中心。实际观察到的 $`y`$ 会根据它在这个 conditional distribution 下有多 plausible 来被评价。这就是 regression 的 probabilistic meaning：预测不是消除随机性，而是预测 conditional mean，并用 noise model 描述围绕这个 mean 的不确定性。
+
+### What does it mean to choose a distribution and then infer parameters?
+
+选择 distribution family 是 modeling assumption。这个选择来自 response type、problem semantics 和 noise mechanism：real-valued measurement 可能适合 Gaussian，binary event 可能适合 Bernoulli，count 可能适合 Poisson。family 选定之后，data 被用来估计这个 family 里的 parameters。
+
+```math
+D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}
+```
+
+```math
+L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta)
+```
+
+```math
+\hat\theta=\underset{\theta}{\mathrm{argmax}}\ L(\theta)
+```
+
+这不是说一个 sample 直接决定 $`\theta`$，而是说整个 dataset 选择那个让所有 observed outcomes 联合起来最 plausible 的 parameter。
+
+Parameter estimation is inverse reasoning relative to a chosen forward generative model.
+
+Forward direction:
+
+```text
+Given $\theta$, the model predicts a distribution over possible $Y$ values.
+```
+
+Inverse direction:
+
+```text
+Given observed data, learning finds the $\theta$ whose predicted distributions make those observations most plausible.
+```
+
+在 linear regression 的 Gaussian version 里：
+
+```math
+Y|x;\theta\sim\mathcal N(\theta^Tx,\sigma^2)
+```
+
+likelihood 是：
+
+```math
+L(\theta)=\prod_{i=1}^{m}\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2}\right)
+```
+
+log likelihood 是：
+
+```math
+\log L(\theta)=\sum_{i=1}^{m}\left[-\log(\sqrt{2\pi}\sigma)-\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2}\right]
+```
+
+因为 $`\sigma^2`$ 固定时，第一项和 denominator 都不改变最优 $`\theta`$，所以：
+
+```math
+\underset{\theta}{\mathrm{argmax}}\ \log L(\theta)
+=
+\underset{\theta}{\mathrm{argmin}}\ \sum_{i=1}^{m}(y^{(i)}-\theta^Tx^{(i)})^2
+```
+
+这就是为什么 Gaussian noise plus MLE produces least squares。Squared loss 不是先验任意指定的 penalty；它是 fixed-variance Gaussian conditional model 的 maximum likelihood consequence。
+
+Gaussian log density 展开后出现 $`y`$ 和 $`y^2`$ 并不是任意的：
+
+```math
+\log p(y;\mu,\sigma^2)
+=
+-\log(\sqrt{2\pi}\sigma)
+-\frac{y^2}{2\sigma^2}
++\frac{\mu}{\sigma^2}y
+-\frac{\mu^2}{2\sigma^2}
+```
+
+这里 $`y`$ 携带 location information，$`y^2`$ 携带 second-moment 或 spread information。如果 variance 已知，$`y^2`$ 不和 unknown mean parameter 耦合；如果 variance 未知，$`y^2`$ 会和 unknown variance parameter 耦合。因此 sufficient statistics 取决于哪些 parameters 是 unknown。
+
 #### B. Dataset level
 
 对 iid samples：
