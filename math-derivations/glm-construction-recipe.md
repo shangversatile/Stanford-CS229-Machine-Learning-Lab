@@ -1,201 +1,217 @@
 # GLM Construction Recipe
 
-Cross-link: see the main Lecture 4 note sections [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function), plus the standalone [GLM response and distribution map](glm-response-distribution-map.md) and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
-
-## 1. Workflow diagram
+Cross-link: see the main Lecture 4 note sections [Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-how-a-glm-connects-features-to-a-conditional-distribution), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For related reference maps, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Response and Distribution Map](glm-response-distribution-map.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
 
 ```text
 response semantics
--> legal support and measurement mechanism
--> conditional distribution for Y|x
--> PMF/PDF
--> exponential-family form
--> T(y), eta, a(eta), b(y)
--> link choice
+-> conditional family
+-> sufficient statistic
+-> natural parameter
 -> linear predictor
--> response mean
+-> link / response mapping
+-> conditional distribution
 -> likelihood
--> NLL/loss
--> parameter optimization
+-> parameter estimation
 -> prediction
 -> diagnostics
 ```
 
 This order matters because the loss is a consequence of the distribution, not the starting point.
 
-## Historical and modeling motivation
+## 1. Random component
 
-GLMs were introduced to keep the useful parts of linear regression without pretending every supervised-learning response is a real-valued Gaussian measurement. The historical modeling compromise is:
-
-* keep a linear predictor for interpretability and computation;
-* choose a response distribution that matches the support and variance behavior of $`Y`$;
-* connect covariates to the distribution through the natural parameter;
-* estimate parameters by the likelihood induced by that distribution.
-
-In canonical form, the systematic component is:
+The random component chooses the conditional distribution of the response:
 
 ```math
-\eta=\theta^Tx
+Y\mid x;\theta
+\sim
+\text{an exponential-family conditional distribution}
 ```
 
-and the prediction is the mean map induced by the log-partition function:
+This is a statement about $`Y\mid X=x`$, not necessarily about the marginal distribution of $`Y`$. Mixing different feature values can make the marginal distribution look non-Gaussian even when each conditional distribution is Gaussian, and similarly for Bernoulli or Poisson models.
+
+The random component should be chosen from response semantics:
+
+| Response meaning | Support | Natural starting family |
+| ---------------- | ------- | ----------------------- |
+| real-valued measurement | $`\mathbb R`$ | Gaussian |
+| binary event | $`\{0,1\}`$ | Bernoulli |
+| event count | $`\mathbb N_0`$ | Poisson |
+| mutually exclusive class | $`\{1,\dots,K\}`$ | categorical / multinomial |
+
+Support is only the first check. The distribution also encodes variance, tail behavior, skew, dependence assumptions, and a data-generating story.
+
+## 2. Systematic component
+
+The systematic component is the feature-side score:
 
 ```math
-h_\theta(x)=\nabla a(\theta^Tx)
+s_\theta(x)=\theta^Tx
 ```
 
-This is why sigmoid, exponential, identity, and softmax responses are derived from Bernoulli, Poisson, Gaussian, and multinomial likelihoods rather than chosen as interchangeable activation functions.
-## Reading $`y`$ and controlling the distribution
+Here $`x\in\mathbb R^d`$ and $`\theta\in\mathbb R^d`$. The parameter $`\theta`$ is global and learned from the dataset. The value $`s_\theta(x)`$ is sample-specific.
 
-A GLM is not simply "choose an activation function." It is a structured modeling workflow:
-
-1. choose what statistic $`T(y)`$ the distribution reads from the response;
-2. choose how input features determine the natural coordinate $`\eta(x)`$;
-3. use $`a(\eta)`$ to map the natural coordinate to the mean response;
-4. fit $`\theta`$ by likelihood.
-
-In canonical form this becomes:
+This score is useful because it gives additive feature effects:
 
 ```math
-p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
+\frac{\partial s_\theta(x)}{\partial x_j}=\theta_j
 ```
 
-with:
+The meaning of that derivative depends on the scale where the score is placed. In Gaussian regression it can be a mean-scale effect. In logistic regression it is a log-odds effect. In Poisson regression it is a log-rate effect.
+
+## 3. Link component
+
+A raw linear predictor can be any real number. Many response means cannot. A Bernoulli mean must stay in $`(0,1)`$; a Poisson mean must stay in $`(0,\infty)`$.
+
+The link function resolves this mismatch by making a transformed mean linear:
 
 ```math
-\eta(x)=\theta^Tx
+g(\mu(x))=s_\theta(x)
+```
+
+The inverse direction maps the score back to the mean:
+
+```math
+\mu(x)=g^{-1}(s_\theta(x))
+```
+
+In this file, $`g`$ is reserved for the link direction. The response mapping from natural parameter to mean is written as $`\rho`$.
+
+## 4. General link versus canonical link
+
+For an exponential-family distribution:
+
+```math
+p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
+```
+
+The natural parameter $`\eta`$ is the coordinate that couples linearly to $`T(y)`$. The conditional mean of the sufficient statistic is:
+
+```math
+\mu=\mathbb E_\eta[T(Y)]
+```
+
+A canonical link maps this mean back to the natural parameter. For scalar $`T(Y)=Y`$, define:
+
+```math
+\rho(\eta)=a'(\eta)
+```
+
+Then:
+
+```math
+g_{\mathrm{can}}(\mu)=\rho^{-1}(\mu)
+```
+
+A canonical-link GLM chooses:
+
+```math
+g_{\mathrm{can}}(\mu(x))=s_\theta(x)
+```
+
+which is equivalent to:
+
+```math
+\eta(x)=s_\theta(x)=\theta^Tx
+```
+
+A noncanonical link is possible. It may fit domain knowledge better, but the clean gradient and Hessian formulas below are specific to the canonical scalar construction.
+
+## 5. Mean map from the log-partition function
+
+Let:
+
+```math
+Z(\eta)=\int b(y)\exp\left(\eta^TT(y)\right)dy
 ```
 
 and:
 
 ```math
-h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
+a(\eta)=\log Z(\eta)
 ```
 
-Thus $`T(y)`$ defines what the model reads from the observed response, while $`\eta(x)`$ defines how features control the conditional distribution. The response function is derived after those choices; it is not selected independently of the likelihood.
-
-## Forward model and inverse parameter estimation
-
-The forward modeling step is to choose a distribution family for the response. That choice is not estimated from one formula alone; it is a modeling assumption based on support, response semantics, and the noise or sampling mechanism. After the family is chosen, inputs control the conditional distribution:
+Differentiate:
 
 ```math
-Y|x;\theta
+\nabla a(\eta)
+=
+\frac{\nabla Z(\eta)}{Z(\eta)}
 ```
 
-For a canonical GLM:
+Because:
 
 ```math
-p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
+\nabla Z(\eta)
+=
+\int b(y)\exp\left(\eta^TT(y)\right)T(y)dy
 ```
 
-with a linear natural coordinate such as:
+we get:
 
 ```math
-\eta(x)=\theta^Tx
+\nabla a(\eta)=\mathbb E_\eta[T(Y)]
 ```
 
-The inverse learning step uses the observed dataset to estimate parameters:
+For scalar $`T(Y)=Y`$:
+
+```math
+\mu=a'(\eta)
+```
+
+This is why the response function is not guessed from data. It is implied by the chosen family through the log-partition function.
+
+## 6. Canonical construction
+
+The scalar canonical GLM combines the previous pieces:
+
+```math
+\eta(x)=s_\theta(x)=\theta^Tx
+```
+
+```math
+p(y\mid x;\theta)
+=
+b(y)\exp\left(\theta^TxT(y)-a(\theta^Tx)\right)
+```
+
+and:
+
+```math
+h_\theta(x)
+=
+\mu(x)
+=
+\rho(\theta^Tx)
+=
+a'(\theta^Tx)
+```
+
+Read each equality carefully:
+
+* $`h_\theta(x)=\mu(x)`$ is the prediction convention.
+* $`\mu(x)=\rho(\eta(x))`$ defines the response mapping.
+* $`\rho(\eta)=a'(\eta)`$ is the exponential-family moment identity in the scalar case.
+* $`\eta(x)=\theta^Tx`$ is the canonical linear natural-parameter design choice.
+
+## 7. Training likelihood
+
+For a dataset:
 
 ```math
 D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}
 ```
 
+conditional independence gives:
+
 ```math
-L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta)
+L(\theta)=\prod_{i=1}^{m}p(y^{(i)}\mid x^{(i)};\theta)
 ```
+
+The MLE is:
 
 ```math
 \hat\theta=\underset{\theta}{\mathrm{argmax}}\ L(\theta)
-```
-
-After estimation, prediction plugs in $`\hat\theta`$ and reports the conditional mean, probability, or probability vector implied by the chosen response distribution:
-
-```math
-h_{\hat\theta}(x)=\mathbb E[T(Y)|x;\hat\theta]
-```
-
-So the workflow is: choose a family, define the conditional model, write the likelihood, estimate parameters, then predict the conditional mean or probability. The fitted parameter is not the observation itself; it is the setting that makes the observed responses plausible under the chosen forward model.
-
-## 2. Official CS229 assumptions and modern GLM terms
-
-| CS229 assumption/design | Modern GLM term | What it means |
-| ----------------------- | --------------- | ------------- |
-| $`Y\mid x;\theta`$ follows an exponential-family distribution | random component | choose a conditional response distribution |
-| $`h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]`$ | prediction target / response mean | prediction is the conditional mean of the sufficient statistic |
-| $`\eta=\theta^Tx`$ in the canonical scalar case | systematic component | the natural parameter is linear in features |
-| natural parameter equals linear predictor | canonical link | the link maps mean to the natural parameter used in the exponential family |
-| sigmoid, identity, exponential, softmax responses | inverse-link / response function | map the linear predictor back to a legal mean or probability |
-
-CS229 sometimes uses $`g`$ for the response function, especially in logistic regression. Many statistics texts use $`g`$ for the link. Always check the direction of the map.
-
-## 3. Full GLM construction workflow
-
-1. Define the response variable $`Y`$ precisely. Decide whether $`Y`$ is a measurement, event, class label, count, positive duration, probability, or probability vector.
-2. Identify support and measurement mechanism. Support rules out invalid model families, and mechanism says what kind of randomness is plausible.
-3. Choose a candidate conditional distribution for $`Y\mid x`$. This choice encodes support, uncertainty, and mean-variance behavior.
-4. Write the PMF/PDF. A concrete probability model is needed before writing the likelihood.
-5. Rewrite the distribution in exponential-family form. Put it into the template where the natural parameter and log-partition function are visible.
-6. Identify $`T(y)`$, $`\eta`$, $`a(\eta)`$, and $`b(y)`$. These four objects determine what is summarized from data, what is linearized, what normalizes probabilities, and what remains independent of parameters.
-7. Decide whether to use canonical link. Canonical links often simplify gradients and curvature, but domain constraints may justify another link.
-8. Set the linear predictor. For scalar canonical GLMs, set $`\eta=\theta^Tx`$; for softmax, use class-specific linear scores.
-9. Derive the response mean. Use $`h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]=\nabla a(\eta)`$ when in canonical exponential-family form.
-10. Write likelihood over all samples. This states how the observations combine under conditional independence.
-11. Convert likelihood into NLL. The NLL is the loss implied by the distribution.
-12. Optimize parameters. Estimate the shared parameters using an optimization method appropriate for the NLL geometry.
-13. Predict using conditional mean or class probability. The fitted parameter is inserted into the response function.
-14. Diagnose model assumptions. Check support, variance, calibration, residuals, separation, identifiability, and deployment shift.
-
-## 4. Link function versus response function
-
-Let:
-
-```math
-\mu=\mathbb E[T(Y)\mid x;\theta]
-```
-
-The link maps the mean to the linear predictor or natural parameter:
-
-```math
-g(\mu)=\eta
-```
-
-The response function maps the linear predictor back to the mean:
-
-```math
-\mu=g^{-1}(\eta)
-```
-
-In canonical exponential-family GLMs:
-
-```math
-\mu=\nabla a(\eta)
-```
-
-If:
-
-```math
-\eta=\theta^Tx
-```
-
-then:
-
-```math
-h_\theta(x)=\nabla a(\theta^Tx)
-```
-
-| Distribution | Link direction | Response direction |
-| ------------ | -------------- | ------------------ |
-| Gaussian | $`g(\mu)=\mu`$ | $`\mu=\eta`$ |
-| Bernoulli | $`g(\mu)=\log(\mu/(1-\mu))`$ | $`\mu=1/(1+e^{-\eta})`$ |
-| Poisson | $`g(\mu)=\log\mu`$ | $`\mu=e^\eta`$ |
-| Multinomial / softmax | log-odds against a reference class | normalized class probabilities |
-
-## 5. Training versus prediction
-
-Training estimates the parameter:
-
-```math
-\hat\theta=\underset{\theta}{\mathrm{argmax}}\ p(D\mid\theta)
 ```
 
 or equivalently minimizes NLL:
@@ -204,163 +220,159 @@ or equivalently minimizes NLL:
 \hat\theta=\underset{\theta}{\mathrm{argmin}}\ J_{\mathrm{NLL}}(\theta)
 ```
 
-Prediction uses the fitted parameter:
+This is inverse reasoning relative to a chosen forward model. Given $`\theta`$, the model predicts conditional distributions. Given observations, learning finds the $`\theta`$ whose conditional distributions make those observations plausible.
+
+## 8. Gradient and Hessian
+
+For one scalar canonical sample:
 
 ```math
-h_{\hat\theta}(x)=\mathbb E[T(Y)\mid x;\hat\theta]
+\log p(y\mid x;\theta)
+=
+T(y)\theta^Tx
+-
+a(\theta^Tx)
++
+\log b(y)
 ```
 
-For classification, this conditional mean is usually a probability or probability vector. For regression and count models, it is a conditional expected value. The hypothesis function is therefore a prediction rule induced by the fitted probabilistic model, not the fitted parameter itself.
-
-## 6. Bernoulli worked mini-example
-
-**Modeling problem.** Predict whether a loan defaults.
-
-```text
-Y = 1 if default occurs, Y = 0 otherwise.
-```
-
-**Support.**
-
-```math
-Y\in\{0,1\}
-```
-
-**Distribution.**
-
-```math
-p(y;\phi)=\phi^y(1-\phi)^{1-y}
-```
-
-**Exponential-family form.**
-
-```math
-p(y;\eta)=\exp\left(\eta y-a(\eta)\right)
-```
-
-with:
-
-```math
-\eta=\log\frac{\phi}{1-\phi}
-```
-
-```math
-T(y)=y
-```
-
-```math
-a(\eta)=\log(1+e^\eta)
-```
-
-```math
-b(y)=1
-```
-
-**Canonical linear predictor.**
+Let:
 
 ```math
 \eta=\theta^Tx
 ```
 
-**Response mean.**
+First differentiate with respect to $`\eta`$:
 
 ```math
-h_\theta(x)=\mathbb E[Y\mid x;\theta]=\frac{1}{1+e^{-\theta^Tx}}
+\frac{\partial}{\partial\eta}\log p(y\mid x;\theta)
+=
+T(y)-a'(\eta)
 ```
 
-**NLL.**
+Then use:
 
 ```math
-J(\theta)=-\sum_{i=1}^{m}\left(y^{(i)}\log h_\theta(x^{(i)})+(1-y^{(i)})\log(1-h_\theta(x^{(i)}))\right)
+\nabla_\theta\eta=x
 ```
 
-This is binary cross-entropy. The sigmoid appears because Bernoulli natural parameter is log-odds, not because an S-curve was chosen arbitrarily.
+so chain rule gives:
 
-## 7. Poisson worked mini-example
+```math
+\nabla_\theta\log p(y\mid x;\theta)
+=
+x\left(T(y)-a'(\eta)\right)
+```
 
-**Modeling problem.** Predict number of arrivals per hour.
+Using $`a'(\eta)=\mathbb E[T(Y)\mid x;\theta]`$:
+
+```math
+\nabla_\theta\log p(y\mid x;\theta)
+=
+x\left(T(y)-\mathbb E[T(Y)\mid x;\theta]\right)
+```
+
+The update is observed sufficient statistic minus model-expected sufficient statistic, multiplied by the feature direction.
+
+Examples:
+
+| Model | Residual term | Gradient direction |
+| ----- | ------------- | ------------------ |
+| Gaussian | $`y-\mu`$ | $`x(y-\mu)`$ |
+| Bernoulli | $`y-p`$ | $`x(y-p)`$ |
+| Poisson | $`y-\lambda`$ | $`x(y-\lambda)`$ |
+
+For the per-sample NLL:
+
+```math
+J_i(\theta)
+=
+a(\eta)-\eta T(y)
+-
+\log b(y)
+```
+
+The Hessian is:
+
+```math
+\nabla_\theta^2J_i(\theta)
+=
+a''(\eta)xx^T
+```
+
+and:
+
+```math
+a''(\eta)=\mathrm{Var}(T(Y)\mid x;\theta)
+```
+
+Therefore canonical GLM curvature is variance-weighted feature geometry. It is positive semidefinite, but strict convexity and finite MLE still require conditions such as full-rank features, identifiability, no complete separation, and a non-boundary optimum. Regularization is often added for stability.
+
+## 9. Prediction
+
+After training, prediction plugs in the fitted parameter:
+
+```math
+h_{\hat\theta}(x)
+=
+\mathbb E[T(Y)\mid x;\hat\theta]
+```
+
+For Gaussian regression, this is a fitted conditional mean. For Bernoulli logistic regression, it is an event probability. For Poisson regression, it is an expected count or rate. For softmax, it is a probability vector over mutually exclusive classes.
+
+Prediction is not $`X\theta=Y`$. The model predicts a conditional distribution and reports a mean or probability derived from that distribution.
+
+## 10. Assumptions and falsification
+
+GLM family selection should be checked in this order:
+
+1. support and response semantics;
+2. plausible data-generating mechanism;
+3. conditional mean-variance relationship;
+4. tail, skewness, and dependence;
+5. diagnostics and falsification.
+
+Many GLM texts summarize variance as:
+
+```math
+\mathrm{Var}(Y\mid x)=\phi V(\mu(x))
+```
+
+Here $`\phi`$ is a dispersion constant. Bernoulli has $`V(\mu)=\mu(1-\mu)`$; Poisson has $`V(\mu)=\mu`$; Gaussian with constant variance has $`V(\mu)=1`$ with dispersion carrying the variance scale.
+
+Failure modes are not rare edge cases. They include overdispersion, zero inflation, heteroscedasticity, truncation, censoring, mixture populations, temporal dependence, spatial dependence, distribution shift, and calibration failure. MLE only finds the best parameter inside the chosen family; it does not prove that the family, link, or representation is correct.
+
+## 11. Nonlinear extensions
+
+Linearity in:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+is a design choice. It can be replaced by richer representation models while keeping the same observation model:
+
+```math
+\eta(x)=\theta^T\phi(x)
+```
+
+or:
+
+```math
+\eta(x)=f_\theta(x)
+```
+
+The first form covers polynomial features, interactions, splines, generalized additive models, and kernels. The second covers neural conditional models and structured spatial or temporal representations.
+
+Keep the layers separate:
 
 ```text
-Y = count of arrivals in one fixed exposure window.
+representation model: x -> eta(x)
+observation model: eta(x) -> p(Y|x)
 ```
 
-**Support.**
+Changing the representation does not automatically justify the observation family. A neural Poisson model can still be overdispersed; a flexible logistic model can still be poorly calibrated.
 
-```math
-Y\in\mathbb N_0
-```
+## 12. Summary
 
-**Distribution.**
-
-```math
-p(y;\lambda)=\frac{\lambda^y e^{-\lambda}}{y!}
-```
-
-**Exponential-family form.**
-
-```math
-p(y;\eta)=\frac{1}{y!}\exp\left(\eta y-e^\eta\right)
-```
-
-with:
-
-```math
-\eta=\log\lambda
-```
-
-```math
-T(y)=y
-```
-
-```math
-a(\eta)=e^\eta
-```
-
-```math
-b(y)=\frac{1}{y!}
-```
-
-**Canonical linear predictor.**
-
-```math
-\eta=\theta^Tx
-```
-
-**Response mean.**
-
-```math
-h_\theta(x)=\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
-```
-
-**NLL.** Ignoring constants independent of $`\theta`$:
-
-```math
-J(\theta)=\sum_{i=1}^{m}\left(e^{\theta^Tx^{(i)}}-y^{(i)}\theta^Tx^{(i)}\right)
-```
-
-This objective is tied to count-rate modeling. It should not be used for multiclass labels merely because labels can be encoded as integers.
-
-## 8. Canonical examples summary
-
-| Model | Response support | Natural parameter | Response function | NLL name |
-| ----- | ---------------- | ----------------- | ----------------- | -------- |
-| Gaussian GLM | $`\mathbb R`$ | $`\eta=\mu`$ | $`h_\theta(x)=\theta^Tx`$ | squared loss |
-| Bernoulli GLM | $`\{0,1\}`$ | $`\eta=\log(\phi/(1-\phi))`$ | sigmoid | binary cross-entropy |
-| Poisson GLM | $`\mathbb N_0`$ | $`\eta=\log\lambda`$ | exponential | Poisson NLL |
-| Softmax GLM | $`\{1,\dots,K\}`$ | class log-odds/scores | softmax | multiclass cross-entropy |
-
-## 9. Diagnostics after construction
-
-| Check | Why it matters |
-| ----- | -------------- |
-| Support | invalid support means the model can make impossible predictions |
-| Mean-variance relation | NLL curvature and uncertainty interpretation depend on this assumption |
-| Link | the transformed mean should be plausibly linear in features |
-| Features | a correct distribution can still underfit if the linear predictor is too weak |
-| Optimization | separation, rank deficiency, and ill-conditioning can prevent stable estimates |
-| Calibration | probability outputs must match empirical frequencies to be reliable |
-| Shift | deployment may change the conditional distribution or base rates |
-
-## 10. Summary
-
-The GLM recipe is a disciplined path from response semantics to prediction. Choose the response distribution first, rewrite it in exponential-family form, connect the natural parameter to features, derive the response mean, then let the induced likelihood define the loss. After fitting, validate the assumptions rather than treating the response function as a generic activation.
+A GLM is a disciplined way to connect features to a conditional distribution. The random component chooses what kind of response is plausible. The systematic component creates an additive score. The link decides which distribution scale receives that score. The log-partition function turns the natural parameter into a mean. Likelihood training then compares observed sufficient statistics with model-expected sufficient statistics and updates $`\theta`$ accordingly.

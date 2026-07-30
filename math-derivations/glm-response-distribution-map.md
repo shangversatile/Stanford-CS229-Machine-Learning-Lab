@@ -1,6 +1,6 @@
 # GLM Response and Distribution Map
 
-Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [GLM workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [hypothesis-function interpretation](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For the deeper origin story, see [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-how-a-glm-connects-features-to-a-conditional-distribution), [GLM workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [hypothesis-function interpretation](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For the deeper origin story, see [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Why distribution choice comes before loss choice
 
@@ -43,6 +43,34 @@ Support is necessary because the model should not assign predictions or random o
 | Positive continuous | $`\mathbb R_{>0}`$ | durations, costs, waiting times | Exponential / Gamma | positive mean | right-skewed, mean-dependent | inverse or log-linked depending parameterization | mentioned examples |
 | Scalar probability | $`(0,1)`$ | probability or proportion target | Beta | $`\alpha/(\alpha+\beta)`$ | bounded, shape-dependent | mean in $`(0,1)`$ with separate link | extension for probability-valued data |
 | Probability vector | $`\Delta^{K-1}`$ | composition target | Dirichlet | simplex-valued mean | negative covariance from sum-to-one constraint | simplex-valued mean | extension for probability-vector data |
+
+## Core canonical GLM comparison
+
+Use the shared linear predictor:
+
+```math
+s_\theta(x)=\theta^Tx
+```
+
+and, for these scalar canonical GLMs:
+
+```math
+\eta(x)=s_\theta(x)
+```
+
+A common variance-function summary is:
+
+```math
+\mathrm{Var}(Y\mid x)=\phi V(\mu(x))
+```
+
+Here $`\phi`$ is dispersion, not the Bernoulli success probability.
+
+| Family | Support | Mean domain | Variance function $`V(\mu)`$ | Natural parameter | Canonical link | Response function | Meaning of $`\theta^Tx`$ | Prediction | Main misspecification risks |
+| ------ | ------- | ----------- | --------------------------- | ----------------- | -------------- | ----------------- | ------------------------- | ---------- | -------------------------- |
+| Gaussian | $`\mathbb R`$ | $`\mathbb R`$ | $`1`$ | $`\eta=\mu`$ in CS229 variance-1 form | identity | identity | conditional mean | fitted mean | heavy tails, heteroscedasticity, bounded outcomes |
+| Bernoulli | $`\{0,1\}`$ | $`(0,1)`$ | $`\mu(1-\mu)`$ | $`\eta=\log(p/(1-p))`$ | logit | sigmoid | log-odds | event probability | separation, label noise, imbalance, calibration failure |
+| Poisson | $`\mathbb N_0`$ | $`(0,\infty)`$ | $`\mu`$ | $`\eta=\log\lambda`$ | log | exponential | log-rate | expected count | overdispersion, excess zeros, exposure mismatch, dependence |
 
 ## 4. Gaussian
 

@@ -1,6 +1,6 @@
 # Exponential Family Anatomy
 
-Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [Lecture 4 Section 10](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist), [Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-how-a-glm-connects-features-to-a-conditional-distribution), [Lecture 4 Section 10](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Normalized form
 
@@ -26,7 +26,7 @@ A useful first reading is: exponential family is a normalized scoring model over
 | --------- | ----------- | -------------- | -------------------------- |
 | $`y`$ | observed response value | the outcome being explained | different outcomes receive different probability |
 | $`T(y)`$ | sufficient statistic | the information readout extracted from $`y`$ | changes what the model can "see" in $`y`$ |
-| $`\eta`$ | natural parameter | coordinate / control knob for the distribution | changes which readout patterns are rewarded |
+| $`\eta`$ | natural parameter | coordinate inside the chosen family | tilts mass along sufficient-statistic directions |
 | $`\eta^TT(y)`$ | linear coupling | compatibility score between parameter and observation | higher score means higher unnormalized probability |
 | $`b(y)`$ | base measure | background geometry or counting/volume rule of outcome space | changes baseline preference over $`y`$ |
 | $`a(\eta)`$ | log-partition function | normalization and moment-generating engine | keeps probabilities valid and determines mean/variance |
@@ -144,7 +144,7 @@ Once this aggregate is known, the likelihood's dependence on $`\eta`$ is fully d
 
 This is a model-relative statement. A statistic is sufficient for a parameter inside a specified family. If the family changes, the readout may change too.
 
-## Natural parameter as distribution coordinate
+## Natural parameter as exponential-tilt coordinate
 
 The natural parameter is called natural because it is the coordinate in which the log density is linear in $`T(y)`$:
 
@@ -152,7 +152,38 @@ The natural parameter is called natural because it is the coordinate in which th
 \log p(y;\eta)=\eta^TT(y)-a(\eta)+\log b(y)
 ```
 
-In this coordinate system, changing coordinate $`\eta_j`$ directly changes the distribution's preference for statistic component $`T_j(y)`$.
+This statement is family-relative. Before $`\eta`$ can mean anything, the modeler has already fixed the support, sufficient statistic $`T(y)`$, base measure $`b(y)`$, log-partition function $`a(\eta)`$, and any dispersion convention. Those choices define the family. The natural parameter then selects one member inside that family.
+
+Relative probabilities show exactly what $`\eta`$ controls. For two possible outcomes under the same family member:
+
+```math
+\log
+\frac{p_\eta(y_1)}
+{p_\eta(y_2)}
+=
+\eta^T\left(T(y_1)-T(y_2)\right)
++
+\log\frac{b(y_1)}{b(y_2)}
+```
+
+The log-partition term cancels. The remaining term says that $`\eta`$ rewards or penalizes outcomes according to their sufficient-statistic coordinates, with $`b(y)`$ supplying the baseline geometry of the outcome space.
+
+Changing $`\eta`$ by $`\Delta`$ gives the exponential tilt:
+
+```math
+\frac{p_{\eta+\Delta}(y)}
+{p_\eta(y)}
+=
+\exp\left(
+\Delta^TT(y)
+-
+a(\eta+\Delta)
++
+a(\eta)
+\right)
+```
+
+The term $`\Delta^TT(y)`$ raises outcomes whose statistic aligns with $`\Delta`$ and lowers outcomes whose statistic does not. The difference $`a(\eta+\Delta)-a(\eta)`$ re-normalizes the whole distribution. The observed value $`y`$ is not changed; the relative mass over possible outcomes is changed.
 
 Different common parameters become natural coordinates after reparameterization. Bernoulli's success probability $`\phi`$ becomes log-odds:
 
@@ -166,7 +197,21 @@ Poisson's rate $`\lambda`$ becomes log-rate:
 \eta=\log\lambda
 ```
 
-The coordinate is natural not because it is always the most familiar parameter, but because it is the coordinate that couples linearly to the observation statistic.
+Gaussian notation needs one extra warning. In the CS229 fixed-variance simplification with variance $`1`$, the one-parameter canonical form has:
+
+```math
+\eta=\mu
+```
+
+If the variance is fixed at a general value and written directly in ordinary density form, a natural coordinate can be written as:
+
+```math
+\eta=\frac{\mu}{\sigma^2}
+```
+
+In an exponential-dispersion GLM parameterization, the variance scale can be separated as dispersion, so the canonical mean-scale story and the general-variance density are not contradictory. If both mean and variance are unknown, the sufficient statistic expands to include second-moment information such as $`y^2`$.
+
+The natural parameter therefore does not necessarily control every aspect of shape. Dispersion, tail behavior, truncation, censoring, mixtures, and dependence may sit outside $`\eta`$ and need separate modeling.
 
 The local control interpretation follows from the gradient:
 
@@ -186,7 +231,7 @@ Therefore, for a small change $`\Delta\eta`$:
 \Delta\log p(y;\eta)\approx \Delta\eta^T\left(T(y)-\mathbb E_\eta[T(Y)]\right)
 ```
 
-If $`T_j(y)`$ is larger than its current expectation, increasing $`\eta_j`$ raises the log probability of that outcome. If $`T_j(y)`$ is smaller than expected, increasing $`\eta_j`$ lowers its relative probability. Thus $`\eta_j`$ tilts probability mass toward outcomes with larger $`T_j(y)`$.
+If $`T_j(y)`$ is larger than its current expectation, increasing $`\eta_j`$ raises the log probability of that outcome. If $`T_j(y)`$ is smaller than expected, increasing $`\eta_j`$ lowers its relative probability.
 
 ## The coupling term $`\eta^TT(y)`$
 
@@ -204,16 +249,24 @@ This coupling also explains likelihood fitting. Training increases compatibility
 
 ## From natural parameter to GLM
 
-In an unconditional exponential-family distribution, $`\eta`$ is fixed. A GLM turns it into a supervised-learning model by making the natural coordinate depend on features:
+In an unconditional exponential-family distribution, $`\eta`$ is fixed. A GLM turns it into a supervised-learning model by making the natural coordinate depend on features.
+
+First define the feature-side linear predictor:
 
 ```math
-\eta(x)=\theta^Tx
+s_\theta(x)=\theta^Tx
+```
+
+In the scalar canonical construction, set:
+
+```math
+\eta(x)=s_\theta(x)
 ```
 
 For vector-valued natural parameters, as in softmax-style multiclass modeling, each coordinate can have its own linear predictor:
 
 ```math
-\eta_k(x)=\theta_k^Tx
+\eta_k(x)=s_k(x)=\theta_k^Tx
 ```
 
 The conditional distribution becomes:
@@ -225,20 +278,19 @@ p(y|x;\theta)=b(y)\exp\left(\eta(x)^TT(y)-a(\eta(x))\right)
 The prediction is the conditional mean of the sufficient statistic:
 
 ```math
-h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
+h_\theta(x)=\mathbb E[T(Y)\mid x;\theta]=\nabla a(\eta(x))
 ```
 
-This is the bridge from statistics to machine learning. The feature vector $`x`$ does not directly predict raw $`y`$; it predicts the natural coordinate of the distribution of $`Y|x`$. The chosen distribution then determines what the prediction means.
+This is the bridge from statistics to machine learning. The feature vector $`x`$ does not directly predict raw $`y`$; it predicts the natural coordinate of the distribution of $`Y\mid x`$. The chosen distribution then determines what the prediction means.
 
-| Model | Statistic readout | Natural coordinate from features | Prediction meaning |
-| ----- | ----------------- | -------------------------------- | ------------------ |
-| Bernoulli | $`T(y)=y`$ | $`\eta(x)=\theta^Tx`$ controls log-odds | probability of success |
-| Poisson | $`T(y)=y`$ | $`\eta(x)=\theta^Tx`$ controls log-rate | expected count |
-| Gaussian, known variance | $`T(y)=y`$ | $`\eta(x)=\theta^Tx`$ controls location | conditional mean |
-| Softmax | one-hot vector | $`\eta_k(x)=\theta_k^Tx`$ controls class log-odds | class-probability vector |
+| Model | Statistic readout | Canonical coordinate from features | Prediction meaning |
+| ----- | ----------------- | ---------------------------------- | ------------------ |
+| Bernoulli | $`T(y)=y`$ | $`\eta(x)=s_\theta(x)`$ controls log-odds | probability of success |
+| Poisson | $`T(y)=y`$ | $`\eta(x)=s_\theta(x)`$ controls log-rate | expected count |
+| Gaussian, known variance | $`T(y)=y`$ | $`\eta(x)=s_\theta(x)`$ controls location | conditional mean |
+| Softmax | one-hot vector | $`\eta_k(x)=s_k(x)`$ controls class log-odds | class-probability vector |
 
-A GLM is therefore not just "choose an activation function." It is a probabilistic construction: choose the response distribution, identify what $`T(y)`$ reads, let features control $`\eta(x)`$, use $`a(\eta)`$ to get the mean response, and fit $`\theta`$ by likelihood.
-
+A GLM is therefore not just "choose an activation function." It is a probabilistic construction: choose the response distribution, identify what $`T(y)`$ reads, let features control $`s_\theta(x)`$ and then $`\eta(x)`$ under a link choice, use $`a(\eta)`$ to get the mean response, and fit $`\theta`$ by likelihood.
 ## 2. Normalization
 
 Define the unnormalized normalizer:
@@ -300,10 +352,16 @@ Poisson natural parameter:
 \eta=\log\lambda
 ```
 
-In a canonical GLM, this natural parameter is set equal to a linear predictor:
+In a canonical scalar GLM, the feature-side linear predictor is first named:
 
 ```math
-\eta=\theta^Tx
+s_\theta(x)=\theta^Tx
+```
+
+and the canonical construction sets:
+
+```math
+\eta(x)=s_\theta(x)
 ```
 
 ## 4. Sufficient statistic
@@ -386,16 +444,22 @@ In canonical exponential-family form:
 h_\theta(x)=\nabla a(\eta)
 ```
 
-With the canonical linear predictor:
+With the feature-side linear predictor:
 
 ```math
-\eta=\theta^Tx
+s_\theta(x)=\theta^Tx
+```
+
+and the scalar canonical choice:
+
+```math
+\eta(x)=s_\theta(x)
 ```
 
 so:
 
 ```math
-h_\theta(x)=\nabla a(\theta^Tx)
+h_\theta(x)=\nabla a(\eta(x))=\nabla a(\theta^Tx)
 ```
 
 This is the distribution-to-response-function bridge:

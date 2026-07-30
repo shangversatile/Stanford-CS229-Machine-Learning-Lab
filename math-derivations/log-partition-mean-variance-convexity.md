@@ -256,7 +256,67 @@ m\,\mathrm{Cov}_\eta(T(Y))
 
 Therefore NLL is convex in the natural parameter.
 
-## 8. Strict-Convexity and MLE-Existence Caveats
+## 8. Canonical GLM training bridge
+
+For one scalar canonical GLM sample, set:
+
+```math
+\eta=\theta^Tx
+```
+
+The log likelihood is:
+
+```math
+\log p(y\mid x;\theta)
+=
+T(y)\theta^Tx
+-
+a(\theta^Tx)
++
+\log b(y)
+```
+
+Differentiate by chain rule:
+
+```math
+\nabla_\theta\log p(y\mid x;\theta)
+=
+x\left(T(y)-a'(\eta)\right)
+```
+
+Using the mean identity $`a'(\eta)=\mathbb E[T(Y)\mid x;\theta]`$:
+
+```math
+\nabla_\theta\log p(y\mid x;\theta)
+=
+x\left(T(y)-\mathbb E[T(Y)\mid x;\theta]\right)
+```
+
+Thus learning compares the observed sufficient statistic with the model-expected sufficient statistic. Gaussian, Bernoulli, and Poisson give the familiar residuals $`y-\mu`$, $`y-p`$, and $`y-\lambda`$ on their own response scales.
+
+For per-sample NLL:
+
+```math
+J_i(\theta)=-\log p(y\mid x;\theta)
+```
+
+its Hessian is:
+
+```math
+\nabla_\theta^2J_i(\theta)
+=
+a''(\eta)xx^T
+```
+
+and the covariance identity gives:
+
+```math
+a''(\eta)=\mathrm{Var}(T(Y)\mid x;\theta)
+```
+
+This is why canonical GLM curvature can be read as variance-weighted feature geometry. It is convex-friendly, but not automatically strictly convex or guaranteed to have a finite unique MLE.
+
+## 9. Strict-Convexity and MLE-Existence Caveats
 
 Convex-friendly does not mean every MLE is finite, unique, and numerically stable.
 

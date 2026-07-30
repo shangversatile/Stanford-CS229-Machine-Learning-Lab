@@ -441,41 +441,91 @@ def figure_why_exponential_family_emerges() -> Path:
     return save(fig, "lecture04-why-exponential-family-emerges.png")
 
 def figure_glm_construction_pipeline() -> Path:
-    """Show the GLM construction pipeline."""
-    fig, ax = plt.subplots(figsize=(11.2, 3.8))
+    """Show how GLM features connect to a conditional distribution and training."""
+    fig, ax = plt.subplots(figsize=(12.6, 6.0))
     ax.set_axis_off()
-    labels = [
-        "response\nsemantics",
-        "conditional\ndistribution",
-        "exponential-family\nform",
-        "linear\npredictor",
-        "response\nfunction",
-        "likelihood\nlearning",
-    ]
-    xs = np.linspace(0.08, 0.92, len(labels))
-    colors = [
-        COLORS["blue"],
-        COLORS["green"],
-        COLORS["purple"],
-        COLORS["orange"],
-        COLORS["yellow"],
-        COLORS["red"],
-    ]
-    for x_pos, label, color in zip(xs, labels, colors):
-        draw_box(ax, (float(x_pos), 0.55), label, color)
-    for left, right in zip(xs[:-1], xs[1:]):
-        draw_connector(ax, (float(left) + 0.04, 0.55), (float(right) - 0.04, 0.55))
+
+    positions = {
+        "x": (0.09, 0.68),
+        "theta": (0.09, 0.30),
+        "s": (0.28, 0.68),
+        "eta": (0.46, 0.68),
+        "dist": (0.66, 0.68),
+        "mu": (0.87, 0.68),
+        "y": (0.66, 0.30),
+        "resid": (0.46, 0.30),
+        "update": (0.28, 0.30),
+    }
+
+    boxes = {
+        "x": ("x\ninput vector", COLORS["blue"]),
+        "theta": ("theta\ntrainable parameter", COLORS["orange"]),
+        "s": ("s_theta(x)\nlinear predictor", COLORS["yellow"]),
+        "eta": ("eta(x)\nnatural parameter", COLORS["purple"]),
+        "dist": ("p(Y | x; eta)\nconditional family", COLORS["green"]),
+        "mu": ("mu(x)\nresponse mean", COLORS["blue"]),
+        "y": ("observed y\nrealization of Y", COLORS["red"]),
+        "resid": ("log likelihood\nT(y) - E[T(Y)|x]", COLORS["purple"]),
+        "update": ("theta update\nfeature-weighted residual", COLORS["orange"]),
+    }
+
+    for key, (label, color) in boxes.items():
+        draw_box(ax, positions[key], label, color)
+
+    forward_edges = [("x", "s"), ("theta", "s"), ("s", "eta"), ("eta", "dist"), ("dist", "mu")]
+    training_edges = [("y", "resid"), ("dist", "resid"), ("resid", "update"), ("update", "theta")]
+    for start, end in forward_edges + training_edges:
+        draw_connector(ax, positions[start], positions[end])
+
     ax.text(
-        0.50,
-        0.24,
-        r"$y$ semantics -> $p(y|x;\theta)$ -> $(T,\eta,a,b)$ -> $\eta=\theta^Tx$ -> $E[T(Y)|x]$ -> MLE",
+        0.48,
+        0.88,
+        "Forward model: features choose a distribution member",
         ha="center",
-        fontsize=11.5,
+        va="center",
+        fontsize=13,
+        fontweight="semibold",
         color=COLORS["black"],
     )
-    ax.set_title("Generalized Linear Model Construction Pipeline")
+    ax.text(
+        0.48,
+        0.12,
+        "Training loop: observed outcomes change theta, not the observed y",
+        ha="center",
+        va="center",
+        fontsize=12.2,
+        fontweight="semibold",
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.36,
+        0.52,
+        r"$s_\theta(x)=\theta^Tx$",
+        ha="center",
+        va="center",
+        fontsize=12.5,
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.56,
+        0.52,
+        r"canonical: $\eta(x)=s_\theta(x)$",
+        ha="center",
+        va="center",
+        fontsize=12.0,
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.77,
+        0.52,
+        r"$\mu(x)=E[T(Y)|x;\theta]$",
+        ha="center",
+        va="center",
+        fontsize=12.0,
+        color=COLORS["black"],
+    )
+    ax.set_title("GLM Bridge: Linear Predictor, Natural Parameter, and Likelihood Learning")
     return save(fig, "lecture04-glm-construction-pipeline.png")
-
 
 def figure_gaussian_bernoulli_poisson_response() -> Path:
     """Plot identity, sigmoid, and exponential response functions."""
