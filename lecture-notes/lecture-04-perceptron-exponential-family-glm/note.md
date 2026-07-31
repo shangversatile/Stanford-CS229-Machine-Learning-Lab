@@ -1280,6 +1280,24 @@ CS229 的 GLM recipe 可以读成三条建模假设加一个 prediction conventi
 
 The important distinction is that $`\theta`$ is global and trainable, while $`\eta(x)`$ is sample-specific. A dataset learns one shared $`\theta`$; each input $`x`$ then produces its own natural parameter $`\eta(x)`$ and its own conditional distribution for $`Y\mid x`$.
 
+Relationship summary:
+
+```math
+a(\eta)=\log Z(\eta)
+\quad\Rightarrow\quad
+\nabla a(\eta)=\mathbb E_\eta[T(Y)]
+\quad\Rightarrow\quad
+h_\theta(x)=\mu(x)=\rho(\eta(x))
+```
+
+In the canonical scalar construction:
+
+```math
+\eta(x)=\theta^Tx
+\quad\Rightarrow\quad
+h_\theta(x)=a'(\theta^Tx)
+```
+
 ---
 
 # Conceptual Interlude D: How a GLM Connects Features to a Conditional Distribution
