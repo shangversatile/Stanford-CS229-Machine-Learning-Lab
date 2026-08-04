@@ -1,11 +1,12 @@
 # Log-Partition Mean, Variance, and Convexity
 
+Cross-link: see [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
+
 ## 1. Setup
 
+The log-partition function appears first as a normalizer, but it later becomes the mathematical engine for response means, variance, Fisher information, moment matching, and convexity.
+
 Consider an exponential-family distribution:
-
-The log-partition function appears first as a normalizer, but it later becomes the mathematical engine for response means, variance, Fisher information, and convexity. The deeper motivation is explained in [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
-
 
 ```math
 p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
@@ -52,7 +53,7 @@ e^{-a(\eta)}Z(\eta)=1
 
 Thus $`a(\eta)`$ is exactly the term that normalizes the density or mass function.
 
-## 3. Mean Identity
+## 3. Mean identity
 
 Differentiate $`Z(\eta)`$:
 
@@ -102,7 +103,7 @@ we get:
 \nabla a(\eta)=\mathbb E_\eta[T(Y)]
 ```
 
-## 4. Covariance Identity
+## 4. Covariance identity
 
 Differentiate again:
 
@@ -171,7 +172,7 @@ For scalar $`T(Y)`$:
 a''(\eta)=\mathrm{Var}_\eta(T(Y))
 ```
 
-## 5. Convexity of the Log-Partition Function
+## 5. Convexity of the log-partition function
 
 For any vector $`v`$:
 
@@ -198,16 +199,17 @@ Therefore:
 
 So $`a(\eta)`$ is convex. It is strictly convex only when no nonzero direction $`v`$ makes $`v^TT(Y)`$ almost surely constant under the family.
 
-## 6. Concavity of Log-Likelihood
+## 6. Concavity of log-likelihood
 
 For iid samples:
 
 ```math
 \ell(\eta)
 =
-\eta^T\sum_{i=1}^{m}T(y^{(i)})
--ma(\eta)
-+\sum_{i=1}^{m}\log b(y^{(i)})
+\eta^T\sum_{i=1}^{n}T(y_i)
+-na(\eta)
++
+\sum_{i=1}^{n}\log b(y_i)
 ```
 
 Gradient:
@@ -215,8 +217,8 @@ Gradient:
 ```math
 \nabla\ell(\eta)
 =
-\sum_{i=1}^{m}T(y^{(i)})
--m\nabla a(\eta)
+\sum_{i=1}^{n}T(y_i)
+-n\nabla a(\eta)
 ```
 
 Hessian:
@@ -224,9 +226,9 @@ Hessian:
 ```math
 \nabla^2\ell(\eta)
 =
--m\nabla^2a(\eta)
+-n\nabla^2a(\eta)
 =
--m\,\mathrm{Cov}_\eta(T(Y))
+-n\,\mathrm{Cov}_\eta(T(Y))
 ```
 
 Hence:
@@ -235,9 +237,39 @@ Hence:
 \nabla^2\ell(\eta)\preceq0
 ```
 
-So log-likelihood is concave in $`\eta`$.
+So log-likelihood is concave in $`\eta`$ for regular exponential families.
 
-## 7. Convexity of NLL
+## 7. Empirical-to-model moment matching
+
+The score equation for a finite interior MLE is:
+
+```math
+0
+=
+\nabla\ell(\hat\eta)
+=
+\sum_{i=1}^{n}T(y_i)
+-
+n\nabla a(\hat\eta)
+```
+
+Using the mean identity:
+
+```math
+\nabla a(\hat\eta)=\mathbb E_{\hat\eta}[T(Y)]
+```
+
+we get:
+
+```math
+\frac1n\sum_{i=1}^{n}T(y_i)
+=
+\mathbb E_{\hat\eta}[T(Y)]
+```
+
+The left side is the empirical sufficient-statistic mean. The right side is the model-expected sufficient statistic. This is the statistic-matching interpretation of exponential-family MLE.
+
+## 8. Convexity of NLL
 
 Negative log likelihood:
 
@@ -250,54 +282,66 @@ Its Hessian is:
 ```math
 \nabla^2J_{\mathrm{NLL}}(\eta)
 =
-m\,\mathrm{Cov}_\eta(T(Y))
+n\,\mathrm{Cov}_\eta(T(Y))
 \succeq0
 ```
 
 Therefore NLL is convex in the natural parameter.
 
-## 8. Canonical GLM training bridge
+## 9. Canonical GLM training bridge
 
 For one scalar canonical GLM sample, set:
 
 ```math
-\eta=\theta^Tx
+\eta_i=x_i^T\theta
 ```
 
 The log likelihood is:
 
 ```math
-\log p(y\mid x;\theta)
+\log p(y_i\mid x_i;\theta)
 =
-T(y)\theta^Tx
+T(y_i)x_i^T\theta
 -
-a(\theta^Tx)
+a(x_i^T\theta)
 +
-\log b(y)
+\log b(y_i)
 ```
 
 Differentiate by chain rule:
 
 ```math
-\nabla_\theta\log p(y\mid x;\theta)
+\nabla_\theta\log p(y_i\mid x_i;\theta)
 =
-x\left(T(y)-a'(\eta)\right)
+x_i\left(T(y_i)-a'(\eta_i)\right)
 ```
 
-Using the mean identity $`a'(\eta)=\mathbb E[T(Y)\mid x;\theta]`$:
+Using the mean identity $`a'(\eta_i)=\mathbb E[T(Y_i)\mid x_i;\theta]`$:
 
 ```math
-\nabla_\theta\log p(y\mid x;\theta)
+\nabla_\theta\log p(y_i\mid x_i;\theta)
 =
-x\left(T(y)-\mathbb E[T(Y)\mid x;\theta]\right)
+x_i\left(T(y_i)-\mathbb E[T(Y_i)\mid x_i;\theta]\right)
 ```
 
-Thus learning compares the observed sufficient statistic with the model-expected sufficient statistic. Gaussian, Bernoulli, and Poisson give the familiar residuals $`y-\mu`$, $`y-p`$, and $`y-\lambda`$ on their own response scales.
+Summing over samples:
+
+```math
+\nabla_\theta\ell(\theta)
+=
+\sum_{i=1}^{n}
+x_i
+\left(
+T(y_i)-\mathbb E[T(Y_i)\mid x_i;\theta]
+\right)
+```
+
+Thus canonical GLM learning compares the observed sufficient statistic with the model-expected sufficient statistic, then weights that residual by the feature vector. Gaussian, Bernoulli, and Poisson give the familiar residuals $`y_i-\mu_i`$, $`y_i-p_i`$, and $`y_i-\lambda_i`$ on their own response scales.
 
 For per-sample NLL:
 
 ```math
-J_i(\theta)=-\log p(y\mid x;\theta)
+J_i(\theta)=-\log p(y_i\mid x_i;\theta)
 ```
 
 its Hessian is:
@@ -305,18 +349,18 @@ its Hessian is:
 ```math
 \nabla_\theta^2J_i(\theta)
 =
-a''(\eta)xx^T
+a''(\eta_i)x_ix_i^T
 ```
 
 and the covariance identity gives:
 
 ```math
-a''(\eta)=\mathrm{Var}(T(Y)\mid x;\theta)
+a''(\eta_i)=\mathrm{Var}(T(Y_i)\mid x_i;\theta)
 ```
 
 This is why canonical GLM curvature can be read as variance-weighted feature geometry. It is convex-friendly, but not automatically strictly convex or guaranteed to have a finite unique MLE.
 
-## 9. Strict-Convexity and MLE-Existence Caveats
+## 10. Strict-convexity and MLE-existence caveats
 
 Convex-friendly does not mean every MLE is finite, unique, and numerically stable.
 
@@ -340,5 +384,4 @@ Numerical stability may fail when:
 * count rates are extremely large or small;
 * features are poorly scaled.
 
-The correct conclusion is therefore precise: exponential-family likelihoods have favorable convex geometry in natural parameters, but existence, uniqueness, and reliable computation require extra conditions.
-
+The correct conclusion is precise: exponential-family likelihoods have favorable convex geometry in natural parameters, but existence, uniqueness, and reliable computation require extra conditions.

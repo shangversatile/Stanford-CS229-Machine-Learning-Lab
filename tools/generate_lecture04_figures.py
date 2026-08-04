@@ -441,56 +441,75 @@ def figure_why_exponential_family_emerges() -> Path:
     return save(fig, "lecture04-why-exponential-family-emerges.png")
 
 def figure_glm_construction_pipeline() -> Path:
-    """Show how GLM features connect to a conditional distribution and training."""
-    fig, ax = plt.subplots(figsize=(12.6, 6.0))
+    """Show forward probability modeling and inverse likelihood training for a GLM."""
+    fig, ax = plt.subplots(figsize=(13.4, 6.8))
     ax.set_axis_off()
 
     positions = {
-        "x": (0.09, 0.68),
-        "theta": (0.09, 0.30),
-        "s": (0.28, 0.68),
-        "eta": (0.46, 0.68),
-        "dist": (0.66, 0.68),
-        "mu": (0.87, 0.68),
-        "y": (0.66, 0.30),
-        "resid": (0.46, 0.30),
-        "update": (0.28, 0.30),
+        "global": (0.12, 0.78),
+        "x": (0.12, 0.56),
+        "eta": (0.31, 0.67),
+        "psi": (0.48, 0.67),
+        "dist": (0.66, 0.67),
+        "Y": (0.82, 0.67),
+        "y": (0.82, 0.42),
+        "data": (0.58, 0.23),
+        "like": (0.40, 0.23),
+        "mle": (0.24, 0.23),
+        "update": (0.12, 0.36),
     }
 
     boxes = {
-        "x": ("x\ninput vector", COLORS["blue"]),
-        "theta": ("theta\ntrainable parameter", COLORS["orange"]),
-        "s": ("s_theta(x)\nlinear predictor", COLORS["yellow"]),
-        "eta": ("eta(x)\nnatural parameter", COLORS["purple"]),
-        "dist": ("p(Y | x; eta)\nconditional family", COLORS["green"]),
-        "mu": ("mu(x)\nresponse mean", COLORS["blue"]),
-        "y": ("observed y\nrealization of Y", COLORS["red"]),
-        "resid": ("log likelihood\nT(y) - E[T(Y)|x]", COLORS["purple"]),
-        "update": ("theta update\nfeature-weighted residual", COLORS["orange"]),
+        "global": ("global theta\ntrainable parameter", COLORS["orange"]),
+        "x": ("local x_i\ninput vector", COLORS["blue"]),
+        "eta": ("local eta_i\nnatural parameter", COLORS["purple"]),
+        "psi": ("local psi_i\nordinary parameter", COLORS["yellow"]),
+        "dist": ("p(Y_i | x_i; theta)\nconditional distribution", COLORS["green"]),
+        "Y": ("random Y_i\nbefore sampling", COLORS["blue"]),
+        "y": ("observed y_i\nrealization", COLORS["red"]),
+        "data": ("observed data\n(X, y)", COLORS["red"]),
+        "like": ("likelihood\nfunction of theta", COLORS["purple"]),
+        "mle": ("MLE\ntheta_hat", COLORS["green"]),
+        "update": ("theta update\nglobal sharing", COLORS["orange"]),
     }
 
     for key, (label, color) in boxes.items():
         draw_box(ax, positions[key], label, color)
 
-    forward_edges = [("x", "s"), ("theta", "s"), ("s", "eta"), ("eta", "dist"), ("dist", "mu")]
-    training_edges = [("y", "resid"), ("dist", "resid"), ("resid", "update"), ("update", "theta")]
-    for start, end in forward_edges + training_edges:
-        draw_connector(ax, positions[start], positions[end])
+    forward_edges = [
+        ("global", "eta"),
+        ("x", "eta"),
+        ("eta", "psi"),
+        ("psi", "dist"),
+        ("dist", "Y"),
+        ("Y", "y"),
+    ]
+    training_edges = [
+        ("y", "data"),
+        ("data", "like"),
+        ("like", "mle"),
+        ("mle", "update"),
+        ("update", "global"),
+    ]
+    for start_key, end_key in forward_edges:
+        draw_connector(ax, positions[start_key], positions[end_key])
+    for start_key, end_key in training_edges:
+        draw_connector(ax, positions[start_key], positions[end_key])
 
     ax.text(
-        0.48,
-        0.88,
-        "Forward model: features choose a distribution member",
+        0.52,
+        0.91,
+        "Probability direction: global mechanism plus local input defines a local distribution",
         ha="center",
         va="center",
-        fontsize=13,
+        fontsize=13.2,
         fontweight="semibold",
         color=COLORS["black"],
     )
     ax.text(
-        0.48,
-        0.12,
-        "Training loop: observed outcomes change theta, not the observed y",
+        0.40,
+        0.07,
+        "Likelihood direction: observed data are fixed; theta varies during MLE",
         ha="center",
         va="center",
         fontsize=12.2,
@@ -498,34 +517,44 @@ def figure_glm_construction_pipeline() -> Path:
         color=COLORS["black"],
     )
     ax.text(
-        0.36,
-        0.52,
-        r"$s_\theta(x)=\theta^Tx$",
+        0.22,
+        0.47,
+        r"canonical: $\eta_i=x_i^T\theta$",
         ha="center",
         va="center",
-        fontsize=12.5,
+        fontsize=11.8,
         color=COLORS["black"],
     )
     ax.text(
-        0.56,
+        0.50,
         0.52,
-        r"canonical: $\eta(x)=s_\theta(x)$",
+        r"$\psi_i=q^{-1}(\eta_i)$",
         ha="center",
         va="center",
-        fontsize=12.0,
+        fontsize=11.8,
         color=COLORS["black"],
     )
     ax.text(
-        0.77,
-        0.52,
-        r"$\mu(x)=E[T(Y)|x;\theta]$",
+        0.72,
+        0.53,
+        "sampling happens\nafter the distribution is set",
         ha="center",
         va="center",
-        fontsize=12.0,
-        color=COLORS["black"],
+        fontsize=10.4,
+        color=COLORS["gray"],
     )
-    ax.set_title("GLM Bridge: Linear Predictor, Natural Parameter, and Likelihood Learning")
+    ax.text(
+        0.80,
+        0.30,
+        "y_i is not changed by parameters;\nit is evaluated by likelihood",
+        ha="center",
+        va="center",
+        fontsize=10.2,
+        color=COLORS["gray"],
+    )
+    ax.set_title("GLM Pipeline: Forward Sampling and Inverse Likelihood Learning")
     return save(fig, "lecture04-glm-construction-pipeline.png")
+
 
 def figure_gaussian_bernoulli_poisson_response() -> Path:
     """Plot identity, sigmoid, and exponential response functions."""

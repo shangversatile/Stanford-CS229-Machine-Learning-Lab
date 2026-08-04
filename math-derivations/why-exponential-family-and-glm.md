@@ -1,6 +1,6 @@
 # Why Exponential Family and GLM Exist
 
-Cross-links: see [Exponential Family Anatomy](exponential-family-anatomy.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), [GLM Construction Recipe](glm-construction-recipe.md), and [GLM Response and Distribution Map](glm-response-distribution-map.md). The main lecture version is [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-exponential-family-and-glm-exist).
+Cross-links: see [Exponential Family Anatomy](exponential-family-anatomy.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), [GLM Construction Recipe](glm-construction-recipe.md), and [GLM Response and Distribution Map](glm-response-distribution-map.md). The main lecture version is [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-why-exponential-family-and-glm-exist).
 
 ## 1. The limitation of ordinary linear models
 
