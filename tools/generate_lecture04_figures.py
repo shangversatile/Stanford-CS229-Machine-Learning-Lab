@@ -441,65 +441,53 @@ def figure_why_exponential_family_emerges() -> Path:
     return save(fig, "lecture04-why-exponential-family-emerges.png")
 
 def figure_glm_construction_pipeline() -> Path:
-    """Show forward probability modeling and inverse likelihood training for a GLM."""
-    fig, ax = plt.subplots(figsize=(13.4, 6.8))
+    """Show conditional sampling, residual interpretation, and inverse GLM training."""
+    fig, ax = plt.subplots(figsize=(13.8, 7.2))
     ax.set_axis_off()
 
     positions = {
-        "global": (0.12, 0.78),
-        "x": (0.12, 0.56),
-        "eta": (0.31, 0.67),
-        "psi": (0.48, 0.67),
-        "dist": (0.66, 0.67),
-        "Y": (0.82, 0.67),
-        "y": (0.82, 0.42),
-        "data": (0.58, 0.23),
-        "like": (0.40, 0.23),
-        "mle": (0.24, 0.23),
-        "update": (0.12, 0.36),
+        "x": (0.08, 0.72),
+        "eta": (0.27, 0.72),
+        "mu": (0.46, 0.72),
+        "dist": (0.65, 0.72),
+        "y": (0.84, 0.72),
+        "resid": (0.46, 0.42),
+        "warn": (0.78, 0.42),
+        "data": (0.20, 0.17),
+        "like": (0.48, 0.17),
+        "mle": (0.76, 0.17),
     }
 
     boxes = {
-        "global": ("global theta\ntrainable parameter", COLORS["orange"]),
-        "x": ("local x_i\ninput vector", COLORS["blue"]),
-        "eta": ("local eta_i\nnatural parameter", COLORS["purple"]),
-        "psi": ("local psi_i\nordinary parameter", COLORS["yellow"]),
-        "dist": ("p(Y_i | x_i; theta)\nconditional distribution", COLORS["green"]),
-        "Y": ("random Y_i\nbefore sampling", COLORS["blue"]),
-        "y": ("observed y_i\nrealization", COLORS["red"]),
+        "x": ("x\ninput", COLORS["blue"]),
+        "eta": ("eta(x)=x^T theta\nlinear / natural scale", COLORS["purple"]),
+        "mu": ("mu(x)=rho(eta)\nconditional mean", COLORS["green"]),
+        "dist": ("p(Y | x; theta)\nconditional distribution", COLORS["yellow"]),
+        "y": ("sampled y\nobservation", COLORS["red"]),
+        "resid": ("residual view\nY = mu(X) + epsilon\nE[epsilon | X] = 0", COLORS["green"]),
+        "warn": ("do not attach noise\nafter eta unless\neta = mu", COLORS["red"]),
         "data": ("observed data\n(X, y)", COLORS["red"]),
-        "like": ("likelihood\nfunction of theta", COLORS["purple"]),
-        "mle": ("MLE\ntheta_hat", COLORS["green"]),
-        "update": ("theta update\nglobal sharing", COLORS["orange"]),
+        "like": ("conditional likelihood\nfunction of theta", COLORS["purple"]),
+        "mle": ("MLE\ntheta_hat", COLORS["orange"]),
     }
 
     for key, (label, color) in boxes.items():
         draw_box(ax, positions[key], label, color)
 
-    forward_edges = [
-        ("global", "eta"),
-        ("x", "eta"),
-        ("eta", "psi"),
-        ("psi", "dist"),
-        ("dist", "Y"),
-        ("Y", "y"),
-    ]
-    training_edges = [
-        ("y", "data"),
-        ("data", "like"),
-        ("like", "mle"),
-        ("mle", "update"),
-        ("update", "global"),
-    ]
-    for start_key, end_key in forward_edges:
+    conditional_edges = [("x", "eta"), ("eta", "mu"), ("mu", "dist"), ("dist", "y")]
+    training_edges = [("data", "like"), ("like", "mle")]
+    for start_key, end_key in conditional_edges:
         draw_connector(ax, positions[start_key], positions[end_key])
+    draw_connector(ax, positions["mu"], positions["resid"])
+    draw_connector(ax, positions["eta"], positions["warn"])
     for start_key, end_key in training_edges:
         draw_connector(ax, positions[start_key], positions[end_key])
+    draw_connector(ax, positions["mle"], positions["eta"])
 
     ax.text(
-        0.52,
-        0.91,
-        "Probability direction: global mechanism plus local input defines a local distribution",
+        0.46,
+        0.92,
+        "Conditional probabilistic branch: choose a distribution before sampling y",
         ha="center",
         va="center",
         fontsize=13.2,
@@ -507,54 +495,34 @@ def figure_glm_construction_pipeline() -> Path:
         color=COLORS["black"],
     )
     ax.text(
-        0.40,
-        0.07,
-        "Likelihood direction: observed data are fixed; theta varies during MLE",
+        0.46,
+        0.56,
+        "Residual interpretation is centered on the conditional mean, not on the raw score.",
         ha="center",
         va="center",
-        fontsize=12.2,
-        fontweight="semibold",
-        color=COLORS["black"],
+        fontsize=11.0,
+        color=COLORS["gray"],
     )
     ax.text(
-        0.22,
-        0.47,
-        r"canonical: $\eta_i=x_i^T\theta$",
+        0.50,
+        0.31,
+        r"Only Gaussian identity-link gives the simple form $Y=\theta^TX+\epsilon$.",
         ha="center",
         va="center",
-        fontsize=11.8,
+        fontsize=11.0,
         color=COLORS["black"],
     )
     ax.text(
         0.50,
-        0.52,
-        r"$\psi_i=q^{-1}(\eta_i)$",
+        0.06,
+        "General GLMs use distribution-specific conditional randomness; likelihood learns theta from fixed observed pairs.",
         ha="center",
         va="center",
-        fontsize=11.8,
+        fontsize=11.0,
         color=COLORS["black"],
     )
-    ax.text(
-        0.72,
-        0.53,
-        "sampling happens\nafter the distribution is set",
-        ha="center",
-        va="center",
-        fontsize=10.4,
-        color=COLORS["gray"],
-    )
-    ax.text(
-        0.80,
-        0.30,
-        "y_i is not changed by parameters;\nit is evaluated by likelihood",
-        ha="center",
-        va="center",
-        fontsize=10.2,
-        color=COLORS["gray"],
-    )
-    ax.set_title("GLM Pipeline: Forward Sampling and Inverse Likelihood Learning")
+    ax.set_title("GLM Pipeline: Conditional Sampling, Residuals, and Inverse Learning")
     return save(fig, "lecture04-glm-construction-pipeline.png")
-
 
 def figure_gaussian_bernoulli_poisson_response() -> Path:
     """Plot identity, sigmoid, and exponential response functions."""

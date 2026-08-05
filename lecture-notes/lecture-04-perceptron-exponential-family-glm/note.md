@@ -16,9 +16,9 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | [Conceptual Interlude B](#conceptual-interlude-b-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
 | [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
 | [Mathematical Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
-| [Conceptual Interlude C](#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution) | How sampling, likelihood, MLE, sufficient statistics, and conditional prediction connect |
-| [8. GLM Components](#8-glm-components) | Random component, ordinary parameter, natural parameter, systematic component, link, response |
-| [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | How to build a GLM from data semantics |
+| [Conceptual Interlude C](#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution) | How sampling, likelihood, discriminative modeling, residuals, and conditional prediction connect |
+| [8. GLM Components](#8-glm-components) | Random component, parameter scales, systematic component, link, response |
+| [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
 | [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
 | [11. Gaussian GLM](#11-gaussian-glm) | Real-valued regression |
 | [12. Bernoulli GLM](#12-bernoulli-glm) | Binary classification |
@@ -26,7 +26,7 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | [14. Multinomial Form](#14-multinomial-exponential-family-form) | Multiclass sufficient statistic |
 | [15. Softmax Response](#15-softmax-response-function) | Multiclass probability model |
 | [16. Softmax Cross-Entropy](#16-softmax-likelihood-and-cross-entropy) | Multiclass NLL and gradient |
-| [17. Reliability View](#17-reliability-view) | Failure modes and diagnostics |
+| [17. Reliability View](#17-reliability-view) | Mean, variance/noise, distributional failure modes, and diagnostics |
 | [18. PS1 Connection](#18-connection-to-ps1) | Assignment-gate connection |
 | [19. Takeaways](#19-takeaways) | Final synthesis |
 | [Fast Review Checklist](#fast-review-checklist) | Self-check questions for the lecture |
@@ -387,7 +387,7 @@ L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta)
 
 这不是说一个 sample 直接决定 $`\theta`$，而是说整个 dataset 选择那个让所有 observed outcomes 联合起来最 plausible 的 parameter。
 
-Parameter estimation is inverse reasoning relative to a chosen forward generative model.
+Parameter estimation is inverse reasoning relative to a chosen forward conditional stochastic model.
 
 Forward direction:
 
@@ -1300,6 +1300,46 @@ Read the objects in that order:
 
 Parameters do not change an already realized $`y_i`$. They define the probability structure over the possible values of $`Y_i`$ before one realization is observed. Parameter estimation is therefore not an exact algebraic inverse of random sampling. It is constrained inverse inference: within a chosen model family and finite sample, find the global parameter whose induced conditional distributions make the observed realizations most plausible.
 
+### Conditional Sampling and Mean-Zero Residuals
+
+The forward conditional model can always be summarized by its conditional mean:
+
+```math
+\mu(x)
+=
+\mathbb E[Y\mid X=x]
+```
+
+Define the residual random variable by subtracting that conditional mean at the realized input:
+
+```math
+\epsilon
+=
+Y-\mu(X)
+```
+
+Then the response decomposes as:
+
+```math
+Y
+=
+\mu(X)+\epsilon
+```
+
+and the residual has conditional mean zero:
+
+```math
+\mathbb E[\epsilon\mid X]
+=
+\mathbb E[Y-\mu(X)\mid X]
+=
+\mathbb E[Y\mid X]-\mu(X)
+=
+0
+```
+
+This decomposition follows from the definition of conditional expectation. It is not automatically a Gaussian-noise model. It also does not automatically give independence from $`X`$, constant variance, or independence across samples. Conditional mean zero is stronger than unconditional mean zero: $`\mathbb E[\epsilon\mid X]=0`$ implies $`\mathbb E[\epsilon]=0`$, but the reverse does not hold in general. If $`\mathbb E[\epsilon\mid X=x]\neq0`$ for some region of the input space, the residual still contains systematic structure predictable from $`X`$, so the conditional mean model is incomplete.
+
 ## B. Probability versus likelihood
 
 The same expression has two roles:
@@ -1699,6 +1739,45 @@ The $`p(x)`$ part does not affect the optimizer for the conditional parameter $`
 
 Joint modeling can be necessary for generative modeling, missing covariates, latent variables, sample-selection mechanisms, and causal structure. Conditional modeling also does not automatically solve covariate shift; if the deployment distribution of $`x`$ or the conditional mechanism changes, diagnostics and robustness work are still required.
 
+## I. Discriminative and Generative Models
+
+The conditional-versus-joint distinction is also the clean way to separate classical generative models from probabilistic discriminative models.
+
+A classical class-conditional generative model usually factors the joint distribution as:
+
+```math
+p(x,y)
+=
+p(y)p(x\mid y)
+```
+
+It models how labels are drawn and how inputs are generated within each label. Gaussian Discriminant Analysis and Naive Bayes are representative examples: they estimate $`p(y)`$ and $`p(x\mid y)`$, then recover $`p(y\mid x)`$ through Bayes' rule when classification is needed.
+
+A probabilistic discriminative model directly models the conditional distribution:
+
+```math
+p(y\mid x;\theta)
+```
+
+Logistic regression and general conditional GLMs are representative probabilistic discriminative models. Their conditional likelihood is:
+
+```math
+L(\theta)
+=
+\prod_{i=1}^n
+p(y_i\mid x_i;\theta)
+```
+
+The GLM likelihood does not model $`p(x)`$. It treats the covariates as fixed design or conditions on their observed values, so it belongs to the discriminative side of the classical taxonomy. After $`x`$ is given, the model can still sample $`Y`$ from $`p(Y\mid x)`$; that only means it is a conditional stochastic model. It does not mean the model specifies the complete joint data-generating process for $`(X,Y)`$. Do not confuse "can generate a conditional outcome" with "models the joint data-generating process."
+
+| Aspect | Generative probabilistic model | Discriminative probabilistic model |
+|---|---|---|
+| Model target | $`p(x,y)`$ or $`p(y)p(x\mid y)`$ | $`p(y\mid x;\theta)`$ |
+| Is $`p(x)`$ modelled? | yes | no |
+| Training likelihood | $`\prod_i p(y_i)p(x_i\mid y_i)`$ | $`\prod_i p(y_i\mid x_i;\theta)`$ |
+| Can generate complete $`(X,Y)`$ pairs? | yes | not by itself |
+| Representative models | GDA, Naive Bayes | logistic regression, conditional GLM |
+
 ---
 
 Return to main Lecture 4 flow: GLM Components.
@@ -1801,7 +1880,42 @@ Only then do we get:
 
 Thus the equality between systematic component and natural parameter is not a general theorem. It is a canonical-link condition. Under a noncanonical link, $`\xi_i`$ lives on the chosen link scale while $`\eta_i`$ remains the natural coordinate of the local distribution.
 
-### 8.7 Global parameter sharing
+### 8.7 Scale distinctions in a GLM
+
+A GLM has several scales that should not be merged:
+
+* natural-parameter scale: the distribution coordinate such as log-odds, log-rate, or Gaussian mean coordinate;
+* mean / response scale: the conditional mean $`\mu(x)=\mathbb E[Y\mid X=x]`$ or, more generally, $`\mathbb E[T(Y)\mid X=x]`$;
+* observation scale: the random response $`Y`$ before realization and the observed value $`y`$ after realization.
+
+The complete conceptual chain is:
+
+```text
+x
+-> linear predictor
+-> natural parameter
+-> conditional mean
+-> conditional distribution
+-> random observation
+```
+
+In the scalar canonical construction, this is often written as:
+
+```math
+x
+\longrightarrow
+\eta(x)=x^T\theta
+\longrightarrow
+\mu(x)=\rho(\eta(x))
+\longrightarrow
+p(Y\mid x;\theta)
+\longrightarrow
+y
+```
+
+Gaussian identity-link regression is special because the linear predictor, natural parameter, and conditional mean coincide. Bernoulli and Poisson GLMs do not have this coincidence: log-odds and log-rate are not themselves probabilities or expected counts. This special Gaussian collapse is what makes the misleading slogan "a GLM is just a linear predictor plus zero-mean noise" feel natural. The safer statement is: a GLM puts linear structure on a chosen distribution scale, maps to the conditional mean, and then specifies distribution-specific conditional randomness on the observation scale.
+
+### 8.8 Global parameter sharing
 
 The model learns one shared $`\theta`$ rather than an unrestricted $`\eta_i`$ for each sample. The prediction or hypothesis is the conditional response mean:
 
@@ -1851,17 +1965,26 @@ The response remains random. The linear predictor chooses a coordinate of the co
 
 A GLM should be read in three directions: the forward probability model, the inverse learning problem, and the post-training prediction problem. Keeping those directions separate prevents $`\theta`$, $`\eta_i`$, $`\psi_i`$, $`Y_i`$, and $`y_i`$ from collapsing into one vague object.
 
-Forward model for the scalar canonical construction:
+Conditional probabilistic branch for the scalar canonical construction:
 
 ```text
 x_i
 -> eta_i = x_i^T theta
--> ordinary parameter psi_i
+-> mu_i = rho(eta_i)
 -> conditional distribution p(Y_i | x_i; theta)
--> random sample y_i
+-> sampled y_i
 ```
 
-This is the probability direction. Given $`x_i`$ and $`\theta`$, the model chooses a local natural parameter, converts it to the ordinary distribution parameter, defines the distribution of $`Y_i`$, and only then can a realization $`y_i`$ occur.
+This is the probability direction. Given $`x_i`$ and $`\theta`$, the model chooses a local natural parameter, maps it to the conditional mean or response parameter, defines the full conditional distribution of $`Y_i`$, and only then can a realization $`y_i`$ occur. The ordinary parameter $`\psi_i`$ is the distribution-specific parameterization of the same local distribution, such as $`p_i`$, $`\lambda_i`$, or $`\mu_i`$.
+
+Residual interpretation branch:
+
+```text
+Y = mu(X) + epsilon
+E[epsilon | X] = 0
+```
+
+This branch is an interpretation of the conditional mean, not an extra noise layer inserted after the linear predictor. Only Gaussian identity-link regression gives the simple form $`Y=\theta^TX+\epsilon`$. General GLMs use distribution-specific conditional randomness, so do not place noise directly after $`\eta(x)`$ unless $`\eta(x)=\mu(x)`$.
 
 Inverse learning:
 
@@ -1889,9 +2012,9 @@ A practical workflow follows:
 
 1. Define the response random variable $`Y_i`$ and the realized value $`y_i`$ precisely.
 2. Choose a conditional family for $`Y_i\mid x_i`$ based on support, semantics, variance behavior, and mechanism.
-3. Identify the ordinary parameter $`\psi_i`$ and natural parameter $`\eta_i`$ of that local distribution.
+3. Identify the ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, and conditional mean $`\mu_i`$ of that local distribution.
 4. Identify the sufficient statistic $`T(Y_i)`$ whose conditional mean will be predicted.
-5. Choose a link. In the canonical case, set $`\eta_i=x_i^T\theta`$; otherwise set $`g(\mu_i)=x_i^T\theta`$ and map through $`\mu_i`$ to $`\eta_i`$.
+5. Choose a link and keep the scales separate. In the canonical case, set $`\eta_i=x_i^T\theta`$ and map to $`\mu_i`$; otherwise set $`g(\mu_i)=x_i^T\theta`$ and map through $`\mu_i`$ to $`\eta_i`$.
 6. Write the conditional likelihood over the observed training set.
 7. Optimize $`\theta`$ by MLE or a regularized variant.
 8. Use $`\hat\theta`$ to produce a conditional distribution and prediction for new inputs.
@@ -1989,7 +2112,111 @@ h_\theta(x)
 | Poisson | log-rate $`\eta=s_\theta(x)`$ | exponential: $`h_\theta(x)=e^{\theta^Tx}`$ |
 | Multinomial | class scores $`\eta_k=s_k(x)`$ | softmax probabilities |
 
-### C. Activation-function comparison
+### C. Why general GLMs are not simple additive-noise models
+
+The linear predictor:
+
+```math
+\eta(x)
+=
+\theta^Tx
+```
+
+is usually not the conditional mean. In a general GLM, the conditional mean is the response-scale quantity:
+
+```math
+\mu(x)
+=
+\mathbb E[Y\mid X=x]
+=
+\rho(\eta(x))
+```
+
+Therefore the residual decomposition is always centered on $`\mu(X)`$:
+
+```math
+Y
+=
+\mu(X)+\epsilon
+```
+
+but one usually cannot write:
+
+```math
+Y
+=
+\eta(X)+\epsilon
+```
+
+unless the response mapping is identity, as in the Gaussian identity-link case.
+
+Bernoulli example. If:
+
+```math
+Y\mid X=x
+\sim
+\mathrm{Bernoulli}(p(x))
+```
+
+then:
+
+```math
+\epsilon
+=
+Y-p(x)
+```
+
+```math
+\mathbb E[\epsilon\mid X=x]
+=
+0
+```
+
+```math
+\mathrm{Var}(\epsilon\mid X=x)
+=
+p(x)(1-p(x))
+```
+
+The residual support is:
+
+```math
+\{-p(x),1-p(x)\}
+```
+
+so the residual distribution changes with $`x`$. It is not fixed independent Gaussian noise.
+
+Poisson example. If:
+
+```math
+Y\mid X=x
+\sim
+\mathrm{Poisson}(\lambda(x))
+```
+
+then:
+
+```math
+\epsilon
+=
+Y-\lambda(x)
+```
+
+```math
+\mathbb E[\epsilon\mid X=x]
+=
+0
+```
+
+```math
+\mathrm{Var}(\epsilon\mid X=x)
+=
+\lambda(x)
+```
+
+The random fluctuation is coupled to the conditional mean. Higher expected counts naturally carry larger conditional variance under the Poisson model.
+
+### D. Activation-function comparison
 
 It is legitimate to notice that sigmoid, exponential, and softmax are nonlinear maps from scores to outputs. But GLM response functions are not chosen only for computational convenience. They are derived from distributional assumptions and link functions, so they carry a likelihood, a mean-variance relationship, a calibration interpretation, and model-specific diagnostics.
 
@@ -2054,6 +2281,38 @@ canonical link 设 $`\eta=\theta^Tx`$，所以：
 ```math
 h_\theta(x)=\theta^Tx
 ```
+
+如果把 CS229 的 variance-one 简化写回一般 fixed variance $`\sigma^2`$，Gaussian conditional model 是：
+
+```math
+Y\mid X=x;\theta
+\sim
+\mathcal N(\theta^Tx,\sigma^2)
+```
+
+这与下面的 additive representation 等价：
+
+```math
+Y
+=
+\theta^TX+\epsilon
+```
+
+```math
+\epsilon\mid X=x
+\sim
+\mathcal N(0,\sigma^2)
+```
+
+也就是说，给定 $`X=x`$ 后，$`\theta^Tx`$ 是 conditional mean，$`\epsilon`$ 是围绕这个 mean 的 conditional Gaussian residual。反过来，如果 $`Y=\theta^TX+\epsilon`$ 且 $`\epsilon\mid X=x\sim\mathcal N(0,\sigma^2)`$，则立刻得到 $`Y\mid X=x;\theta\sim\mathcal N(\theta^Tx,\sigma^2)`$。
+
+这里有几个层级不要合并成一句“加随机噪声”：
+
+1. $`\mathbb E[\epsilon\mid X]=0`$：只说明 $`\theta^TX`$ 是 conditional mean。
+2. Gaussian conditional noise：说明 residual 的 conditional shape 是 normal。
+3. Homoscedastic variance：说明 $`\mathrm{Var}(\epsilon\mid X=x)=\sigma^2`$ 不随 $`x`$ 改变。
+4. Independence from $`X`$：说明 residual distribution 不随 $`x`$ 改变；它强于 conditional mean zero。
+5. Conditional independence across samples：说明给定 covariates 后，不同样本的随机波动可以相乘成 product likelihood。
 
 Gaussian log likelihood 忽略与 $`\theta`$ 无关的常数后等价于：
 
@@ -2513,11 +2772,20 @@ x^{(i)}
 
 GLM 的可靠性来自两个层面：优化 objective 是否被正确求解，以及 statistical assumptions 是否适合真实数据。后一层往往更难，因为 likelihood 可以被优化得很好，但 model family 仍然 misspecified。
 
+Misspecification 至少有三种不同层级：
+
+1. Conditional mean misspecification: $`\mu(x)=\mathbb E[Y\mid X=x]`$ 的函数形式错了。
+2. Conditional variance / noise misspecification: mean 大致对，但 residual variance、dependence 或 noise mechanism 错了。
+3. Full conditional distribution misspecification: mean 和 variance 可能还可以，但 tails、skewness、zero inflation、calibration 或 discrete/continuous shape 错了。
+
+因此，即使条件均值正确，方差和尾部仍可能错误；point prediction 可以较准，但 likelihood、prediction interval 和 calibration 仍可能失效。$`\mathbb E[\epsilon\mid X]=0`$ 不足以证明 Gaussian assumption，homoscedastic Gaussian noise 也不适合所有实际动态系统。
+
 | Assumption | Diagnostic | Likely symptom | Mitigation |
 | ---------- | ---------- | -------------- | ---------- |
 | Support matches response | 检查 prediction range 和 observed $`y`$ | negative count、probability outside range、invalid class encoding | 换分布或 link；重定义 response |
-| Correct distribution family | residual plots、PIT、posterior predictive style checks | tail errors、skew errors、systematic residual pattern | richer family、robust loss、mixture or nonparametric model |
-| Correct mean-variance relation | plot residual variance against fitted mean | Poisson data overdispersed；Gaussian heteroscedastic | quasi-Poisson、negative binomial、variance modeling |
+| Conditional mean correctly specified | residual pattern vs fitted mean or features | systematic residual structure, subgroup bias | feature transform, interactions, nonlinear model |
+| Conditional variance/noise correctly specified | residual variance vs fitted mean, dependence checks | wrong intervals, overconfidence, overdispersion | variance model, robust SE, quasi-likelihood |
+| Full conditional distribution correctly specified | PIT、posterior predictive style checks、tail diagnostics | tail errors、skew errors、poor calibration | richer family、robust loss、mixture or nonparametric model |
 | Correct link | residual pattern vs linear predictor | probability saturation、count underfit at high rates | alternative link、feature transform |
 | Sufficient linear predictor | validation error by subgroup、partial residuals | stable bias in regions of feature space | interactions、basis expansion、nonlinear model |
 | iid conditional samples | time/group correlation checks | overconfident standard errors、leakage-like validation | clustered SE、mixed model、time split |
@@ -2536,58 +2804,90 @@ Lecture 4 completes the conceptual prerequisites for the first supervised-learni
 
 ## 19. Takeaways
 
-Lecture 4 把 supervised learning 从一组孤立算法转化为 principled model-construction system：
+Lecture 4 把 supervised learning 从一组孤立算法转化为 principled conditional model-construction system：
 
 * Perceptron 展示 non-probabilistic linear decision geometry。
 * Exponential family 提供 unified probability representation。
 * Log-partition function 生成 mean、variance 和 convexity。
-* GLM 把 response semantics、distribution、link、linear predictor 和 likelihood 接成一条链。
+* GLM 把 response semantics、distribution、link、linear predictor、conditional mean 和 likelihood 接成一条链。
+* Conditional GLM 是 probabilistic discriminative model：它直接建模 $`p(y\mid x;\theta)`$，不建模 $`p(x)`$。
+* Residual decomposition 始终围绕 $`\mu(X)`$；$`Y=\theta^TX+\epsilon`$ 是 Gaussian identity-link 的特殊重合，不是所有 GLM 的通用形式。
 * Softmax 是 multinomial conditional model，不是多个独立 sigmoid 的拼接。
-* Reliability analysis 要同时检查 support、distribution、link、feature geometry、optimization 和 deployment shift。
+* Reliability analysis 要分开检查 conditional mean、variance/noise、full conditional distribution、support、link、feature geometry、optimization 和 deployment shift。
 
 ## Fast Review Checklist
 
 - [ ] I can distinguish $`Y_i`$ as a random variable from $`y_i`$ as the observed realization.
 - [ ] I can explain why likelihood fixes observed data and varies $`\theta`$.
 - [ ] I can explain why MLE is not $`P(\theta\mid\mathcal D)`$.
+- [ ] I can distinguish a generative model of $`p(x,y)`$ from a discriminative model of $`p(y\mid x;\theta)`$.
+- [ ] I can explain why a GLM can sample $`Y\mid x`$ without modeling complete $`(X,Y)`$ pairs.
 - [ ] I can derive iid exponential-family moment matching from the score equation.
 - [ ] I can distinguish $`T(Y)`$, $`T(y_i)`$, and $`S_n=\sum_iT(y_i)`$.
 - [ ] I can explain why Gaussian unknown variance needs second-order information.
 - [ ] I can distinguish shared-mean iid sufficiency from regression sufficiency through $`X^T\mathbf y`$.
-- [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, and global parameter $`\theta`$.
+- [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, conditional mean $`\mu_i`$, and global parameter $`\theta`$.
 - [ ] I can explain why $`\eta_i\neq\theta`$ but $`\eta_i=x_i^T\theta`$ in the scalar canonical construction.
+- [ ] I can distinguish natural-parameter scale, mean / response scale, and observation scale.
+- [ ] I can explain why residuals are centered on $`\mu(X)`$, not generally on $`\eta(X)`$.
+- [ ] I can state the Gaussian equivalence between $`Y\mid X=x`$ and $`Y=\theta^TX+\epsilon`$ with conditional Gaussian noise.
+- [ ] I can explain why Bernoulli and Poisson GLM residuals are not fixed independent Gaussian noise.
 - [ ] I can explain why systematic component and natural parameter are equal only under a canonical link.
 - [ ] I can explain the column-space constraint behind $`\boldsymbol\eta=X\theta`$.
 - [ ] I can distinguish conditional modeling from joint modeling without claiming covariate shift disappears.
 - [ ] I can explain why multiclass uses categorical/multinomial rather than Poisson.
 - [ ] I can derive sigmoid from Bernoulli and exponential response from Poisson.
-- [ ] I can list family, link, feature geometry, identifiability, and deployment shift as separate failure risks.
+- [ ] I can list conditional mean, variance/noise, and full conditional distribution misspecification as separate reliability risks.
 
 ## Concept Map Summary
 
 ```text
-random sampling
--> observed sample
--> probability model
+response semantics
+-> conditional family
+-> sufficient statistic
+-> ordinary distribution parameter
+-> natural parameter / systematic component
+-> conditional mean
+-> conditional distribution
 -> likelihood
 -> maximum likelihood estimation
--> sufficient statistics
--> ordinary distribution parameters
--> natural parameters
--> global trainable parameters
--> systematic component
--> conditional prediction
+-> prediction and diagnostics
 ```
 
-Forward probability model:
+Discriminative GLM view:
 
 ```text
-global theta + local x_i
--> local eta_i
--> local ordinary parameter psi_i
+observed x
+-> model p(y | x; theta)
+-> conditional likelihood over y values
+-> no model for p(x)
+```
+
+Generative contrast:
+
+```text
+p(x, y) = p(y) p(x | y)
+-> can sample y and then x
+-> models complete (X, Y) pairs
+```
+
+Conditional probabilistic branch:
+
+```text
+x_i
+-> eta_i = x_i^T theta
+-> mu_i = rho(eta_i)
 -> conditional distribution p(Y_i | x_i; theta)
 -> random Y_i
 -> observed y_i
+```
+
+Residual interpretation branch:
+
+```text
+epsilon_i = Y_i - mu_i
+Y_i = mu_i + epsilon_i
+E[epsilon_i | X_i] = 0
 ```
 
 Inverse learning:
@@ -2604,6 +2904,7 @@ Prediction:
 ```text
 x_new
 -> eta_hat(x_new)
+-> mu_hat(x_new)
 -> conditional distribution
 -> mean / probability / predictive uncertainty
 ```
@@ -2612,6 +2913,8 @@ x_new
 |---|---|---|
 | What can $`Y_i`$ be? | support | $`\mathbb R`$, $`\{0,1\}`$, $`\mathbb N_0`$, simplex |
 | What uncertainty model? | conditional family for $`Y_i\mid x_i`$ | Gaussian, Bernoulli, Poisson |
+| Is this joint or conditional? | model target | $`p(y\mid x;\theta)`$ for GLM |
+| Is $`p(x)`$ modeled? | covariate model | no for conditional GLM |
 | What statistic matters? | $`T(Y_i)`$ and $`T(y_i)`$ | scalar, one-hot vector, $`(y,y^2)`$ |
 | What aggregates iid evidence? | $`S_n=\sum_iT(y_i)`$ | success count, sum, sum of squares |
 | What aggregates regression evidence? | $`X^T\mathbf y`$ | feature-weighted response sum |
@@ -2619,11 +2922,29 @@ x_new
 | What is the natural local coordinate? | $`\eta_i=q(\psi_i)`$ | log-odds, log-rate, mean coordinate |
 | What is globally learned? | $`\theta`$ | shared feature-effect vector |
 | What is systematic? | $`\xi_i=s_\theta(x_i)=x_i^T\theta`$ | feature-side score |
-| What is predicted? | $`h_\theta(x_i)=\mu_i`$ | fitted mean, event probability, expected count |
-| What is optimized? | likelihood / NLL | squared loss, cross-entropy, Poisson NLL |
+| What is the conditional mean? | $`\mu_i=\rho(\eta_i)`$ | fitted mean, event probability, expected count |
+| What is the residual view? | $`\epsilon_i=Y_i-\mu_i`$ | $`\mathbb E[\epsilon_i\mid X_i]=0`$ |
+| What is optimized? | conditional likelihood / NLL | squared loss, cross-entropy, Poisson NLL |
+| What can fail? | mean, variance/noise, distribution | bias, bad intervals, miscalibration |
 
 The long prediction formula is kept outside the table so Markdown renders it reliably:
 
 ```math
-h_\theta(x_i)=\mathbb E[T(Y_i)\mid x_i;\theta]
+h_\theta(x_i)
+=
+\mu_i
+=
+\mathbb E[T(Y_i)\mid x_i;\theta]
 ```
+
+Gaussian identity-link is the special case where:
+
+```math
+\eta(x)
+=
+\mu(x)
+=
+\theta^Tx
+```
+
+General GLMs keep these distinct unless the response mapping is identity.
