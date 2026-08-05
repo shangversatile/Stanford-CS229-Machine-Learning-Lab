@@ -441,88 +441,176 @@ def figure_why_exponential_family_emerges() -> Path:
     return save(fig, "lecture04-why-exponential-family-emerges.png")
 
 def figure_glm_construction_pipeline() -> Path:
-    """Show conditional sampling, residual interpretation, and inverse GLM training."""
-    fig, ax = plt.subplots(figsize=(13.8, 7.2))
+    """Show conditional sampling, residual interpretation, and inverse inference."""
+    fig, ax = plt.subplots(figsize=(15.2, 8.0))
     ax.set_axis_off()
 
     positions = {
-        "x": (0.08, 0.72),
-        "eta": (0.27, 0.72),
-        "mu": (0.46, 0.72),
-        "dist": (0.65, 0.72),
-        "y": (0.84, 0.72),
-        "resid": (0.46, 0.42),
-        "warn": (0.78, 0.42),
-        "data": (0.20, 0.17),
-        "like": (0.48, 0.17),
-        "mle": (0.76, 0.17),
+        "theta": (0.07, 0.80),
+        "x": (0.07, 0.60),
+        "xi": (0.21, 0.70),
+        "mu": (0.35, 0.70),
+        "eta": (0.49, 0.70),
+        "dist": (0.64, 0.70),
+        "Y": (0.78, 0.70),
+        "y": (0.91, 0.70),
+        "resid": (0.49, 0.43),
+        "warn": (0.76, 0.43),
+        "Ty": (0.91, 0.47),
+        "S": (0.76, 0.23),
+        "like": (0.57, 0.23),
+        "mle": (0.37, 0.23),
+        "update": (0.18, 0.23),
     }
 
     boxes = {
-        "x": ("x\ninput", COLORS["blue"]),
-        "eta": ("eta(x)=x^T theta\nlinear / natural scale", COLORS["purple"]),
-        "mu": ("mu(x)=rho(eta)\nconditional mean", COLORS["green"]),
-        "dist": ("p(Y | x; theta)\nconditional distribution", COLORS["yellow"]),
-        "y": ("sampled y\nobservation", COLORS["red"]),
-        "resid": ("residual view\nY = mu(X) + epsilon\nE[epsilon | X] = 0", COLORS["green"]),
-        "warn": ("do not attach noise\nafter eta unless\neta = mu", COLORS["red"]),
-        "data": ("observed data\n(X, y)", COLORS["red"]),
-        "like": ("conditional likelihood\nfunction of theta", COLORS["purple"]),
-        "mle": ("MLE\ntheta_hat", COLORS["orange"]),
+        "theta": ("global theta\nshared parameter", COLORS["orange"]),
+        "x": ("local x_i\nobserved input", COLORS["blue"]),
+        "xi": ("xi_i = x_i^T theta\nlinear predictor", COLORS["purple"]),
+        "eta": ("eta_i\nnatural parameter", COLORS["purple"]),
+        "mu": ("mu_i = E[Y_i | x_i]\nresponse mean", COLORS["green"]),
+        "dist": ("p(Y_i | x_i; theta)\nconditional law", COLORS["green"]),
+        "Y": ("random Y_i\nbefore sampling", COLORS["blue"]),
+        "y": ("observed y_i\nrealization", COLORS["red"]),
+        "resid": ("residual view\nY_i = mu_i + epsilon_i\nE[epsilon_i | x_i] = 0", COLORS["green"]),
+        "warn": ("noise is centered on mu_i\nnot directly after eta_i\nunless eta_i = mu_i", COLORS["red"]),
+        "Ty": ("T(y_i)\nstatistic readout", COLORS["yellow"]),
+        "S": ("S(y) = sum T(y_i)\nsample statistic", COLORS["yellow"]),
+        "like": ("likelihood / MLE\ncompare theta", COLORS["purple"]),
+        "mle": ("theta_hat\nfitted parameter", COLORS["green"]),
+        "update": ("theta update\nshared rule", COLORS["orange"]),
     }
 
     for key, (label, color) in boxes.items():
         draw_box(ax, positions[key], label, color)
 
-    conditional_edges = [("x", "eta"), ("eta", "mu"), ("mu", "dist"), ("dist", "y")]
-    training_edges = [("data", "like"), ("like", "mle")]
-    for start_key, end_key in conditional_edges:
+    forward_edges = [
+        ("theta", "xi"),
+        ("x", "xi"),
+        ("xi", "mu"),
+        ("mu", "eta"),
+        ("eta", "dist"),
+        ("dist", "Y"),
+        ("Y", "y"),
+        ("y", "Ty"),
+        ("Ty", "S"),
+    ]
+    inverse_edges = [("S", "like"), ("like", "mle"), ("mle", "update"), ("update", "theta")]
+    for start_key, end_key in forward_edges:
         draw_connector(ax, positions[start_key], positions[end_key])
     draw_connector(ax, positions["mu"], positions["resid"])
     draw_connector(ax, positions["eta"], positions["warn"])
-    for start_key, end_key in training_edges:
+    for start_key, end_key in inverse_edges:
         draw_connector(ax, positions[start_key], positions[end_key])
-    draw_connector(ax, positions["mle"], positions["eta"])
 
     ax.text(
-        0.46,
+        0.48,
         0.92,
-        "Conditional probabilistic branch: choose a distribution before sampling y",
+        "Conditional probabilistic branch: x_i and theta select a distribution before y_i is observed",
         ha="center",
         va="center",
-        fontsize=13.2,
+        fontsize=13.0,
         fontweight="semibold",
         color=COLORS["black"],
     )
     ax.text(
-        0.46,
+        0.51,
+        0.08,
+        "Inverse inference direction: observed statistics are fixed; likelihood varies theta and updates one shared parameter",
+        ha="center",
+        va="center",
+        fontsize=12.0,
+        fontweight="semibold",
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.35,
+        0.57,
+        "general link: g(mu_i) = xi_i; canonical link also gives xi_i = eta_i",
+        ha="center",
+        va="center",
+        fontsize=10.5,
+        color=COLORS["gray"],
+    )
+    ax.text(
+        0.78,
         0.56,
-        "Residual interpretation is centered on the conditional mean, not on the raw score.",
+        "random variable",
+        ha="center",
+        va="center",
+        fontsize=10.5,
+        color=COLORS["gray"],
+    )
+    ax.text(
+        0.91,
+        0.56,
+        "realization",
+        ha="center",
+        va="center",
+        fontsize=10.5,
+        color=COLORS["gray"],
+    )
+    ax.text(
+        0.55,
+        0.34,
+        "Only Gaussian identity-link gives Y = theta^T X + epsilon; general GLMs use distribution-specific randomness.",
+        ha="center",
+        va="center",
+        fontsize=11.0,
+        color=COLORS["black"],
+    )
+    ax.set_title("GLM Statistical-Inference Pipeline: Conditional Sampling, Residuals, and MLE")
+    return save(fig, "lecture04-glm-construction-pipeline.png")
+
+
+def figure_sufficiency_compression() -> Path:
+    """Show how a sufficient statistic compresses parameter-relevant information."""
+    fig, ax = plt.subplots(figsize=(12.8, 6.6))
+    ax.set_axis_off()
+
+    positions = {
+        "sample": (0.18, 0.64),
+        "split": (0.42, 0.64),
+        "stat": (0.66, 0.78),
+        "arrange": (0.66, 0.46),
+        "infer": (0.88, 0.78),
+    }
+    boxes = {
+        "sample": ("full Bernoulli sample\n(1,0,1,0,1)\n(0,1,1,1,0)", COLORS["blue"]),
+        "split": ("same success count\nk = 3", COLORS["yellow"]),
+        "stat": ("S(y) = sum y_i\nparameter-relevant", COLORS["green"]),
+        "arrange": ("remaining arrangement\nparameter-irrelevant\ngiven S", COLORS["gray"]),
+        "infer": ("likelihood for p\np^3(1-p)^2", COLORS["purple"]),
+    }
+    for key, (label, color) in boxes.items():
+        draw_box(ax, positions[key], label, color)
+
+    draw_connector(ax, positions["sample"], positions["split"])
+    draw_connector(ax, positions["split"], positions["stat"])
+    draw_connector(ax, positions["split"], positions["arrange"])
+    draw_connector(ax, positions["stat"], positions["infer"])
+
+    ax.text(
+        0.50,
+        0.92,
+        "Sufficiency Compression: Keep the Parameter-Relevant Readout",
+        ha="center",
+        va="center",
+        fontsize=14.0,
+        fontweight="semibold",
+        color=COLORS["black"],
+    )
+    ax.text(
+        0.66,
+        0.25,
+        "Given S = k, the arrangement can still describe the sample, but it does not change likelihood comparisons for p.",
         ha="center",
         va="center",
         fontsize=11.0,
         color=COLORS["gray"],
     )
-    ax.text(
-        0.50,
-        0.31,
-        r"Only Gaussian identity-link gives the simple form $Y=\theta^TX+\epsilon$.",
-        ha="center",
-        va="center",
-        fontsize=11.0,
-        color=COLORS["black"],
-    )
-    ax.text(
-        0.50,
-        0.06,
-        "General GLMs use distribution-specific conditional randomness; likelihood learns theta from fixed observed pairs.",
-        ha="center",
-        va="center",
-        fontsize=11.0,
-        color=COLORS["black"],
-    )
-    ax.set_title("GLM Pipeline: Conditional Sampling, Residuals, and Inverse Learning")
-    return save(fig, "lecture04-glm-construction-pipeline.png")
+    ax.set_title("Sufficient Statistic Versus Remaining Sample Detail")
+    return save(fig, "lecture04-sufficiency-compression.png")
 
 def figure_gaussian_bernoulli_poisson_response() -> Path:
     """Plot identity, sigmoid, and exponential response functions."""
@@ -693,6 +781,7 @@ def main() -> None:
         figure_log_partition_moments,
         figure_response_distribution_map,
         figure_glm_construction_pipeline,
+        figure_sufficiency_compression,
         figure_gaussian_bernoulli_poisson_response,
         figure_softmax_coupled_probabilities,
         figure_softmax_simplex,

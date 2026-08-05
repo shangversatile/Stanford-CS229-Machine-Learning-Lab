@@ -1,6 +1,6 @@
 # Log-Partition Mean, Variance, and Convexity
 
-Cross-link: see [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
+Cross-link: see [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-statistical-inference), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
 
 ## 1. Setup
 
@@ -102,6 +102,26 @@ we get:
 ```math
 \nabla a(\eta)=\mathbb E_\eta[T(Y)]
 ```
+
+This is the expectation of the canonical statistic, not automatically the scalar response mean. Use:
+
+```math
+m(\eta)
+=
+\mathbb E_\eta[T(Y)]
+=
+\nabla a(\eta)
+```
+
+for the statistic expectation parameter, and reserve:
+
+```math
+\mu
+=
+\mathbb E[Y]
+```
+
+for the response mean. If $`T(Y)=Y`$, then $`m(\eta)=\mu`$. If $`T(Y)=(Y,Y^2)`$, then $`m(\eta)`$ contains both $`\mathbb E[Y]`$ and $`\mathbb E[Y^2]`$.
 
 ## 4. Covariance identity
 
@@ -267,7 +287,7 @@ we get:
 \mathbb E_{\hat\eta}[T(Y)]
 ```
 
-The left side is the empirical sufficient-statistic mean. The right side is the model-expected sufficient statistic. This is the statistic-matching interpretation of exponential-family MLE.
+The left side is the empirical sufficient-statistic mean. The right side is the model-expected sufficient statistic. This is the statistic-matching interpretation of exponential-family MLE: the parameter is adjusted until the model reproduces the sample statistics that are relevant to likelihood comparison. The result resembles method of moments, but it is specifically the exponential-family score equation and should not be confused with every possible MLE or with general GMM.
 
 ## 8. Convexity of NLL
 

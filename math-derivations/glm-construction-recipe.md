@@ -1,6 +1,6 @@
 # GLM Construction Recipe
 
-Cross-link: see the main Lecture 4 note sections [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For related reference maps, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Response and Distribution Map](glm-response-distribution-map.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
+Cross-link: see the main Lecture 4 note sections [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-statistical-inference), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For related reference maps, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Response and Distribution Map](glm-response-distribution-map.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
 
 ```text
 random sampling
@@ -44,18 +44,26 @@ then the optimizer for the conditional parameter $`\theta`$ is unaffected by the
 
 Joint modeling can be necessary for generative sampling of covariates, missing covariates, latent variables, selection effects, and causal structure. Conditional modeling also does not automatically solve covariate shift; a changed deployment distribution or changed conditional mechanism still has to be diagnosed.
 
+This is also the discriminative/generative taxonomy boundary. Logistic regression and conditional GLMs directly model $`p(y\mid x;\theta)`$ and do not model $`p(x)`$, so they are probabilistic discriminative models. Gaussian Discriminant Analysis and Naive Bayes model a joint distribution or class-conditional input distribution, such as $`p(y)p(x\mid y)`$, and are classical generative models. A GLM can sample $`Y\mid x`$ after $`x`$ is given, but that does not make it a model of complete $`(X,Y)`$ pairs.
+
 ## 2. Global and local parameter hierarchy
 
 For sample $`i`$, use the hierarchy:
 
 ```text
-global trainable parameter theta
--> combine with local x_i
-sample-specific natural parameter eta_i
--> convert within the local distribution
+global parameter theta
+    +
+local input x_i
+    ↓
+linear predictor xi_i
+    ↓
+natural parameter eta_i
+    ↓
 ordinary distribution parameter psi_i
--> define p(Y_i | x_i; theta)
--> random sampling produces y_i
+    ↓
+conditional distribution p(Y_i | x_i; theta)
+    ↓
+observed y_i
 ```
 
 The global trainable parameter is:
@@ -70,6 +78,12 @@ The input and design matrix are:
 x_i\in\mathbb R^p,
 \qquad
 X\in\mathbb R^{n\times p}
+```
+
+The systematic component is:
+
+```math
+\xi_i=x_i^T\theta
 ```
 
 The local natural parameter is not the global parameter:
@@ -109,6 +123,20 @@ Examples:
 | Poisson | rate $`\lambda_i`$ | $`\eta_i=\log\lambda_i`$ |
 
 The learned object is $`\theta`$, the shared parameter of the mapping from features to distribution coordinates. The local ordinary parameters $`\psi_i`$ and natural parameters $`\eta_i`$ are induced per sample.
+
+Only under a canonical link is:
+
+```math
+\xi_i=\eta_i=x_i^T\theta
+```
+
+For a general link, the guaranteed relation is:
+
+```math
+g(\mu_i)=\xi_i
+```
+
+with $`\eta_i=q(\mu_i)`$ determined by the distribution's mean-to-natural map.
 
 ## 3. Random component
 
@@ -350,6 +378,8 @@ T(y_i)
 
 The term $`T(y_i)-\mathbb E[T(Y_i)\mid x_i;\theta]`$ is a distributional residual: observed statistic minus model expectation. Each residual pushes the global parameter along the feature direction $`x_i`$. At the optimum, no feature direction has a remaining systematic residual, subject to existence and identifiability conditions. This is the algebraic link between $`X`$, $`Y_i`$, $`T(Y_i)`$, $`\eta_i`$, $`\theta`$, likelihood, and MLE.
 
+This is feature-weighted matching, not shared-mean iid matching. A GLM does not estimate every $`\mu_i`$ by the global label mean. It learns one shared $`\theta`$ so every feature direction balances observed statistic against conditional model expectation.
+
 ## 8. Hessian and existence caveats
 
 For the per-sample negative log-likelihood:
@@ -522,6 +552,34 @@ h_\theta(x_i)=\lambda_i=\exp(x_i^T\theta)
 
 The same linear score has different statistical meanings because it is placed on different distribution scales: mean, log-odds, or log-rate.
 
-## 13. Summary
+## 13. Conditional residual interpretation
 
-A GLM is a disciplined way to learn a conditional distribution. The random component selects the response family. The ordinary parameter names the familiar local distribution member. The natural parameter is the canonical local coordinate. The systematic component maps features and the global trainable parameter into a score. The link decides when that score is also the natural parameter. Likelihood training then matches observed sufficient statistics to model expectations through feature-weighted score equations.
+For scalar response GLMs, define the conditional mean residual:
+
+```math
+\epsilon_i=Y_i-\mu_i
+```
+
+where:
+
+```math
+\mu_i=\mathbb E[Y_i\mid x_i;\theta]
+```
+
+Then:
+
+```math
+Y_i=\mu_i+\epsilon_i
+```
+
+and:
+
+```math
+\mathbb E[\epsilon_i\mid x_i]=0
+```
+
+This is a conditional-mean decomposition. It does not impose Gaussianity, independence, or constant variance. Gaussian identity-link regression is the special case where $`\mu_i=x_i^T\theta`$ and the model may be equivalently written as linear signal plus conditional Gaussian noise. Bernoulli and Poisson GLMs instead have distribution-specific residual supports and variance structures.
+
+## 14. Summary
+
+A GLM is a disciplined way to learn a conditional distribution. The random component selects the response family. The ordinary parameter names the familiar local distribution member. The natural parameter is the canonical local coordinate. The systematic component maps features and the global trainable parameter into a score. The link decides when that score is also the natural parameter. Likelihood training then matches observed sufficient statistics to model expectations through feature-weighted score equations, and residual diagnostics interpret deviations around the conditional mean.

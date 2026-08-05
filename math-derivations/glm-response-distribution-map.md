@@ -1,6 +1,6 @@
 # GLM Response and Distribution Map
 
-Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For deeper derivations, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Construction Recipe](glm-construction-recipe.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
+Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-statistical-inference), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For deeper derivations, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Construction Recipe](glm-construction-recipe.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), and [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md).
 
 ## 1. Why distribution choice comes before loss choice
 
@@ -50,22 +50,23 @@ Use the shared linear predictor:
 \xi_i=s_\theta(x_i)=x_i^T\theta
 ```
 
-In the scalar canonical cases below:
+Only under a canonical link do we also have:
 
 ```math
 \xi_i=\eta_i
 ```
 
-The table intentionally keeps formulas short. Detailed parameter conversions follow in the family sections.
+The table keeps formulas short; the family sections below give the derivations.
 
-| Family | Ordinary parameter | Natural parameter | Meaning of $`x_i^T\theta`$ | Globally learned | Per-observation statistic | Variance structure |
-| ------ | ------------------ | ----------------- | --------------------------- | ---------------- | ------------------------- | ------------------ |
-| Gaussian, CS229 fixed variance | $`\mu_i`$ | mean coordinate | conditional mean | one shared $`\theta`$ | $`T(y_i)=y_i`$ | constant variance |
-| Bernoulli | $`p_i`$ | log-odds | log-odds | one shared $`\theta`$ | $`T(y_i)=y_i`$ | probability times failure probability |
-| Poisson | $`\lambda_i`$ | log-rate | log-rate | one shared $`\theta`$ | $`T(y_i)=y_i`$ | variance equals mean |
+| Family | Support | Ordinary $`\psi_i`$ | Natural $`\eta_i`$ | Statistic $`T(y_i)`$ | Mean $`\mu_i`$ | Variance | Link | Meaning of $`x_i^T\theta`$ | Residual | Common misspecification |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian fixed variance | $`\mathbb R`$ | $`\mu_i`$ | mean coord. | $`y_i`$ | $`\mu_i`$ | $`\sigma^2`$ | identity | mean | $`y_i-\mu_i`$ | heavy tails, heteroscedasticity |
+| Bernoulli | $`\{0,1\}`$ | $`p_i`$ | log-odds | $`y_i`$ | $`p_i`$ | $`p_i(1-p_i)`$ | logit | log-odds | $`y_i-p_i`$ | imbalance, separation, calibration |
+| Poisson | $`\mathbb N_0`$ | $`\lambda_i`$ | log-rate | $`y_i`$ | $`\lambda_i`$ | $`\lambda_i`$ | log | log-rate | $`y_i-\lambda_i`$ | overdispersion, zero inflation |
 
-The global parameter is not an ordinary distribution parameter for a single sample. It parameterizes the mapping from $`x_i`$ to the local natural parameter.
+The residual column is a conditional-mean residual. It does not imply fixed Gaussian noise except in the Gaussian identity-link model with an explicit homoscedastic Gaussian assumption. Bernoulli residuals have support $`\{-p_i,1-p_i\}`$; Poisson residual variance grows with $`\lambda_i`$.
 
+The global parameter is not an ordinary distribution parameter for a single sample. It parameterizes the mapping from $`x_i`$ to the local distribution scale.
 ## 5. Gaussian
 
 **Support.** $`Y_i\in\mathbb R`$.

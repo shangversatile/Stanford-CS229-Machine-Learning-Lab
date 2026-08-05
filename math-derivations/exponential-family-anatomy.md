@@ -1,6 +1,6 @@
 # Exponential Family Anatomy
 
-Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-why-exponential-family-and-glm-exist), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-a-learned-conditional-distribution), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-why-exponential-family-and-glm-exist), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-statistical-inference), [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Canonical form
 
@@ -36,6 +36,24 @@ After normalization:
 
 The key mental model is: $`T(y)`$ decides what the model reads from $`y`$; $`\eta`$ decides how the distribution values those readings.
 
+The deeper reason $`T(y)`$ exists is parameter comparison. The data are observed; the parameter is unknown. To decide which candidate parameter is more plausible, the likelihood needs only the parts of $`y`$ that change the comparison.
+
+```math
+\log p(y;\eta_1)
+-
+\log p(y;\eta_2)
+=
+(\eta_1-\eta_2)^TT(y)
+-
+a(\eta_1)
++
+a(\eta_2)
+```
+
+The base term $`\log b(y)`$ cancels because it is parameter-independent. Thus $`T(y)`$ is the evidence interface from the sample to the unknown parameter. The natural parameter $`\eta`$ is the parameter-side weight on those evidence directions, and $`\eta^TT(y)`$ is the compatibility score between parameter preference and observed statistic. This is a dual pairing: data contribute the statistic, parameters weight the statistic.
+
+Do not read $`T(y)`$ as an estimator. It is the parameter-relevant representation used by estimators such as MLE.
+
 ## 2. Probability model and likelihood
 
 A probability model assigns mass or density over possible values of $`Y`$ before observation. It does not modify the realized value $`y`$.
@@ -66,13 +84,13 @@ This is inverse reasoning relative to a chosen family, not a posterior probabili
 
 ## 3. Per-observation statistic and sample sufficient statistic
 
-There are three distinct objects:
+There are four distinct objects:
 
 ```math
-T(Y)
+T(Y_i)
 ```
 
-This is the statistic as a random variable.
+This is the canonical statistic for one random observation.
 
 ```math
 T(y_i)
@@ -81,10 +99,16 @@ T(y_i)
 This is the statistic evaluated on one observed realization.
 
 ```math
-S_n=\sum_{i=1}^nT(y_i)
+S(\mathbf Y)=\sum_{i=1}^nT(Y_i)
 ```
 
-This is the iid sample-level statistic that aggregates evidence.
+This is the iid sample-level statistic before observation.
+
+```math
+S(\mathbf y)=\sum_{i=1}^nT(y_i)
+```
+
+This is the observed aggregate statistic that enters the likelihood.
 
 For iid samples:
 
@@ -98,10 +122,10 @@ p(y_1,\dots,y_n;\eta)
 All dependence on $`\eta`$ flows through:
 
 ```math
-S_n=\sum_{i=1}^nT(y_i)
+S(\mathbf y)=\sum_{i=1}^nT(y_i)
 ```
 
-By Fisher-Neyman factorization, $`S_n`$ is sufficient for $`\eta`$ in this iid model. Sufficient does not mean the statistic preserves every fact about the raw sample. It means it preserves all likelihood information about the current unknown parameter under the current family. If the family or unknown parameter set changes, sufficiency can change.
+By Fisher-Neyman factorization, $`S(\mathbf Y)`$ is sufficient for $`\eta`$ in this iid model. Sufficient does not mean the statistic preserves every fact about the raw sample. It means it preserves all likelihood information about the current unknown parameter under the current family. If the family or unknown parameter set changes, sufficiency can change.
 
 | Model | Per-observation statistic | Sample sufficient statistic | Parameter information |
 | ----- | ------------------------- | --------------------------- | --------------------- |
