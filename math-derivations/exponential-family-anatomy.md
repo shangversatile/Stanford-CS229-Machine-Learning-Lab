@@ -1,6 +1,6 @@
 # Exponential Family Anatomy
 
-Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-why-exponential-family-and-glm-exist), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-statistical-inference), [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-why-exponential-family-and-glm-exist), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Canonical form
 

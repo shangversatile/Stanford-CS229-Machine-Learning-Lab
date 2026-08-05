@@ -1,6 +1,6 @@
 # Log-Partition Mean, Variance, and Convexity
 
-Cross-link: see [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-from-random-samples-to-statistical-inference), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
+Cross-link: see [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
 
 ## 1. Setup
 

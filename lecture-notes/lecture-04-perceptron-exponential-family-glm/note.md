@@ -16,8 +16,8 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | [Conceptual Interlude B](#conceptual-interlude-b-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
 | [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
 | [Mathematical Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
-| [Conceptual Interlude C](#conceptual-interlude-c-from-random-samples-to-statistical-inference) | GLM-side statistical inference: sampling, sufficiency, parameters, and residuals |
 | [8. GLM Components](#8-glm-components) | Random component, parameter scales, systematic component, link, response |
+| [Conceptual Interlude C](#conceptual-interlude-c-why-glm-components-form-a-statistical-model) | Why the GLM components define a conditional statistical model |
 | [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
 | [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
 | [11. Gaussian GLM](#11-gaussian-glm) | Real-valued regression |
@@ -1266,690 +1266,11 @@ So a GLM Hessian can be read as variance-weighted feature geometry: features det
 
 ---
 
-Next: Conceptual Interlude C connects random sampling, likelihood, sufficiency, parameter hierarchy, and conditional prediction.
+Next: GLM Components applies the exponential-family machinery to supervised conditional models.
 
 ---
 
-# Conceptual Interlude C: From Random Samples to Statistical Inference
 
-> This interlude is the GLM-side statistical-inference explanation. It does not replace the course sequence; it explains how random mechanisms, conditional distributions, sampling, likelihood, MLE, sufficient statistics, moment matching, parameter hierarchy, GLM systematic components, discriminative modeling, residuals, uncertainty, and model misspecification fit together once the lecture has moved from exponential families into GLMs.
-
----
-
-## A. Random Variable and Realization
-
-The first distinction is between an unobserved random variable and a realized value. For supervised data, $`X`$ denotes the input random variable, $`x_i`$ is the observed input for sample $`i`$, $`Y_i`$ is the response random variable after conditioning on $`x_i`$, and $`y_i`$ is one realized value of $`Y_i`$.
-
-A conditional model is therefore about the distribution of possible responses before observation:
-
-```math
-Y_i\mid x_i;\theta
-```
-
-It is not a deterministic statement that $`Y_i`$ must equal the fitted prediction. The observation $`y_i`$ is one draw from the conditional distribution selected by $`x_i`$ and the model parameter.
-
-## B. Forward Probability Model
-
-Start with a real but unknown stochastic mechanism. For one sample, the forward direction is:
-
-```math
-\theta^\star
-\longrightarrow
-\eta_i^\star
-\longrightarrow
-\psi_i^\star
-\longrightarrow
-p(Y_i\mid x_i)
-\longrightarrow
-y_i
-```
-
-Read the objects in that order:
-
-* $`\theta^\star`$ is the global but unknown mechanism parameter shared across samples.
-* $`x_i`$ and $`\theta^\star`$ jointly determine the local conditional-distribution parameter.
-* $`\eta_i^\star`$ is the natural coordinate of sample $`i`$'s conditional distribution.
-* $`\psi_i^\star`$ is the ordinary parameter of that same local distribution, such as a probability, rate, or mean.
-* $`Y_i`$ is the response random variable before sampling.
-* $`y_i`$ is the realized observation after sampling.
-
-The learning direction goes the other way only statistically:
-
-```math
-\{(x_i,y_i)\}_{i=1}^n
-\longrightarrow
-L(\theta)
-\longrightarrow
-\hat\theta
-```
-
-Parameter estimation is not an algebraic inverse of random sampling. A finite sample cannot uniquely recover $`\theta^\star`$. Inference is model-relative: after choosing a distribution family and feature map, MLE searches inside that family for the parameter whose induced conditional distributions make the observed data most plausible. The chosen family is a falsifiable modeling assumption, not a theorem forced by the data.
-
-## C. Probability Versus Likelihood
-
-The same expression has two roles:
-
-```math
-p(y_i\mid x_i;\theta)
-```
-
-Probability or density view:
-
-* fix $`x_i`$ and $`\theta`$;
-* let the possible response value $`y`$ vary;
-* describe how plausible different outcomes are before observation;
-* for a discrete response, probabilities sum to one:
-
-```math
-\sum_y p(y\mid x_i;\theta)=1
-```
-
-* for a continuous response, the density integrates to one:
-
-```math
-\int p(y\mid x_i;\theta)dy=1
-```
-
-Likelihood view:
-
-* fix the actually observed pair $`(x_i,y_i)`$;
-* let candidate parameters $`\theta`$ vary;
-* compare how well different parameters explain the already observed data;
-* no normalization over $`\theta`$ is required;
-* it is not $`P(\theta\mid\mathcal D)`$.
-
-For a training set $`\mathcal D=\{(x_i,y_i)\}_{i=1}^n`$, conditional independence gives:
-
-```math
-L(\theta;\mathcal D)
-=
-\prod_{i=1}^n
-p(y_i\mid x_i;\theta)
-```
-
-and:
-
-```math
-\ell(\theta)
-=
-\sum_{i=1}^n
-\log p(y_i\mid x_i;\theta)
-```
-
-## D. Maximum Likelihood Estimation
-
-The maximum-likelihood estimate is:
-
-```math
-\hat\theta
-=
-\underset{\theta}{\text{arg max}}
-\,
-L(\theta;\mathcal D)
-```
-
-MLE chooses the parameter that gives the observed dataset the largest likelihood inside the specified model family. It is not the probability that the parameter itself is true. It also does not prove that the family is correct. The MLE may fail to exist, fail to be unique, or lie on a boundary. Logistic perfect separation is the standard Lecture 4 example: if a linear score separates all binary labels, the unregularized logistic likelihood can increase along an unbounded coefficient direction without a finite maximizer.
-
-## E. Why Observations Must Connect to Unknown Parameters
-
-The parameter is unknown, and the sample is the only object we observe. To infer parameters, we must identify which features of the observed response can change likelihood comparisons between candidate parameters. Exponential families make that interface explicit.
-
-For one observation:
-
-```math
-\log p(y;\eta)
-=
-\log b(y)
-+
-\eta^TT(y)
--
-a(\eta)
-```
-
-Compare two candidate natural parameters:
-
-```math
-\log p(y;\eta_1)
--
-\log p(y;\eta_2)
-=
-(\eta_1-\eta_2)^TT(y)
--
-a(\eta_1)
-+
-a(\eta_2)
-```
-
-The $`\log b(y)`$ term cancels because it does not depend on the parameter. Thus the observation changes the relative likelihood of $`\eta_1`$ versus $`\eta_2`$ only through $`T(y)`$. This is why $`T(y)`$ exists: it is the parameter-relevant representation of the observed response. The natural parameter $`\eta`$ is the parameter-side weight on those statistical directions, and $`\eta^TT(y)`$ is the compatibility score between what the distribution favors and what the observation displays.
-
-The important warning is:
-
-```text
-T(y) is not an estimator.
-T(y) is the parameter-relevant representation used by an estimator.
-```
-
-## F. Canonical Statistic and Sample Sufficient Statistic
-
-The single-observation canonical statistic is:
-
-```math
-T(Y_i)
-```
-
-After observation, the sample contributes:
-
-```math
-T(y_i)
-```
-
-For an iid sample, the random sample statistic is:
-
-```math
-S(\mathbf Y)
-=
-\sum_{i=1}^nT(Y_i)
-```
-
-and its realized value is:
-
-```math
-S(\mathbf y)
-=
-\sum_{i=1}^nT(y_i)
-```
-
-Do not collapse these objects. $`T(Y_i)`$ is a statistic of one random observation; $`T(y_i)`$ is the realized readout from one sample; $`S(\mathbf Y)`$ is the whole-sample sufficient statistic before observation; $`S(\mathbf y)`$ is the realized aggregate evidence.
-
-### What Does "Sufficient" Actually Mean?
-
-The intuitive question is: after a statistic has summarized the sample, is there any remaining detail in the raw sample that can still change how we compare candidate parameters? If the answer is no, the statistic is sufficient for that parameter in that model.
-
-A statistic $`S`$ is sufficient for $`\theta`$ if the conditional distribution of the full sample given the statistic does not depend on $`\theta`$:
-
-```math
-p_\theta(\mathbf Y=\mathbf y\mid S(\mathbf Y)=s)
-```
-
-is independent of $`\theta`$. Before observing $`S`$, the sample contains parameter information. After fixing $`S=s`$, the remaining details of the raw sample no longer add information for this target parameter under this model family. Those remaining details can still contain arrangement, individual deviations, residual shape, or information about other modeling questions. "Independent of $`\theta`$" does not mean "scientifically useless"; it means no additional likelihood information for the current parameter.
-
-Fisher-Neyman factorization gives an operational test. If:
-
-```math
-p_\theta(\mathbf y)
-=
-h(\mathbf y)
-g_\theta^{\mathrm{fac}}(S(\mathbf y))
-```
-
-where $`h(\mathbf y)`$ may depend on the whole dataset but not on $`\theta`$, and all parameter dependence flows through $`g_\theta^{\mathrm{fac}}(S(\mathbf y))`$, then $`S`$ is sufficient. The superscript marks this as a factorization term, not the GLM link function.
-
-For a discrete sample space:
-
-```math
-P_\theta(\mathbf Y=\mathbf y\mid S=s)
-=
-\frac{
-h(\mathbf y)g_\theta^{\mathrm{fac}}(s)
-}{
-\sum_{\mathbf y':S(\mathbf y')=s}
-h(\mathbf y')g_\theta^{\mathrm{fac}}(s)
-}
-```
-
-The parameter factor cancels:
-
-```math
-P_\theta(\mathbf Y=\mathbf y\mid S=s)
-=
-\frac{
-h(\mathbf y)
-}{
-\sum_{\mathbf y':S(\mathbf y')=s}
-h(\mathbf y')
-}
-```
-
-so the conditional distribution no longer contains $`\theta`$. For continuous samples, the same idea uses conditional densities rather than assigning positive probability to exact full-sample events.
-
-Bernoulli example. If:
-
-```math
-Y_i\sim\mathrm{Bernoulli}(p)
-```
-
-then the likelihood is:
-
-```math
-L(p)
-=
-p^{\sum_i y_i}
-(1-p)^{n-\sum_i y_i}
-```
-
-Define:
-
-```math
-S=\sum_iY_i
-```
-
-The parameter $`p`$ controls the distribution of the total number of successes. Given $`S=k`$, it does not control how those successes are arranged. Every sequence with $`k`$ ones has conditional probability:
-
-```math
-P(\mathbf Y=\mathbf y\mid S=k)
-=
-\frac{1}{\binom{n}{k}}
-```
-
-This expression contains no $`p`$. For example:
-
-```text
-(1,0,1,0,1)
-(0,1,1,1,0)
-```
-
-both contain three successes in five trials, so they carry exactly the same likelihood information about $`p`$.
-
-![Sufficiency compression](../../assets/figures/lecture04-sufficiency-compression.png)
-
-Gaussian examples. If $`Y_i\sim\mathcal N(\mu,\sigma^2)`$ iid and $`\sigma^2`$ is known, the likelihood depends on $`\mu`$ only through:
-
-```math
-\sum_i y_i
-```
-
-Thus the per-observation statistic is $`T(y)=y`$, and the sample sufficient statistic is $`\sum_i y_i`$, equivalently the sample mean. Given the sample mean, the residual arrangement around that mean no longer carries additional information about $`\mu`$ in this known-variance model. It may still matter for variance, outlier, or model-checking questions.
-
-If both $`\mu`$ and $`\sigma^2`$ are unknown, the statistic must include first- and second-order information:
-
-```math
-T(y)
-=
-\begin{bmatrix}
-y\\
-y^2
-\end{bmatrix}
-```
-
-and:
-
-```math
-S(\mathbf y)
-=
-\begin{bmatrix}
-\sum_i y_i\\
-\sum_i y_i^2
-\end{bmatrix}
-```
-
-The first raw moment supplies location information. The raw second moment supplies magnitude information. The central second moment, or variance, is recovered from both:
-
-```math
-\mathrm{Var}(Y)
-=
-\mathbb E[Y^2]
--
-\mathbb E[Y]^2
-```
-
-The $`y^2`$ term appears not merely because "variance uses squares," but because its likelihood coefficient depends on the unknown $`\sigma^2`$, so it changes the relative likelihood of candidate parameters. Raw second moment, central second moment, and regression residual square are related but distinct objects.
-
-## G. Moment Matching
-
-For iid observations from an exponential family:
-
-```math
-p(y;\eta)
-=
-b(y)
-\exp\left(
-\eta^TT(y)-a(\eta)
-\right)
-```
-
-The log-likelihood is:
-
-```math
-\ell(\eta)
-=
-\eta^T\sum_iT(y_i)
--
-na(\eta)
-+
-\sum_i\log b(y_i)
-```
-
-Therefore:
-
-```math
-\nabla_\eta\ell(\eta)
-=
-\sum_iT(y_i)
--
-n\nabla a(\eta)
-```
-
-Using:
-
-```math
-\nabla a(\eta)
-=
-\mathbb E_\eta[T(Y)]
-```
-
-any finite interior MLE satisfies:
-
-```math
-\frac1n\sum_iT(y_i)
-=
-\mathbb E_{\hat\eta}[T(Y)]
-```
-
-The left side is the empirical statistic mean, and the right side is the model-expected statistic. MLE adjusts $`\eta`$ until the model's expected statistical structure matches the sample's observed statistical structure, when such a match is attainable. This resembles method of moments, but it is specifically the exponential-family likelihood score equation; not every MLE should be casually called GMM.
-
-This notation distinguishes two means. The response mean is:
-
-```math
-\mu
-=
-\mathbb E[Y]
-```
-
-The sufficient-statistic expectation parameter is:
-
-```math
-m(\eta)
-=
-\mathbb E_\eta[T(Y)]
-=
-\nabla a(\eta)
-```
-
-Only when $`T(Y)=Y`$ do we have:
-
-```math
-m(\eta)=\mu
-```
-
-If:
-
-```math
-T(Y)
-=
-\begin{bmatrix}
-Y\\
-Y^2
-\end{bmatrix}
-```
-
-then:
-
-```math
-m(\eta)
-=
-\begin{bmatrix}
-\mathbb E[Y]\\
-\mathbb E[Y^2]
-\end{bmatrix}
-```
-
-so $`m(\eta)`$ is not a scalar response mean.
-
-A shared-mean iid model and a GLM also match moments differently. In a simple iid model, all samples share one $`\eta`$, so the global empirical average $`n^{-1}\sum_iT(y_i)`$ is matched to one model expectation. In a GLM:
-
-```math
-\eta_i=x_i^T\theta
-```
-
-and each input induces its own conditional mean. The canonical scalar GLM score is:
-
-```math
-\nabla_\theta\ell(\theta)
-=
-\sum_i
-x_i
-\left(
-T(y_i)
--
-\mathbb E[T(Y_i)\mid x_i;\theta]
-\right)
-```
-
-At an interior MLE:
-
-```math
-\sum_i x_iT(y_i)
-=
-\sum_i x_i\mathbb E[T(Y_i)\mid x_i;\hat\theta]
-```
-
-Thus a GLM does not use the global label mean to estimate every $`\mu_i`$. It uses all $`(x_i,y_i)`$ pairs to learn one shared $`\theta`$ so that empirical and model-expected statistics match along each feature direction.
-
-## H. Parameter Hierarchy
-
-For a GLM sample, the hierarchy is:
-
-```text
-global parameter theta
-    +
-local input x_i
-    ↓
-linear predictor xi_i
-    ↓
-natural parameter eta_i
-    ↓
-ordinary distribution parameter psi_i
-    ↓
-conditional distribution p(Y_i | x_i; theta)
-    ↓
-observed y_i
-```
-
-The global parameter $`\theta`$ parameterizes the map from input to distribution coordinate. The local natural parameter $`\eta_i`$ is the coordinate of sample $`i`$'s conditional distribution. The ordinary parameter $`\psi_i`$ is the probability, rate, or mean used to name that local distribution. Each sample has its own $`\eta_i`$, but all samples share one $`\theta`$.
-
-The layers are distinct:
-
-```math
-\theta\neq\eta_i
-```
-
-In the scalar canonical construction:
-
-```math
-\eta_i=x_i^T\theta
-```
-
-For the whole dataset:
-
-```math
-\boldsymbol{\eta}=X\theta
-```
-
-Examples:
-
-| Family | Ordinary parameter $`\psi_i`$ | Natural parameter $`\eta_i`$ | Conditional mean $`\mu_i`$ |
-|---|---|---|---|
-| Gaussian fixed variance | mean $`\mu_i`$ | mean coordinate | $`\mu_i`$ |
-| Bernoulli | probability $`p_i`$ | log-odds | $`p_i`$ |
-| Poisson | rate $`\lambda_i`$ | log-rate | $`\lambda_i`$ |
-
-## I. Systematic Component and Link
-
-The systematic component is the linear predictor:
-
-```math
-\xi_i=x_i^T\theta
-```
-
-A general GLM makes a transformed conditional mean linear:
-
-```math
-g(\mu_i)=\xi_i=x_i^T\theta
-```
-
-The inverse link gives the response-scale mean:
-
-```math
-\mu_i=g^{-1}(\xi_i)
-```
-
-The exponential-family natural parameter is connected to the mean by the distribution's mean-to-natural map:
-
-```math
-\eta_i=q(\mu_i)
-```
-
-Only under the canonical link:
-
-```math
-g=q
-```
-
-is the systematic component also the natural parameter:
-
-```math
-\xi_i=\eta_i=x_i^T\theta
-```
-
-The linear assumption is not placed directly on the observed label $`Y_i`$. It is placed on a chosen coordinate scale of the conditional distribution. The constraint $`\boldsymbol{\eta}=X\theta`$ means all local natural parameters must lie in the column space of $`X`$. This gives shared statistical strength and generalization to new inputs, but it can also cause structural underfitting if the true conditional mechanism does not live near that low-dimensional feature geometry.
-
-## J. Conditional Versus Joint Modeling
-
-A joint model factors as:
-
-```math
-p(x,y)
-=
-p(y\mid x)p(x)
-```
-
-Supervised learning usually asks for the distribution of $`Y`$ after $`x`$ is given. A conditional GLM models $`p(Y\mid X)`$ directly and does not model $`p(X)`$. This is sufficient for many prediction objectives, but it does not mean joint modeling is unnecessary for missing covariates, latent variables, sample selection, causal mechanisms, or full data simulation.
-
-If a joint model separates into independent parameter blocks:
-
-```math
-\ell(\theta,\alpha)
-=
-\sum_i\log p_\theta(y_i\mid x_i)
-+
-\sum_i\log p_\alpha(x_i)
-```
-
-then the $`p(x)`$ term does not affect the optimizer for the conditional parameter $`\theta`$.
-
-## K. Discriminative Versus Generative Models
-
-A classical class-conditional generative model often factors the joint distribution as:
-
-```math
-p(x,y)
-=
-p(y)p(x\mid y)
-```
-
-It models how labels are drawn and how inputs are generated within each label. Gaussian Discriminant Analysis and Naive Bayes are representative generative models.
-
-A probabilistic discriminative model directly models:
-
-```math
-p(y\mid x;\theta)
-```
-
-Logistic regression and conditional GLMs are representative probabilistic discriminative models. They optimize:
-
-```math
-L(\theta)
-=
-\prod_{i=1}^n
-p(y_i\mid x_i;\theta)
-```
-
-The GLM likelihood does not model $`p(x)`$. Given $`x`$, it can sample $`Y`$ from $`p(Y\mid x)`$, but this only makes it a conditional stochastic model. It does not make it a classical generative model of complete $`(X,Y)`$ pairs.
-
-| Model | Target | Models $`p(x)`$? | Representative examples |
-|---|---|---|---|
-| Generative | $`p(x,y)`$ or $`p(y)p(x\mid y)`$ | yes | GDA, Naive Bayes |
-| Discriminative | $`p(y\mid x;\theta)`$ | no | logistic regression, conditional GLM |
-
-## L. Conditional Sampling and Residuals
-
-The conditional mean decomposition is always available:
-
-```math
-\mu(X)
-=
-\mathbb E[Y\mid X]
-```
-
-```math
-\epsilon
-=
-Y-\mu(X)
-```
-
-so:
-
-```math
-Y
-=
-\mu(X)+\epsilon
-```
-
-and:
-
-```math
-\mathbb E[\epsilon\mid X]
-=
-0
-```
-
-This is a consequence of conditional expectation. It does not automatically imply Gaussian noise, independent noise, constant variance, or conditional independence across samples.
-
-For Gaussian identity-link regression:
-
-```math
-Y\mid X=x
-\sim
-\mathcal N(\theta^Tx,\sigma^2)
-```
-
-is equivalent to:
-
-```math
-Y
-=
-\theta^TX+\epsilon
-```
-
-with:
-
-```math
-\epsilon\mid X=x
-\sim
-\mathcal N(0,\sigma^2)
-```
-
-For Bernoulli and Poisson GLMs, the safe residual statement is:
-
-```math
-Y
-=
-\mu(X)+\epsilon
-```
-
-not:
-
-```math
-Y
-=
-\eta(X)+\epsilon
-```
-
-unless the response mapping is identity. Residuals are centered on the conditional mean, while distribution-specific uncertainty determines variance, support, tails, and calibration.
-
----
-
-Return to main Lecture 4 flow: GLM Components.
 
 ## 8. GLM Components
 
@@ -2110,7 +1431,7 @@ Global sharing is what makes the model learnable from finite data and usable for
 
 Linearity is a design choice, not a theorem about nature. The CS229 version uses $`x_i^T\theta`$ because it is interpretable, sample-efficient, and often convex-friendly under canonical links. Richer models can replace $`x_i`$ by engineered features $`\phi(x_i)`$ or a learned representation, but the observation model still has to map a distribution coordinate to $`p(Y_i\mid x_i)`$.
 
-### The geometric and statistical meaning of the systematic component
+### 8.9 Systematic-component geometry and shared structure
 
 In the canonical scalar case:
 
@@ -2138,6 +1459,576 @@ x_i^T\theta
 
 The response remains random. The linear predictor chooses a coordinate of the conditional distribution before sampling; it is not an assertion that the realized response equals the score.
 
+# Conceptual Interlude C: Why GLM Components Form a Statistical Model
+
+> This interlude belongs after the GLM components. Section 8 lists the pieces; this interlude explains why those pieces define a coherent conditional statistical model before Section 9 turns them into a workflow.
+
+---
+
+## A. Why the Conditional Exponential-Family Assumption Is Plausible
+
+A GLM usually assumes a conditional response family:
+
+```math
+Y\mid X=x
+\sim
+\mathrm{ExponentialFamily}(\eta(x))
+```
+
+It does not simply assert one marginal law for all observed labels:
+
+```math
+Y
+\sim
+\mathrm{ExponentialFamily}
+```
+
+This distinction matters. In Poisson regression, the model is:
+
+```math
+Y\mid X=x
+\sim
+\mathrm{Poisson}(\mu(x))
+```
+
+Different inputs can have different rates. If samples from many $`x`$ values are pooled, the marginal distribution of $`Y`$ is a mixture over those conditional distributions and need not be one Poisson distribution. The modeling question is whether $`Y_i\mid x_i`$ is plausible under the chosen family.
+
+The assumption is not proven automatically by the data. It is a structured working hypothesis judged by four layers.
+
+First, response semantics and support. Binary events suggest Bernoulli; nonnegative counts suggest Poisson; real-valued continuous measurements suggest Gaussian; positive continuous variables may suggest Gamma or related models. Support matching is necessary, but it is only the first filter.
+
+Second, the data-generating mechanism. Poisson is not just "the response is an integer." It carries a count-process story. Extra zeros, dependent events, rapidly changing rates, missing exposure, and population mixtures can make ordinary Poisson regression unreliable.
+
+Third, the conditional mean-variance relationship. Standard GLMs often use:
+
+```math
+\mathrm{Var}(Y\mid X=x)
+=
+\phi V(\mu(x))
+```
+
+For Bernoulli:
+
+```math
+\mathrm{Var}(Y\mid X=x)
+=
+\mu(x)(1-\mu(x))
+```
+
+For Poisson:
+
+```math
+\mathrm{Var}(Y\mid X=x)
+=
+\mu(x)
+```
+
+For fixed-variance Gaussian regression:
+
+```math
+\mathrm{Var}(Y\mid X=x)
+=
+\sigma^2
+```
+
+If the actual conditional variance pattern is badly misaligned with the family, point predictions may still look useful while likelihood, intervals, and calibration fail.
+
+Fourth, diagnostics and falsification. Check residual structure, deviance residuals, overdispersion, zero inflation, heteroscedasticity, calibration, temporal or spatial dependence, distribution shift, and link misspecification. Exponential-family modeling is valuable because it is structured, estimable, interpretable, and diagnosable; it is not a law that the real world must obey.
+
+This is also why GLMs are usually conditional rather than joint models. A joint model factors as:
+
+```math
+p(x,y)
+=
+p(y\mid x)p(x)
+```
+
+Supervised GLMs directly model the conditional part needed for prediction:
+
+```math
+p(y\mid x;\theta)
+```
+
+and do not model $`p(x)`$. If a separate covariate model has independent parameters, its likelihood term does not change the optimizer for the conditional parameter $`\theta`$. But conditional modeling is not enough for every problem: missing covariates, latent variables, selection mechanisms, causal data generation, or complete data simulation may require a joint model.
+
+A classical generative model instead models a joint distribution or class-conditional input distribution, for example:
+
+```math
+p(x,y)=p(y)p(x\mid y)
+```
+
+Logistic regression and conditional GLMs are discriminative; Gaussian Discriminant Analysis and Naive Bayes are classical generative models. A fitted GLM can sample $`Y\mid x`$ after $`x`$ is given, but that conditional sampling ability is not the same as modeling complete $`(X,Y)`$ pairs.
+
+| Model type | Target | Models $`p(x)`$? | Training likelihood | Complete $`(X,Y)`$ pairs? | Examples |
+|---|---|---|---|---|---|
+| Generative | $`p(x,y)`$ or $`p(y)p(x\mid y)`$ | yes | joint | yes | GDA, Naive Bayes |
+| Discriminative | $`p(y\mid x;\theta)`$ | no | conditional | no | logistic regression, GLM |
+
+## B. What the Natural Coordinate Learns
+
+In the scalar canonical GLM:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+This is not a deep-learning-style universal representation. It says the input features have additive effects on a selected coordinate of the conditional distribution:
+
+```math
+\eta(x)
+=
+\theta_0+	heta_1x_1+\cdots+\theta_dx_d
+```
+
+Therefore:
+
+```math
+\frac{\partial\eta(x)}{\partial x_j}
+=
+\theta_j
+```
+
+Holding the other features fixed, $`\theta_j`$ is the change in the natural coordinate caused by a one-unit change in $`x_j`$. The meaning of that coordinate depends on the family: Gaussian identity-link models make it a mean-scale effect; Bernoulli logistic models make it a log-odds effect; Poisson log-link models make it a log-rate effect. Thus $`\eta(x)`$ is best read as a conditional distribution coordinate.
+
+For a scalar GLM, $`\eta(x)`$ is also an information bottleneck. The model compresses $`x\in\mathbb R^d`$ to one index:
+
+```math
+\eta(x)=\theta^Tx\in\mathbb R
+```
+
+and assumes:
+
+```math
+p(Y\mid X=x)
+=
+p(Y\mid \eta(x))
+```
+
+This single-index assumption gives simplicity, interpretability, sample efficiency, stable optimization, and easier diagnostics. It can also underfit when important information in $`x`$ cannot be summarized by that coordinate.
+
+The scale must still be read carefully. The global parameter $`\theta`$ is shared across samples, while $`\eta_i`$ is the local natural coordinate induced for sample $`i`$. Usually:
+
+```math
+\eta_i\neq\theta
+```
+
+In the scalar canonical construction:
+
+```math
+\eta_i=x_i^T\theta
+```
+
+For all samples:
+
+```math
+\boldsymbol\eta=X\theta
+```
+
+For a general GLM, the guaranteed relation is:
+
+```math
+g(\mu_i)=\xi_i=x_i^T\theta
+```
+
+Only under a canonical link is $`\xi_i=\eta_i`$.
+
+## C. How Data Learn the Global Parameter
+
+Use the notation consistently: $`X`$ is the input random variable, $`x_i`$ is the observed input for sample $`i`$, $`Y_i`$ is the response random variable after conditioning on $`x_i`$, and $`y_i`$ is one realized value of $`Y_i`$. The model is about the distribution of possible $`Y_i`$ values before the realized $`y_i`$ is observed.
+
+The forward stochastic direction and the learning direction are different. A real but unknown mechanism would run as:
+
+```math
+\theta^\star
+\longrightarrow
+\eta_i^\star
+\longrightarrow
+\psi_i^\star
+\longrightarrow
+p(Y_i\mid x_i)
+\longrightarrow
+y_i
+```
+
+Learning does not algebraically invert that random sampling path. It uses observed pairs to form a likelihood:
+
+```math
+\{(x_i,y_i)\}_{i=1}^n
+\longrightarrow
+L(\theta)
+\longrightarrow
+\hat\theta
+```
+
+Probability and likelihood read the same expression in different directions. In:
+
+```math
+p(y_i\mid x_i;\theta)
+```
+
+probability fixes $`x_i`$ and $`\theta`$ and varies the possible response value. Likelihood fixes the observed pair $`(x_i,y_i)`$ and varies $`\theta`$. It is not $`P(\theta\mid\mathcal D)`$ and does not need to integrate to one over $`\theta`$.
+
+For a training set:
+
+```math
+L(\theta;\mathcal D)
+=
+\prod_{i=1}^n
+p(y_i\mid x_i;\theta)
+```
+
+and:
+
+```math
+\ell(\theta)
+=
+\sum_{i=1}^n
+\log p(y_i\mid x_i;\theta)
+```
+
+MLE chooses the best parameter inside the specified model family:
+
+```math
+\hat\theta
+=
+\underset{\theta}{\text{arg max}}
+\,
+L(\theta;\mathcal D)
+```
+
+MLE is model-relative. It does not prove the model family is true, and it may fail to exist or fail to be unique. Logistic perfect separation is the standard warning: an unregularized logistic likelihood can increase without a finite maximizer.
+
+The bridge from observations to parameters is the statistic $`T(y)`$. For one exponential-family observation:
+
+```math
+\log p(y;\eta)
+=
+\log b(y)
++
+\eta^TT(y)
+-
+a(\eta)
+```
+
+Comparing two candidate natural parameters gives:
+
+```math
+\log p(y;\eta_1)
+-
+\log p(y;\eta_2)
+=
+(\eta_1-\eta_2)^TT(y)
+-
+a(\eta_1)
++
+a(\eta_2)
+```
+
+The $`\log b(y)`$ term cancels because it does not depend on the parameter. Thus $`T(y)`$ is the parameter-relevant representation of the observation; it is not itself an estimator.
+
+Keep the observation statistic and sample statistic separate:
+
+```math
+T(Y_i)
+```
+
+is the single-observation canonical statistic before realization, while:
+
+```math
+T(y_i)
+```
+
+is its realized readout. For an iid sample:
+
+```math
+S(\mathbf Y)
+=
+\sum_{i=1}^nT(Y_i)
+```
+
+and:
+
+```math
+S(\mathbf y)
+=
+\sum_{i=1}^nT(y_i)
+```
+
+A statistic $`S`$ is sufficient for $`\theta`$ when the conditional distribution of the full sample given the statistic does not depend on $`\theta`$:
+
+```math
+p_\theta(\mathbf Y=\mathbf y\mid S(\mathbf Y)=s)
+```
+
+Fisher-Neyman factorization states the same idea operationally. If:
+
+```math
+p_\theta(\mathbf y)
+=
+h(\mathbf y)
+g_\theta^{\mathrm{fac}}(S(\mathbf y))
+```
+
+then all parameter dependence flows through $`S(\mathbf y)`$. For a discrete sample space:
+
+```math
+P_\theta(\mathbf Y=\mathbf y\mid S=s)
+=
+\frac{
+h(\mathbf y)g_\theta^{\mathrm{fac}}(s)
+}{
+\sum_{\mathbf y':S(\mathbf y')=s}
+h(\mathbf y')g_\theta^{\mathrm{fac}}(s)
+}
+```
+
+so the parameter factor cancels:
+
+```math
+P_\theta(\mathbf Y=\mathbf y\mid S=s)
+=
+\frac{
+h(\mathbf y)
+}{
+\sum_{\mathbf y':S(\mathbf y')=s}
+h(\mathbf y')
+}
+```
+
+For continuous samples, the same idea uses conditional densities rather than pretending exact full-sample events have positive probability.
+
+For Bernoulli iid data:
+
+```math
+L(p)
+=
+p^{\sum_i y_i}
+(1-p)^{n-\sum_i y_i}
+```
+
+so $`S=\sum_iY_i`$ is sufficient. Given $`S=k`$, all sequences with $`k`$ successes have conditional probability $`1/\binom{n}{k}`$, independent of $`p`$. For example, $`(1,0,1,0,1)`$ and $`(0,1,1,1,0)`$ contain the same number of successes and give the same likelihood information about $`p`$.
+
+For known-variance Gaussian data with unknown mean, the sufficient statistic is $`\sum_i y_i`$, equivalently the sample mean. Given that mean, the residual arrangement no longer adds information about $`\mu`$ in the known-variance model, though it may matter for variance or model-checking questions.
+
+If both mean and variance are unknown, the statistic must include both $`\sum_i y_i`$ and $`\sum_i y_i^2`$, because the coefficient on $`y^2`$ depends on the unknown variance. The raw second moment, central second moment, and regression residual square are related but distinct. Variance is recovered from first and second raw moments:
+
+```math
+\mathrm{Var}(Y)
+=
+\mathbb E[Y^2]
+-
+\mathbb E[Y]^2
+```
+
+For iid exponential-family data:
+
+```math
+p(y;\eta)
+=
+b(y)
+\exp\left(
+\eta^TT(y)-a(\eta)
+\right)
+```
+
+The log-likelihood is:
+
+```math
+\ell(\eta)
+=
+\eta^T\sum_iT(y_i)
+-
+na(\eta)
++
+\sum_i\log b(y_i)
+```
+
+Thus:
+
+```math
+\nabla_\eta\ell(\eta)
+=
+\sum_iT(y_i)
+-
+n\nabla a(\eta)
+```
+
+Using $`\nabla a(\eta)=\mathbb E_\eta[T(Y)]`$, an interior MLE satisfies:
+
+```math
+\frac1n\sum_iT(y_i)
+=
+\mathbb E_{\hat\eta}[T(Y)]
+```
+
+This is statistic moment matching. The left side is empirical statistic mean; the right side is model-expected statistic. It resembles method of moments, but it is specifically the exponential-family likelihood score equation, not a claim that all MLE is GMM.
+
+Keep response means and statistic means separate. The response mean is $`\mu=\mathbb E[Y]`$. The statistic expectation is $`m(\eta)=\mathbb E_\eta[T(Y)]=\nabla a(\eta)`$. Only when $`T(Y)=Y`$ do these coincide. If $`T(Y)`$ contains $`Y`$ and $`Y^2`$, then $`m(\eta)`$ contains both $`\mathbb E[Y]`$ and $`\mathbb E[Y^2]`$.
+
+In a GLM, each input has its own local natural coordinate, so the matching is feature-weighted rather than a shared label mean. For a scalar canonical GLM:
+
+```math
+\log p(y\mid x;\theta)
+=
+T(y)\theta^Tx
+-
+a(\theta^Tx)
++
+\log b(y)
+```
+
+Differentiating gives:
+
+```math
+\nabla_\theta\log p(y\mid x;\theta)
+=
+x\left(T(y)-\mathbb E[T(Y)\mid x;\theta]\right)
+```
+
+The observed statistic minus the model expectation forms a distributional residual, and the feature vector tells which coordinates of the shared parameter should move. Bernoulli gives $`x(y-p)`$, Poisson gives $`x(y-\lambda)`$, and unit-variance Gaussian regression gives $`x(y-\mu)`$.
+
+The negative log-likelihood curvature is:
+
+```math
+\nabla_\theta^2\left(-\log p(y\mid x;\theta)\right)
+=
+a''(\eta)xx^T
+```
+
+and:
+
+```math
+a''(\eta)
+=
+\mathrm{Var}(T(Y)\mid x;\theta)
+\geq
+0
+```
+
+Therefore:
+
+```math
+a''(\eta)xx^T
+\succeq
+0
+```
+
+The log-partition function connects conditional mean, conditional variance, gradient residuals, Hessian curvature, and convex-friendly optimization geometry. This is not a coincidence; it is the exponential-family structure doing the work.
+
+## D. Why Linear Natural Parameters Need Diagnostics
+
+The assumption:
+
+```math
+\eta(x)=\theta^Tx
+```
+
+contains several structural claims:
+
+* feature effects are additive on the chosen distribution scale;
+* important interactions are either included or negligible;
+* a scalar or low-dimensional coordinate is enough for predicting $`Y`$;
+* the chosen link and family approximately match the real conditional mechanism.
+
+Linearity is therefore an inductive bias, not proof about nature. It can work because effects may be nearly additive on the right scale, smooth functions are locally close to linear, linear parameterization lowers estimation variance, canonical links enforce valid output ranges, parameters have clear meanings, and canonical negative log-likelihoods often have good convexity structure.
+
+When the linear coordinate is too weak, the representation side can be expanded:
+
+```math
+\eta(x)=\theta^T\phi(x)
+```
+
+where $`\phi(x)`$ can include polynomials, interactions, splines, exposure terms, or domain features. More generally:
+
+```math
+\eta(x)=f_\theta(x)
+```
+
+where $`f_\theta`$ could be a generalized additive model, kernel model, tree ensemble, neural network, or spatial-temporal model. The observation model can still be exponential-family:
+
+```math
+p(Y\mid x)
+=
+b(y)
+\exp\left(
+\eta(x)^TT(y)-a(\eta(x))
+\right)
+```
+
+The useful split is:
+
+```text
+representation model: x -> eta(x)
+observation model: eta(x) -> p(Y | x)
+```
+
+The representation model can fail because features, interactions, nonlinearity, or shift are wrong. The observation model can fail because support, variance, tails, dependence, link, or calibration are wrong. Reliable modeling checks both modules.
+
+Residuals also belong to diagnostics, not to an unconditional additive-noise slogan. The general conditional-mean decomposition is:
+
+```math
+\mu(X)=\mathbb E[Y\mid X]
+```
+
+```math
+\epsilon=Y-\mu(X)
+```
+
+so:
+
+```math
+Y=\mu(X)+\epsilon
+```
+
+and:
+
+```math
+\mathbb E[\epsilon\mid X]=0
+```
+
+This does not imply Gaussian noise, independence from $`X`$, constant variance, or conditional independence across samples. Only Gaussian identity-link regression gives the simple form $`Y=\theta^TX+\epsilon`$ with conditional Gaussian residuals. Bernoulli and Poisson residuals are centered on $`\mu(X)`$ but have distribution-specific support and variance.
+
+## E. Final GLM Mental Model
+
+A GLM is not:
+
+```text
+X beta approximately equals Y
+```
+
+A better mental model is:
+
+```text
+X
+-> s_theta(X)
+-> eta(X) or another linked distribution coordinate
+-> exponential-family conditional distribution
+-> p(Y | X; theta)
+```
+
+Training reads the fixed dataset through likelihood:
+
+```text
+(X, Y)
+-> likelihood
+-> theta_hat
+```
+
+Prediction uses the fitted parameter to build a new conditional distribution:
+
+```text
+x_new
+-> theta_hat
+-> eta(x_new)
+-> E[T(Y) | x_new; theta_hat]
+-> conditional prediction and uncertainty
+```
+
+Choosing the family decides which outputs are legal, how probability mass is allocated, how mean and variance are coupled, and which loss naturally appears. Choosing $`\eta(x)=\theta^Tx`$ decides how inputs move the conditional distribution and what inductive bias the model has. Data select $`\theta`$ only inside those structural assumptions. Diagnostics decide whether those assumptions are still worth trusting.
+
+---
+
+Return to main Lecture 4 flow: GLM Workflow.
 ## 9. The Complete GLM Modeling Workflow
 
 A GLM should be read in three directions: the forward probability model, the inverse learning problem, and the post-training prediction problem. Keeping those directions separate prevents $`\theta`$, $`\eta_i`$, $`\psi_i`$, $`Y_i`$, and $`y_i`$ from collapsing into one vague object.
@@ -3042,8 +2933,11 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can distinguish $`Y_i`$ as a random variable from $`y_i`$ as the observed realization.
 - [ ] I can explain why likelihood fixes observed data and varies $`\theta`$.
 - [ ] I can explain why MLE is not $`P(\theta\mid\mathcal D)`$.
+- [ ] I can distinguish a conditional assumption $`Y\mid X=x`$ from a marginal assumption on $`Y`$.
 - [ ] I can distinguish a generative model of $`p(x,y)`$ from a discriminative model of $`p(y\mid x;\theta)`$.
 - [ ] I can explain why a GLM can sample $`Y\mid x`$ without modeling complete $`(X,Y)`$ pairs.
+- [ ] I can explain why $`\eta(x)=\theta^Tx`$ is a single-index conditional-distribution coordinate, not a universal representation.
+- [ ] I can separate the representation model $`x\mapsto\eta(x)`$ from the observation model $`\eta(x)\mapsto p(Y\mid x)`$.
 - [ ] I can derive iid exponential-family moment matching from the score equation.
 - [ ] I can distinguish $`T(Y_i)`$, $`T(y_i)`$, $`S(\mathbf Y)`$, and $`S(\mathbf y)`$.
 - [ ] I can explain why Gaussian unknown variance needs second-order information.
