@@ -16,7 +16,7 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | [Conceptual Interlude B](#conceptual-interlude-b-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
 | [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
 | [Mathematical Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
-| [Conceptual Interlude C](#conceptual-interlude-c-from-random-samples-to-statistical-inference) | From random samples to statistical inference, sufficiency, GLM parameters, and residuals |
+| [Conceptual Interlude C](#conceptual-interlude-c-from-random-samples-to-statistical-inference) | GLM-side statistical inference: sampling, sufficiency, parameters, and residuals |
 | [8. GLM Components](#8-glm-components) | Random component, parameter scales, systematic component, link, response |
 | [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
 | [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
@@ -36,25 +36,25 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 
 Lecture 4 的核心问题不是“再学几个模型”，而是：给定一个 supervised learning 任务，怎样从输出变量的语义出发，构造一个合法、可解释、可优化、可诊断的 conditional model？
 
-完整 pipeline 是：
+课程展开的主线是：
 
 ```text
-real stochastic mechanism
--> conditional distribution
--> random sampling and observed y_i
--> likelihood
--> maximum likelihood estimation
--> sufficient statistic
--> empirical moment matching
--> natural parameter
--> global parameter theta
--> systematic component xi_i = x_i^T theta
+Perceptron
+-> why deterministic linear classification is limited
+-> response semantics
+-> conditional distribution family
+-> exponential-family form
+-> sufficient statistic and natural parameter
+-> log-partition function
+-> GLM components
 -> link / inverse link
--> conditional prediction
--> residuals, uncertainty, and model diagnostics
+-> Bernoulli, Poisson, Gaussian, and softmax models
+-> likelihood, prediction, and diagnostics
 ```
 
-也就是说，先问 $`y`$ 是什么：real-valued measurement、binary event、multiclass label、count、positive duration、probability，还是 probability vector。然后选择一个支持集、mean-variance behavior、tail behavior 和数据生成机制都合理的 conditional distribution。若这个分布属于 exponential family，就可以通过 natural parameter $`\eta`$ 和 log-partition function $`a(\eta)`$ 得到统一的 response function 和 likelihood geometry。
+也就是说，Lecture 4 先从 Perceptron 说明 deterministic linear classifier 的局限，再转向 probabilistic conditional modeling。进入 GLM 后，才把随机机制、conditional distribution、sampling、likelihood、MLE、sufficient statistic、moment matching、global parameter、residual 和 uncertainty 串成一条统计推断证据链，用来解释 GLM 为什么这样建模、训练和诊断。
+
+建模时仍然要先问 $`y`$ 是什么：real-valued measurement、binary event、multiclass label、count、positive duration、probability，还是 probability vector。然后选择一个支持集、mean-variance behavior、tail behavior 和数据生成机制都合理的 conditional distribution。若这个分布属于 exponential family，就可以通过 natural parameter $`\eta`$ 和 log-partition function $`a(\eta)`$ 得到统一的 response function 和 likelihood geometry。
 
 两个容易混淆的点必须先分清：
 
@@ -1272,7 +1272,7 @@ Next: Conceptual Interlude C connects random sampling, likelihood, sufficiency, 
 
 # Conceptual Interlude C: From Random Samples to Statistical Inference
 
-> This interlude builds the inference chain from random mechanism to conditional prediction: real stochastic mechanism, conditional distribution, sampling, likelihood, MLE, sufficient statistics, moment matching, parameter hierarchy, GLM systematic components, discriminative modeling, residuals, uncertainty, and model misspecification.
+> This interlude is the GLM-side statistical-inference explanation. It does not replace the course sequence; it explains how random mechanisms, conditional distributions, sampling, likelihood, MLE, sufficient statistics, moment matching, parameter hierarchy, GLM systematic components, discriminative modeling, residuals, uncertainty, and model misspecification fit together once the lecture has moved from exponential families into GLMs.
 
 ---
 
@@ -3062,6 +3062,20 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can list conditional mean, variance/noise, and full conditional distribution misspecification as separate reliability risks.
 
 ## Concept Map Summary
+
+Course development map:
+
+```text
+Perceptron
+-> exponential family
+-> log-partition function
+-> GLM construction
+-> Bernoulli / Poisson / Gaussian GLMs
+-> softmax regression
+-> reliability checks
+```
+
+GLM statistical-inference explanation:
 
 ```text
 real stochastic mechanism
