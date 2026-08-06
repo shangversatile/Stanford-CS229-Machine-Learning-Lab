@@ -1,6 +1,6 @@
 # Sufficient Statistics, Likelihood, and Moments
 
-Cross-link: see [Lecture 4 Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [Exponential Family Anatomy](exponential-family-anatomy.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), and [GLM Construction Recipe](glm-construction-recipe.md).
+Cross-link: see [Lecture 4 Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Lecture 4 Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-why-glm-components-form-a-statistical-model), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [Exponential Family Anatomy](exponential-family-anatomy.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), and [GLM Construction Recipe](glm-construction-recipe.md).
 
 ## 1. The Inference Problem
 

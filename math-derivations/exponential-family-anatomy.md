@@ -1,6 +1,6 @@
 # Exponential Family Anatomy
 
-Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-why-exponential-family-and-glm-exist), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Lecture 4 Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), [GLM Construction Recipe](glm-construction-recipe.md), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Canonical form
 
@@ -10,33 +10,93 @@ The canonical exponential-family form is:
 p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 ```
 
-It separates four jobs: what statistic is read from the observation, which coordinate controls the chosen family member, how normalization happens, and what baseline measure remains.
+It separates four jobs: what is read from the observation, which parameter coordinate controls the family member, how normalization happens, and what baseline measure remains.
 
 | Component | Role | Meaning |
 | --------- | ---- | ------- |
 | $`Y`$ | random response | outcome before observation |
-| $`y`$ | realized value | observed value or candidate value being evaluated |
-| $`T(y)`$ | per-observation statistic | readout from one realized response |
-| $`\eta`$ | natural parameter | canonical coordinate inside the chosen family |
-| $`\eta^TT(y)`$ | coupling | compatibility between parameter coordinate and statistic |
-| $`a(\eta)`$ | log-partition | normalizer and moment engine |
+| $`y`$ | possible or realized value | fixed value evaluated by mass or density |
+| $`T(y)`$ | one-observation canonical statistic | observation-side coordinate readout |
+| $`\eta`$ | natural parameter | parameter-side coordinate inside the family |
+| $`\eta^TT(y)`$ | coupling | score matching parameter weights with observation coordinates |
+| $`a(\eta)`$ | log-partition | normalizer, moment generator, and curvature engine |
 | $`b(y)`$ | base measure | parameter-independent support and baseline weighting |
 
-Before normalization, the unnormalized log-score is:
+Do not treat $`T(y)`$ as a statistic inserted by an estimator. It is part of the probability model's representation before estimation begins.
+
+## 2. Why a function of $`y`$ appears
+
+Start from a distribution written in ordinary parameters:
 
 ```math
-s_\eta(y)=\eta^TT(y)+\log b(y)
+p_\psi(y)
 ```
 
-After normalization:
+When this family can be expressed in canonical exponential-family form, the parameter-dependent outcome terms are reorganized into:
 
 ```math
-\log p(y;\eta)=s_\eta(y)-a(\eta)
+\log p_\eta(y)
+=
+\log b(y)+\eta^TT(y)-a(\eta)
 ```
 
-The key mental model is: $`T(y)`$ decides what the model reads from $`y`$; $`\eta`$ decides how the distribution values those readings.
+Thus $`T(y)`$ is found by algebraically identifying which functions of $`y`$ are coupled to unknown parameters. It is not an extra feature added after the density is known.
 
-The deeper reason $`T(y)`$ exists is parameter comparison. The data are observed; the parameter is unknown. To decide which candidate parameter is more plausible, the likelihood needs only the parts of $`y`$ that change the comparison.
+Example: Bernoulli.
+
+```math
+p(y;p)=p^y(1-p)^{1-y}
+```
+
+```math
+\log p(y;p)
+=
+y\log\frac{p}{1-p}+\log(1-p)
+```
+
+The parameter-dependent outcome term is $`y`$, so the natural canonical statistic is $`T(y)=y`$ and the natural parameter is:
+
+```math
+\eta=\log\frac{p}{1-p}
+```
+
+Example: Gaussian with unknown mean and variance.
+
+```math
+\log p(y;\mu,\sigma^2)
+=
+-\frac{y^2}{2\sigma^2}
++
+\frac{\mu}{\sigma^2}y
+-
+\frac{\mu^2}{2\sigma^2}
+-
+\log(\sqrt{2\pi}\sigma)
+```
+
+The parameter-dependent outcome functions are $`y`$ and $`y^2`$, so a natural statistic is:
+
+```math
+T(y)=
+\begin{bmatrix}
+y\\
+y^2
+\end{bmatrix}
+```
+
+## 3. Coupling as statistical coordinates
+
+The term:
+
+```math
+\eta^TT(y)
+=
+\sum_j\eta_jT_j(y)
+```
+
+is a bilinear coupling between parameter-side and observation-side coordinates. If $`T_j(y)`$ is large for an outcome and $`\eta_j`$ increases, that outcome receives a larger unnormalized log-score in that direction.
+
+For two candidate natural parameters:
 
 ```math
 \log p(y;\eta_1)
@@ -50,174 +110,70 @@ a(\eta_1)
 a(\eta_2)
 ```
 
-The base term $`\log b(y)`$ cancels because it is parameter-independent. Thus $`T(y)`$ is the evidence interface from the sample to the unknown parameter. The natural parameter $`\eta`$ is the parameter-side weight on those evidence directions, and $`\eta^TT(y)`$ is the compatibility score between parameter preference and observed statistic. This is a dual pairing: data contribute the statistic, parameters weight the statistic.
+The base term cancels because it is parameter-independent. This is why $`T(y)`$ is the parameter-relevant readout from one observation.
 
-Do not read $`T(y)`$ as an estimator. It is the parameter-relevant representation used by estimators such as MLE.
+## 4. Random variable, realization, and sample statistic
 
-## 2. Probability model and likelihood
-
-A probability model assigns mass or density over possible values of $`Y`$ before observation. It does not modify the realized value $`y`$.
-
-For a Gaussian model:
-
-```math
-Y\sim\mathcal N(\mu,\sigma^2)
-```
-
-```math
-p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
-```
-
-For continuous $`Y`$, this is a density. Probabilities come from integrating over intervals:
-
-```math
-P(a\leq Y\leq b)=\int_a^b p(y;\mu,\sigma^2)dy
-```
-
-After observing data, the same density becomes a likelihood as a function of unknown parameters. The data are fixed; candidate parameters vary.
-
-```math
-L(\eta)=\prod_{i=1}^n p(y_i;\eta)
-```
-
-This is inverse reasoning relative to a chosen family, not a posterior probability for $`\eta`$.
-
-## 3. Per-observation statistic and sample sufficient statistic
-
-There are four distinct objects:
+For one observation:
 
 ```math
 T(Y_i)
 ```
 
-This is the canonical statistic for one random observation.
+is random before sample $`i`$ is observed, while:
 
 ```math
 T(y_i)
 ```
 
-This is the statistic evaluated on one observed realization.
+is fixed after observation. The sample-level statistic is separate. In the iid exponential-family case:
 
 ```math
 S(\mathbf Y)=\sum_{i=1}^nT(Y_i)
 ```
 
-This is the iid sample-level statistic before observation.
+and:
 
 ```math
 S(\mathbf y)=\sum_{i=1}^nT(y_i)
 ```
 
-This is the observed aggregate statistic that enters the likelihood.
+Sufficiency is a statement about the sample statistic $`S(\mathbf Y)`$, not about an isolated $`T(Y_i)`$ unless the sample has only one observation.
 
-For iid samples:
+## 5. Why the iid sum appears
+
+For iid data:
 
 ```math
-p(y_1,\dots,y_n;\eta)
+p(y_1,\ldots,y_n;\eta)
+=
+\prod_{i=1}^n b(y_i)\exp\left(\eta^TT(y_i)-a(\eta)\right)
+```
+
+Collect terms:
+
+```math
+p(y_1,\ldots,y_n;\eta)
 =
 \left(\prod_{i=1}^n b(y_i)\right)
-\exp\left(\eta^T\sum_{i=1}^nT(y_i)-na(\eta)\right)
-```
-
-All dependence on $`\eta`$ flows through:
-
-```math
-S(\mathbf y)=\sum_{i=1}^nT(y_i)
-```
-
-By Fisher-Neyman factorization, $`S(\mathbf Y)`$ is sufficient for $`\eta`$ in this iid model. Sufficient does not mean the statistic preserves every fact about the raw sample. It means it preserves all likelihood information about the current unknown parameter under the current family. If the family or unknown parameter set changes, sufficiency can change.
-
-| Model | Per-observation statistic | Sample sufficient statistic | Parameter information |
-| ----- | ------------------------- | --------------------------- | --------------------- |
-| Bernoulli | $`T(y)=y`$ | $`\sum_i y_i`$ | success probability |
-| Poisson | $`T(y)=y`$ | $`\sum_i y_i`$ | rate |
-| Gaussian, known variance | $`T(y)=y`$ | $`\sum_i y_i`$ | common mean |
-| Gaussian, unknown mean and variance | $`T(y)=(y,y^2)`$ | $`(\sum_i y_i,\sum_i y_i^2)`$ | location and spread |
-| Categorical | one-hot statistic | class-count vector | class probabilities |
-
-## 4. Unknown-parameter dependence
-
-A statistic is sufficient relative to the parameter being estimated. The same raw Gaussian sample has different sufficient summaries depending on which parameter is unknown.
-
-Known variance, unknown mean:
-
-```math
-\ell(\mu)
-=
--\frac{1}{2\sigma^2}\sum_{i=1}^n(y_i-\mu)^2+C
-```
-
-Expanding:
-
-```math
-\ell(\mu)
-=
-\frac{\mu}{\sigma^2}\sum_{i=1}^ny_i
--
-\frac{n\mu^2}{2\sigma^2}
-+
-C'
-```
-
-The likelihood depends on $`\mu`$ through $`\sum_i y_i`$ or equivalently $`\bar y`$.
-
-Known mean, unknown variance:
-
-```math
-\ell(\sigma^2)
-=
--\frac n2\log\sigma^2
--
-\frac{1}{2\sigma^2}\sum_{i=1}^n(y_i-\mu)^2
-+
-C
-```
-
-The parameter-dependent statistic is:
-
-```math
-\sum_{i=1}^n(y_i-\mu)^2
-```
-
-Unknown mean and variance:
-
-```math
-\ell(\mu,\sigma^2)
-=
--\frac n2\log\sigma^2
--
-\frac{1}{2\sigma^2}
-\left(
-\sum_{i=1}^ny_i^2
--
-2\mu\sum_{i=1}^ny_i
-+
-n\mu^2
-\right)
-+
-C
-```
-
-The sufficient statistic is:
-
-```math
-\left(
-\sum_{i=1}^ny_i,
-\sum_{i=1}^ny_i^2
+\exp\left(
+\eta^T\sum_{i=1}^nT(y_i)-na(\eta)
 \right)
 ```
 
-The $`y`$ term carries first-order location information. The $`y^2`$ term carries second-order magnitude information. Signed deviations can cancel, so spread cannot be recovered by summing raw deviations. The identity:
+The same $`\eta`$ multiplies every observation, so the one-observation readouts add. This is why:
 
 ```math
-\mathrm{Var}(Y)=\mathbb E[Y^2]-\mathbb E[Y]^2
+\sum_{i=1}^nT(Y_i)
 ```
 
-explains why second moments matter. The reason $`y^2`$ must appear in the sufficient statistic is that its coefficient depends on the unknown $`\sigma^2`$.
+appears naturally as the iid sample statistic.
 
-## 5. Ordinary parameter versus natural parameter
+By Fisher-Neyman factorization, this statistic is sufficient for $`\eta`$ in the regular iid model. For minimality, one must additionally check likelihood-ratio equivalence and redundancy.
 
-Ordinary parameters are familiar coordinates used to describe a distribution. Natural parameters are canonical exponential-family coordinates. They are connected by reparameterization within the same local distribution:
+## 6. Ordinary parameter versus natural parameter
+
+Ordinary parameters are familiar coordinates for naming a distribution member. Natural parameters are canonical exponential-family coordinates. They are related by reparameterization within the same family:
 
 ```math
 \eta=q(\psi)
@@ -227,92 +183,104 @@ Ordinary parameters are familiar coordinates used to describe a distribution. Na
 \psi=q^{-1}(\eta)
 ```
 
-Bernoulli ordinary parameter:
+Examples:
+
+| Family | Ordinary parameter | Natural parameter |
+| ------ | ------------------ | ----------------- |
+| Bernoulli | $`p`$ | $`\log(p/(1-p))`$ |
+| Poisson | $`\lambda`$ | $`\log\lambda`$ |
+| Gaussian, CS229 variance one | $`\mu`$ | $`\mu`$ |
+| Gaussian, unknown mean and variance | $`(\mu,\sigma^2)`$ | $`(\mu/\sigma^2,-1/(2\sigma^2))`$ |
+| Categorical, reference class | $`\phi_1,\ldots,\phi_K`$ | $`\log(\phi_k/\phi_K)`$ for $`k<K`$ |
+
+Do not treat the CS229 variance-one Gaussian simplification as the whole Gaussian parameterization.
+
+## 7. Non-uniqueness and redundancy
+
+The canonical statistic is not unique as a literal expression. What is determined by the family, after separating parameter-independent terms, is the parameter-relevant function space on the outcome domain and the dimension needed for an identifiable nonredundant representation.
+
+For Bernoulli, the nonconstant parameter-relevant space is one-dimensional. The usual basis is:
 
 ```math
-\psi=p
+T(Y)=Y
 ```
 
-Bernoulli natural parameter:
+but $`1-Y`$ or $`2Y+5`$ preserve the same distinction between outcomes $`0`$ and $`1`$.
+
+For Gaussian with unknown mean and variance, the relevant space is spanned by:
 
 ```math
-\eta=\log\frac{p}{1-p}
+Y
+\quad\text{and}\quad
+Y^2
 ```
 
-Poisson ordinary parameter:
+Any invertible basis transformation gives an equivalent representation. A redundant statistic may still represent the same family but can make the natural parameter non-identifiable. Minimal sufficient statistics are unique only up to one-to-one transformations and are best understood through likelihood-equivalence classes.
+
+## 8. Canonical statistic is not always a polynomial basis
+
+The vector:
 
 ```math
-\psi=\lambda
+T(Y)=
+\begin{bmatrix}
+T_1(Y)\\
+\vdots\\
+T_m(Y)
+\end{bmatrix}
 ```
 
-Poisson natural parameter:
+lists statistical coordinates. These coordinates need not be powers of $`Y`$. They can be indicators, squared values, absolute values, or other functions determined by the family and target parameter.
+
+| Family | Why the statistic has this form |
+| ------ | ------------------------------- |
+| Bernoulli | two outcomes differ by event occurrence, so $`Y`$ records success |
+| Gaussian, known variance | only the mean is unknown, so $`Y`$ carries location information |
+| Gaussian, unknown mean and variance | $`Y`$ carries location and $`Y^2`$ carries raw second-moment information |
+| Categorical | labels are nominal, so indicator functions record class identity |
+
+## 9. Sufficient, minimal sufficient, and parameter-relevant
+
+Parameter-relevant does not imply sufficient:
 
 ```math
-\eta=\log\lambda
+\text{parameter-relevant}
+\;\nRightarrow\;
+\text{sufficient}
 ```
 
-Gaussian under the CS229 variance-one simplification:
+A statistic can affect one parameter coordinate while omitting another. For Gaussian data with both mean and variance unknown, $`\sum_iY_i`$ is relevant but not sufficient because the likelihood also needs $`\sum_iY_i^2`$.
+
+Minimal sufficiency is stricter. Under dominated-family and regularity conditions, $`S`$ is minimal sufficient when:
 
 ```math
-\psi=\mu,
-\qquad
-\eta=\mu
+\frac{p_\theta(\mathbf y)}
+{p_\theta(\mathbf y')}
 ```
 
-For a Gaussian with fixed non-unit variance written in ordinary density form, the mean coordinate can be scaled by the variance. If mean and variance are both unknown, the natural parameter is vector-valued and the statistic includes $`y^2`$. Do not treat the CS229 simplification as the whole Gaussian parameterization.
-
-The natural parameter does not necessarily control dispersion, tail behavior, truncation, mixtures, dependence, or censoring. Those can require additional parameters or a different model family.
-
-## 6. Natural parameter as exponential-tilt coordinate
-
-The natural parameter appears linearly against the statistic:
+is independent of $`\theta`$ if and only if:
 
 ```math
-\log p(y;\eta)=\eta^TT(y)-a(\eta)+\log b(y)
+S(\mathbf y)=S(\mathbf y')
 ```
 
-Relative probabilities under the same family member show the coordinate meaning:
+This criterion checks whether the level sets of $`S`$ are exactly the likelihood-equivalence classes.
 
-```math
-\log
-\frac{p_\eta(y_1)}
-{p_\eta(y_2)}
-=
-\eta^T\left(T(y_1)-T(y_2)\right)
-+
-\log\frac{b(y_1)}{b(y_2)}
-```
+## 10. Log-partition as moment engine
 
-The log-partition term cancels because both outcomes are normalized under the same $`\eta`$. Changing $`\eta`$ changes the relative mass assigned to outcomes according to their sufficient-statistic coordinates.
-
-A small change $`\Delta\eta`$ gives the local approximation:
-
-```math
-\Delta\log p(y;\eta)
-\approx
-\Delta\eta^T
-\left(
-T(y)-\mathbb E_\eta[T(Y)]
-\right)
-```
-
-If an observed statistic is above its current model expectation, increasing the corresponding natural coordinate raises the log probability of that outcome relative to normalization.
-
-## 7. Log-partition as moment engine
-
-The log-partition function normalizes the model:
+The log-partition function is:
 
 ```math
 a(\eta)=\log\int b(y)\exp\left(\eta^TT(y)\right)dy
 ```
 
-Its first derivative gives the mean statistic:
+Under standard differentiability conditions:
 
 ```math
 \nabla a(\eta)=\mathbb E_\eta[T(Y)]
 ```
 
-Its second derivative gives covariance:
+and:
 
 ```math
 \nabla^2a(\eta)=\mathrm{Cov}_\eta(T(Y))
@@ -324,9 +292,9 @@ In the scalar case:
 a''(\eta)=\mathrm{Var}_\eta(T(Y))
 ```
 
-Because covariance matrices are positive semidefinite, $`a(\eta)`$ is convex. This is the source of the favorable natural-parameter likelihood geometry.
+The first derivative gives the expected canonical statistic, not necessarily the scalar response mean. They coincide only when $`T(Y)=Y`$.
 
-## 8. MLE as moment matching
+## 11. MLE as moment matching, not structure creation
 
 For iid data, the log-likelihood is:
 
@@ -350,7 +318,7 @@ The score is:
 n\nabla a(\eta)
 ```
 
-Using $`\nabla a(\eta)=\mathbb E_\eta[T(Y)]`$, any finite interior MLE satisfies:
+A finite interior MLE satisfies:
 
 ```math
 \frac1n\sum_{i=1}^nT(y_i)
@@ -358,22 +326,14 @@ Using $`\nabla a(\eta)=\mathbb E_\eta[T(Y)]`$, any finite interior MLE satisfies
 \mathbb E_{\hat\eta}[T(Y)]
 ```
 
-The left side is empirical sufficient-statistic average. The right side is model-expected statistic under the fitted natural parameter. This is the precise exponential-family version of learning distribution parameters from samples.
+The left side is the empirical canonical-statistic average. The right side is the model-expected canonical statistic. MLE uses the exponential-family coupling and sample compression, but it does not define $`T`$ or create the term $`\eta^TT(y)`$.
 
-## 9. From natural parameter to GLM
+## 12. From natural parameter to GLM
 
-In an unconditional exponential-family model, $`\eta`$ is fixed. A GLM makes the local natural coordinate depend on features through a global trainable parameter.
-
-Define the systematic component:
+In an unconditional exponential-family model, $`\eta`$ is fixed. A canonical GLM makes the local natural coordinate depend on features:
 
 ```math
-\xi_i=s_\theta(x_i)=x_i^T\theta
-```
-
-For the scalar canonical link:
-
-```math
-\eta_i=\xi_i=x_i^T\theta
+\eta_i=x_i^T\theta
 ```
 
 The conditional distribution is:
@@ -381,21 +341,24 @@ The conditional distribution is:
 ```math
 p(y_i\mid x_i;\theta)
 =
-b(y_i)\exp\left(\eta_iT(y_i)-a(\eta_i)\right)
+b(y_i)\exp\left(\eta_i^TT(y_i)-a(\eta_i)\right)
 ```
 
-The prediction is the conditional mean statistic:
+The prediction on the statistic scale is:
 
 ```math
-h_\theta(x_i)
-=
 \mathbb E[T(Y_i)\mid x_i;\theta]
 =
 \nabla a(\eta_i)
 ```
 
-This is the bridge from probability to machine learning. The feature vector does not directly force $`Y_i=x_i^T\theta`$; it chooses a coordinate of the conditional distribution from which $`Y_i`$ is randomly realized.
+The feature vector does not directly force $`Y_i=x_i^T\theta`$. It selects a coordinate of the conditional distribution from which $`Y_i`$ is randomly realized.
 
-## 10. Modeling lesson
+## 13. Caveats
 
-Exponential family is not the set of all distributions. It is a structured family where sufficient statistics enter linearly, the log-partition function normalizes the model and generates moments, and likelihood estimation compares observed statistics with model expectations. GLMs use that structure to connect response semantics, conditional probability models, global parameter learning, and prediction.
+* A sufficient statistic is always relative to the model family and target parameter.
+* A canonical statistic is not automatically minimal.
+* Parameter-dependent support can break simple factorization intuition.
+* Full exponential families, minimal exponential families, and curved exponential families should not be conflated.
+* One-to-one transformations preserve information; redundant coordinates can damage identifiability.
+* Moment matching is an MLE first-order condition in regular exponential families, not the origin of the exponential-family representation.

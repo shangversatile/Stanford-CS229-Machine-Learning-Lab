@@ -1,6 +1,6 @@
 # Log-Partition Mean, Variance, and Convexity
 
-Cross-link: see [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
+Cross-link: see [Lecture 4 Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-why-glm-components-form-a-statistical-model), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), and [GLM Construction Recipe](glm-construction-recipe.md).
 
 ## 1. Setup
 
@@ -113,7 +113,7 @@ m(\eta)
 \nabla a(\eta)
 ```
 
-for the statistic expectation parameter, and reserve:
+for the expectation parameter on the statistic scale, and reserve:
 
 ```math
 \mu
@@ -121,7 +121,7 @@ for the statistic expectation parameter, and reserve:
 \mathbb E[Y]
 ```
 
-for the response mean. If $`T(Y)=Y`$, then $`m(\eta)=\mu`$. If $`T(Y)=(Y,Y^2)`$, then $`m(\eta)`$ contains both $`\mathbb E[Y]`$ and $`\mathbb E[Y^2]`$.
+for the response mean. If $`T(Y)=Y`$, then $`m(\eta)=\mu`$. If $`T(Y)=(Y,Y^2)`$, then $`m(\eta)`$ contains both $`\mathbb E[Y]`$ and $`\mathbb E[Y^2]`$. For categorical data, $`m(\eta)`$ is a vector of class probabilities because $`T(Y)`$ is one-hot. Thus the log-partition derivative returns the model-expected canonical statistic, and only special cases make that identical to a scalar response mean.
 
 ## 4. Covariance identity
 
@@ -287,7 +287,9 @@ we get:
 \mathbb E_{\hat\eta}[T(Y)]
 ```
 
-The left side is the empirical sufficient-statistic mean. The right side is the model-expected sufficient statistic. This is the statistic-matching interpretation of exponential-family MLE: the parameter is adjusted until the model reproduces the sample statistics that are relevant to likelihood comparison. The result resembles method of moments, but it is specifically the exponential-family score equation and should not be confused with every possible MLE or with general GMM.
+The left side is the empirical canonical-statistic mean. The right side is the model-expected canonical statistic. This is the statistic-matching interpretation of exponential-family MLE: the parameter is adjusted until the model reproduces the sample statistics that are relevant to likelihood comparison. The result resembles method of moments, but it is specifically the exponential-family score equation and should not be confused with every possible MLE or with general GMM.
+
+Moment matching is different from minimal sufficiency. Minimal sufficiency is a data-compression property defined by factorization or likelihood-ratio equivalence. Moment matching is an optimization first-order condition that appears after a regular finite interior MLE is assumed to exist. The statistic comes from the model representation; MLE uses it.
 
 ## 8. Convexity of NLL
 

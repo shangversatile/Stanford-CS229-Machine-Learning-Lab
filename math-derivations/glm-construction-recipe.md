@@ -1,6 +1,6 @@
 # GLM Construction Recipe
 
-Cross-link: see the main Lecture 4 note sections [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For related reference maps, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Response and Distribution Map](glm-response-distribution-map.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
+Cross-link: see the main Lecture 4 note sections [Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-why-glm-components-form-a-statistical-model), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For related reference maps, see [Exponential Family Anatomy](exponential-family-anatomy.md), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [GLM Response and Distribution Map](glm-response-distribution-map.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
 
 ```text
 random sampling
@@ -8,7 +8,7 @@ random sampling
 -> probability model
 -> likelihood
 -> maximum likelihood estimation
--> sufficient statistics
+-> canonical statistics and sample sufficient statistics
 -> ordinary distribution parameters
 -> natural parameters
 -> global trainable parameters
@@ -148,7 +148,7 @@ Y_i\mid x_i;\theta
 \text{an exponential-family conditional distribution}
 ```
 
-This defines the legal response support, probability or density shape, and variance behavior. It also defines the statistic $`T(Y_i)`$ whose mean is the GLM prediction.
+This defines the legal response support, probability or density shape, and variance behavior. It also defines the one-observation canonical statistic $`T(Y_i)`$ whose expectation is the GLM prediction on the statistic scale.
 
 In canonical form:
 

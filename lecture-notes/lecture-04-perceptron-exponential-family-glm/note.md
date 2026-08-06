@@ -12,12 +12,13 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | [4. Newton Bridge](#4-newton-method-as-an-optimization-bridge) | Why nonlinear likelihood models need iterative optimization |
 | [5. Exponential Family Motivation](#5-why-exponential-family-is-introduced) | Why this family is introduced |
 | [6. Exponential Family Anatomy](#6-anatomy-of-the-exponential-family) | What $`\eta`$, $`T(y)`$, $`a(\eta)`$, and $`b(y)`$ mean |
-| [Conceptual Interlude A](#conceptual-interlude-a-from-response-space-to-probability-distribution) | How output space guides distribution choice |
-| [Conceptual Interlude B](#conceptual-interlude-b-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
+| [Conceptual Interlude A](#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data) | Notation, canonical statistics, sufficiency, and likelihood equivalence |
+| [Conceptual Interlude B](#conceptual-interlude-b-from-response-space-to-probability-distribution) | How output space guides distribution choice |
+| [Conceptual Interlude C](#conceptual-interlude-c-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
 | [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
 | [Mathematical Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
 | [8. GLM Components](#8-glm-components) | Random component, parameter scales, systematic component, link, response |
-| [Conceptual Interlude C](#conceptual-interlude-c-why-glm-components-form-a-statistical-model) | Why the GLM components define a conditional statistical model |
+| [Conceptual Interlude D](#conceptual-interlude-d-why-glm-components-form-a-statistical-model) | Why the GLM components define a conditional statistical model |
 | [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
 | [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
 | [11. Gaussian GLM](#11-gaussian-glm) | Real-valued regression |
@@ -242,7 +243,7 @@ p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 它不是单纯为了“形式漂亮”，而是同时统一了五件事：
 
 * probability representation：Gaussian、Bernoulli、Poisson、multinomial 等可以用同一种代数结构表示；
-* sufficient statistics：数据通过 $`T(y)`$ 进入 likelihood；
+* canonical and sufficient statistics: one observation is read through $`T(y)`$, and iid samples enter likelihood through $`\sum_iT(y_i)`$;
 * moment identities：$`a(\eta)`$ 的导数直接给出 mean 和 covariance；
 * convex likelihood geometry：log-likelihood 对 natural parameter 通常是 concave；
 * GLM construction：把 $`\eta`$ 设成 linear predictor，就得到 distribution-derived response function。
@@ -262,7 +263,7 @@ p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 | Component | Formal role | Intuitive role | What happens if it changes |
 | --------- | ----------- | -------------- | -------------------------- |
 | $`y`$ | observed response value | the outcome being explained | different outcomes receive different probability |
-| $`T(y)`$ | sufficient statistic | the information readout extracted from $`y`$ | changes what the model can "see" in $`y`$ |
+| $`T(y)`$ | canonical statistic / observation readout | coordinates extracted from one possible outcome | changes what the model can "see" in $`y`$ |
 | $`\eta`$ | natural parameter | coordinate / control knob for the distribution | changes which readout patterns are rewarded |
 | $`\eta^TT(y)`$ | linear coupling | compatibility score between parameter and observation | higher score means higher unnormalized probability |
 | $`b(y)`$ | base measure | background geometry or counting/volume rule of outcome space | changes baseline preference over $`y`$ |
@@ -284,193 +285,42 @@ $`T(y)`$ 把 raw outcome $`y`$ 映射到模型关心的坐标；$`\eta`$ 给这�
 
 关键句是：$`T(y)`$ decides what the model reads from $`y`$; $`\eta`$ decides how the distribution values those readings.
 
-### 6.2 What does "sufficient statistic" mean here?
+### 6.2 Canonical statistic versus sample statistic
 
-#### A. Single-observation level
-
-在 single-observation level，$`T(y)`$ 是 $`y`$ 进入 log probability 之前的 transformed representation。它回答的问题是：这个分布族需要从一个 observation 里读出什么信息，才能判断这个 observation 在当前参数下有多合理？
-
-Bernoulli distribution:
+At this point, keep two levels separate.
 
 ```math
-T(y)=y
+T(Y_i)
 ```
 
-模型只需要知道 event 是否发生；$`y=1`$ 和 $`y=0`$ 已经包含了单次 Bernoulli observation 对 success probability 的全部信息。
-
-Multiclass categorical distribution:
+is the single-observation canonical statistic before sample $`i`$ is observed, and:
 
 ```math
-T(y)=\begin{bmatrix}\mathbf1\{y=1\}\\ \cdots\\ \mathbf1\{y=K-1\}\end{bmatrix}
+T(y_i)
 ```
 
-模型通过 indicator coordinates 读取 class identity。每个 coordinate 表示某个 reference class 之外的类别是否被观察到。
-
-Gaussian with unknown mean and variance:
+is the realized value after observing $`Y_i=y_i`$. The sample-level statistic is a function of the whole sample. In the iid exponential-family case, the natural aggregate is:
 
 ```math
-T(y)=\begin{bmatrix}y\\ y^2\end{bmatrix}
+S(\mathbf Y)=\sum_{i=1}^nT(Y_i)
 ```
 
-如果 mean 和 variance 都未知，模型必须同时读取 location information 和 spread information；只看 $`y`$ 本身不够，$`y^2`$ 也携带参数信息。
-
-这就是为什么 $`T(y)`$ 不总是等于 $`y`$。它取决于这个 distribution family 的参数化需要 observation 的哪些方面。
-
-### What does a probability model say about a random variable?
-
-先区分 random variable 和 observed value。$`Y`$ 是观察之前的随机变量；$`y`$ 是 $`Y`$ 的一个可能取值，或者已经观察到的一次 realization。写下一个 probability model 不是在改变已经给定的 $`y`$，而是在说明：在参数 $`\mu`$ 和 $`\sigma^2`$ 下，不同可能的 $`y`$ 值有多 plausible。
+and after observation:
 
 ```math
-Y\sim\mathcal N(\mu,\sigma^2)
+S(\mathbf y)=\sum_{i=1}^nT(y_i)
 ```
 
-```math
-p(y;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
-```
+The sample compression happens through $`S(\mathbf Y)`$, not through an isolated $`T(Y_i)`$ alone. Calling $`T(y)`$ a sufficient statistic is a common shorthand only when the context is one observation or when the iid aggregation is understood. The more precise wording is: $`T`$ is the canonical statistic for one observation, and $`S(\mathbf Y)=\sum_iT(Y_i)`$ is the iid sample statistic that is sufficient under the usual factorization conditions.
 
-对 continuous variable，$`p(y;\mu,\sigma^2)`$ 是 density，不是 $`Y=y`$ 这个 exact event 的 probability。真正的 probability 来自对区间上的 density 积分：
+| Model | One-observation canonical statistic | Iid sample statistic | Parameter information |
+| ----- | ----------------------------------- | -------------------- | --------------------- |
+| Bernoulli | $`T(Y)=Y`$ | $`\sum_iY_i`$ | success count |
+| Gaussian, known variance | $`T(Y)=Y`$ | $`\sum_iY_i`$ | mean/location |
+| Gaussian, unknown mean and variance | $`T(Y)=(Y,Y^2)`$ | $`(\sum_iY_i,\sum_iY_i^2)`$ | location and spread |
+| Categorical | indicator vector | class-count vector | category frequencies |
 
-```math
-P(a\leq Y\leq b)=\int_a^b p(y;\mu,\sigma^2)dy
-```
-
-所以 Gaussian density 的意思是：如果随机变量 $`Y`$ 的分布中心是 $`\mu`$，方差是 $`\sigma^2`$，那么每个候选值 $`y`$ 会得到一个 density score。$`\mu`$ 控制 distribution centered 在哪里；$`\sigma^2`$ 控制离中心越远时 plausibility 下降得多快。
-
-核心 exponential term 是：
-
-```math
-\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)
-```
-
-这项直接表达了 observation 和 center 的距离惩罚：
-
-* 如果 $`y`$ 接近 $`\mu`$，平方距离小，density 高；
-* 如果 $`y`$ 远离 $`\mu`$，平方距离大，density 低；
-* 较大的 $`\sigma^2`$ 会让离 $`\mu`$ 的距离被较轻地惩罚，因此分布更宽；
-* 较小的 $`\sigma^2`$ 会让离 $`\mu`$ 的距离被较重地惩罚，因此分布更集中。
-
-### From unconditional probability to supervised conditional modeling
-
-在 supervised learning 里，我们通常不是只建模一个 unconditional $`Y`$，而是建模给定 input 后的 conditional random variable：
-
-```math
-Y|x;\theta
-```
-
-Gaussian regression 的条件模型是：
-
-```math
-Y|x;\theta\sim\mathcal N(\theta^Tx,\sigma^2)
-```
-
-于是 observed response $`y`$ 的 conditional density 是：
-
-```math
-p(y|x;\theta)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y-\theta^Tx)^2}{2\sigma^2}\right)
-```
-
-这里的 $`\theta^Tx`$ 不是说 $`Y`$ 必须等于 $`\theta^Tx`$。它说的是：在给定 $`x`$ 后，$`Y`$ 的 conditional distribution 以 $`\theta^Tx`$ 为中心。实际观察到的 $`y`$ 会根据它在这个 conditional distribution 下有多 plausible 来被评价。这就是 regression 的 probabilistic meaning：预测不是消除随机性，而是预测 conditional mean，并用 noise model 描述围绕这个 mean 的不确定性。
-
-### What does it mean to choose a distribution and then infer parameters?
-
-选择 distribution family 是 modeling assumption。这个选择来自 response type、problem semantics 和 noise mechanism：real-valued measurement 可能适合 Gaussian，binary event 可能适合 Bernoulli，count 可能适合 Poisson。family 选定之后，data 被用来估计这个 family 里的 parameters。
-
-```math
-D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}
-```
-
-```math
-L(\theta)=\prod_{i=1}^{m}p(y^{(i)}|x^{(i)};\theta)
-```
-
-```math
-\hat\theta=\underset{\theta}{\text{arg max}}\ L(\theta)
-```
-
-这不是说一个 sample 直接决定 $`\theta`$，而是说整个 dataset 选择那个让所有 observed outcomes 联合起来最 plausible 的 parameter。
-
-Parameter estimation is inverse reasoning relative to a chosen forward conditional stochastic model.
-
-Forward direction:
-
-```text
-Given $\theta$, the model predicts a distribution over possible $Y$ values.
-```
-
-Inverse direction:
-
-```text
-Given observed data, learning finds the $\theta$ whose predicted distributions make those observations most plausible.
-```
-
-在 linear regression 的 Gaussian version 里：
-
-```math
-Y|x;\theta\sim\mathcal N(\theta^Tx,\sigma^2)
-```
-
-likelihood 是：
-
-```math
-L(\theta)=\prod_{i=1}^{m}\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2}\right)
-```
-
-log likelihood 是：
-
-```math
-\log L(\theta)=\sum_{i=1}^{m}\left[-\log(\sqrt{2\pi}\sigma)-\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2}\right]
-```
-
-因为 $`\sigma^2`$ 固定时，第一项和 denominator 都不改变最优 $`\theta`$，所以：
-
-```math
-\underset{\theta}{\text{arg max}}\ \log L(\theta)
-=
-\underset{\theta}{\text{arg min}}\ \sum_{i=1}^{m}(y^{(i)}-\theta^Tx^{(i)})^2
-```
-
-这就是为什么 Gaussian noise plus MLE produces least squares。Squared loss 不是先验任意指定的 penalty；它是 fixed-variance Gaussian conditional model 的 maximum likelihood consequence。
-
-Gaussian log density 展开后出现 $`y`$ 和 $`y^2`$ 并不是任意的：
-
-```math
-\log p(y;\mu,\sigma^2)
-=
--\log(\sqrt{2\pi}\sigma)
--\frac{y^2}{2\sigma^2}
-+\frac{\mu}{\sigma^2}y
--\frac{\mu^2}{2\sigma^2}
-```
-
-这里 $`y`$ 携带 location information，$`y^2`$ 携带 second-moment 或 spread information。如果 variance 已知，$`y^2`$ 不和 unknown mean parameter 耦合；如果 variance 未知，$`y^2`$ 会和 unknown variance parameter 耦合。因此 sufficient statistics 取决于哪些 parameters 是 unknown。
-
-#### B. Dataset level
-
-对 iid samples：
-
-```math
-p(y^{(1)},\dots,y^{(m)};\eta)
-=
-\left(\prod_{i=1}^{m}b(y^{(i)})\right)
-\exp\left(\eta^T\sum_{i=1}^{m}T(y^{(i)})-ma(\eta)\right)
-```
-
-dataset 中所有和参数有关的信息都通过下面这个量进入 likelihood：
-
-```math
-\sum_{i=1}^{m}T(y^{(i)})
-```
-
-这就是 statistic 被称为 "sufficient" 的意思：一旦知道 $`\sum_i T(y^{(i)})`$，likelihood 如何依赖 $`\eta`$ 就完全确定了。raw sample 当然还可能包含其他细节，但在这个 model family 内，那些细节不会再改变 likelihood as a function of $`\eta`$。
-
-| Model | $`T(y)`$ | Dataset sufficient statistic | What information it preserves |
-| ----- | ------ | ---------------------------- | ----------------------------- |
-| Bernoulli | $`y`$ | $`\sum_i y^{(i)}`$ | number of successes |
-| Gaussian, known variance | $`y`$ | $`\sum_i y^{(i)}`$ | mean/location information |
-| Gaussian, unknown variance | $`(y,y^2)`$ | $`(\sum_i y^{(i)},\sum_i (y^{(i)})^2)`$ | location and spread |
-| Categorical | one-hot vector | class-count vector | category frequencies |
-
-因此 Bernoulli iid data 的 sufficient statistic 是 success count；known-variance Gaussian 的 sufficient statistic 是 sum 或 sample mean；unknown-variance Gaussian 需要 sum 和 sum of squares；categorical data 则被压缩成 class counts。
+The next interlude gives the formal notation, factorization proof, minimal sufficiency criterion, and examples. Section 6 only needs the mental model: $`T(Y)`$ describes what the distribution reads from one possible outcome; the sample statistic collects those readouts across observations.
 
 ### 6.3 What does it mean that $`\eta`$ is the natural coordinate?
 
@@ -544,7 +394,663 @@ h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
 
 ---
 
-# Conceptual Interlude A: From Response Space to Probability Distribution
+# Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?
+
+> This interlude is the notation and likelihood-equivalence layer behind sufficient statistics. A more formal derivation is collected in [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/sufficient-statistics-likelihood-equivalence.md).
+
+---
+
+## A. Outcome space, random variables, and realized observations
+
+Let the single-response outcome space be:
+
+```math
+\mathcal Y
+```
+
+A response random variable is a measurable map:
+
+```math
+Y:\Omega\rightarrow\mathcal Y
+```
+
+Here $`\Omega`$ is the underlying sample space, $`\omega\in\Omega`$ is one underlying random outcome, and $`Y(\omega)`$ is the response value induced by that outcome. In ordinary probability notation, the random variable is abbreviated as $`Y`$.
+
+For repeated observations, the $`i`$th response random variable is:
+
+```math
+Y_i
+```
+
+and the complete random sample is:
+
+```math
+\mathbf Y=(Y_1,\ldots,Y_n)
+```
+
+After observation, the realized value of $`Y_i`$ is:
+
+```math
+y_i
+```
+
+and the realized dataset is:
+
+```math
+\mathbf y=(y_1,\ldots,y_n)
+```
+
+Keep the status distinction explicit:
+
+```text
+Y_i is random before observation.
+y_i is fixed after observation.
+```
+
+The event:
+
+```math
+\{Y_i=y_i\}
+```
+
+is the event that the random variable $`Y_i`$ takes the observed value $`y_i`$. It is not the random variable itself, and it is not the transformed statistic $`T(Y_i)`$.
+
+## B. Statistic as a function
+
+A one-observation statistic is a function:
+
+```math
+T:\mathcal Y\rightarrow\mathbb R^m
+```
+
+Therefore:
+
+```math
+T(Y_i)
+```
+
+is a new random variable induced by $`Y_i`$, while:
+
+```math
+T(y_i)
+```
+
+is the deterministic vector computed after observing $`y_i`$.
+
+Observation implies statistic equality:
+
+```math
+Y_i=y_i
+\quad\Longrightarrow\quad
+T(Y_i)=T(y_i)
+```
+
+but the reverse need not hold:
+
+```math
+T(Y_i)=T(y_i)
+\quad\nRightarrow\quad
+Y_i=y_i
+```
+
+because $`T`$ may be many-to-one. For example, if:
+
+```math
+T(Y)=Y^2
+```
+
+then:
+
+```math
+\{T(Y)=4\}
+=
+\{Y=2\}\cup\{Y=-2\}
+```
+
+So $`T(Y)=T(y)`$ is generally a coarser event than $`Y=y`$.
+
+A sample-level statistic is a function of the whole sample:
+
+```math
+S:\mathcal Y^n\rightarrow\mathcal S
+```
+
+Before observation, $`S(\mathbf Y)`$ is random. After observation, $`S(\mathbf y)`$ is fixed. In iid exponential-family models, the most common sample statistic is:
+
+```math
+S(\mathbf Y)=\sum_{i=1}^nT(Y_i)
+```
+
+Thus $`T(Y_i)`$ is the single-observation canonical statistic, while $`S(\mathbf Y)`$ is the whole-sample statistic. The actual data compression occurs at the sample level.
+
+## C. Why does a function of the observation appear inside the distribution?
+
+Start from an ordinary parametric model:
+
+```math
+p_\theta(y)
+```
+
+A probability distribution is already a function of both the candidate parameter and the possible outcome. Writing a model in exponential-family form does not insert an extra statistic into the distribution after the fact. It reorganizes the original expression so the parameter-dependent parts of the outcome dependence become visible:
+
+```math
+p_\eta(y)
+=
+b(y)
+\exp\left(
+\eta^TT(y)-a(\eta)
+\right)
+```
+
+Taking logs gives:
+
+```math
+\log p_\eta(y)
+=
+\log b(y)
++
+\eta^TT(y)
+-
+a(\eta)
+```
+
+The roles are:
+
+* $`T(y)`$: observation-side statistical coordinates;
+* $`\eta`$: parameter-side natural weights on those coordinates;
+* $`\eta^TT(y)`$: coupling score between the current parameter and the observed statistical coordinates;
+* $`b(y)`$: parameter-independent support and baseline weighting;
+* $`a(\eta)`$: normalizer and moment generator.
+
+The coupling $`\eta^TT(y)`$ is not produced by maximum likelihood estimation. It belongs to the exponential-family representation of the probability model. Maximum likelihood later uses this structure to estimate $`\eta`$ or a feature parameter $`\theta`$.
+
+## D. Counterfactual likelihood view of parameter-relevant information
+
+This is not causal-inference potential-outcome counterfactual reasoning. It is a comparison of candidate parameter values and possible data configurations inside one fixed model family.
+
+First, fix the observed dataset and vary candidate parameters:
+
+```math
+L(\theta_1;\mathbf y)
+\quad\text{and}\quad
+L(\theta_2;\mathbf y)
+```
+
+The question is: if the generating parameter were counterfactually changed to another candidate value, how would the plausibility of the already observed data change? This reveals which data features can change the ordering of candidate parameters.
+
+Second, fix the model family and compare two possible datasets:
+
+```math
+\mathbf y
+\quad\text{and}\quad
+\mathbf y'
+```
+
+Define the likelihood ratio:
+
+```math
+R_\theta(\mathbf y,\mathbf y')
+=
+\frac{p_\theta(\mathbf y)}
+{p_\theta(\mathbf y')}
+```
+
+If this ratio does not depend on $`\theta`$, then the relative plausibility of $`\mathbf y`$ and $`\mathbf y'`$ is unchanged no matter which candidate parameter is considered. For parameter inference, the two datasets carry the same type of evidence, up to a parameter-independent weight.
+
+Define the likelihood-induced equivalence relation:
+
+```math
+\mathbf y\sim\mathbf y'
+```
+
+when and only when:
+
+```math
+\frac{p_\theta(\mathbf y)}
+{p_\theta(\mathbf y')}
+```
+
+is independent of $`\theta`$. Minimal sufficient statistics encode exactly these likelihood-equivalence classes under the usual dominated-family and regularity conditions. The statistic is not an arbitrary compression; it merges data outcomes that have the same evidence structure for the target parameter.
+
+## E. Parameter-relevant versus sufficient
+
+A statistic is parameter-relevant if it appears in, or changes, the likelihood for an unknown parameter. It may contain only part of the parameter information.
+
+A statistic is sufficient if it contains all sample information about the specified target parameter within the specified model family.
+
+```math
+\text{parameter-relevant}
+\;\nRightarrow\;
+\text{sufficient}
+```
+
+For example, suppose:
+
+```math
+Y_i\sim\mathcal N(\mu,\sigma^2)
+```
+
+and both $`\mu`$ and $`\sigma^2`$ are unknown. The sum $`\sum_iY_i`$ is relevant to $`\mu`$, but it is not sufficient for the joint parameter $`(\mu,\sigma^2)`$. The likelihood also needs:
+
+```math
+\sum_iY_i^2
+```
+
+so the sample statistic is:
+
+```math
+S(\mathbf Y)
+=
+\left(
+\sum_iY_i,
+\sum_iY_i^2
+\right)
+```
+
+Sufficiency is always relative to a model family and a target parameter. Changing the family, the support assumptions, or which parameters are unknown can change the sufficient statistic.
+
+## F. Formal sufficiency and Fisher-Neyman factorization
+
+A statistic $`S(\mathbf Y)`$ is sufficient for $`\theta`$ if, after conditioning on:
+
+```math
+S(\mathbf Y)=s
+```
+
+the conditional distribution of the full sample:
+
+```math
+p_\theta(\mathbf Y=\mathbf y\mid S(\mathbf Y)=s)
+```
+
+no longer depends on $`\theta`$. The statistic need not reconstruct the full sample. The remaining order, signs, residual arrangement, or other details may still describe the data, but they add no further information about the specified parameter once $`S`$ is known. For continuous families, the precise treatment uses conditional densities or regular conditional distributions.
+
+Fisher-Neyman factorization states that if the joint density or mass function can be written as:
+
+```math
+p_\theta(\mathbf y)
+=
+h(\mathbf y)
+g_\theta(S(\mathbf y))
+```
+
+then all parameter dependence has been absorbed by $`S(\mathbf y)`$. In the discrete case:
+
+```math
+P_\theta(\mathbf Y=\mathbf y\mid S=s)
+=
+\frac{
+h(\mathbf y)g_\theta(s)
+}{
+\sum_{\mathbf y':S(\mathbf y')=s}
+h(\mathbf y')g_\theta(s)
+}
+```
+
+The common parameter factor cancels:
+
+```math
+P_\theta(\mathbf Y=\mathbf y\mid S=s)
+=
+\frac{
+h(\mathbf y)
+}{
+\sum_{\mathbf y':S(\mathbf y')=s}
+h(\mathbf y')
+}
+```
+
+The right side does not contain $`\theta`$. The factorization theorem is therefore not a mysterious conclusion appended after algebra. It formalizes the claim that every parameter-dependent part of the likelihood has already passed through $`S`$.
+
+## G. Sufficiency is not uniqueness: minimal sufficient statistics
+
+The full data statistic:
+
+```math
+S(\mathbf Y)=\mathbf Y
+```
+
+is always sufficient, but it has no compression value. A minimal sufficient statistic merges as many data outcomes as possible while preserving all information about the target parameter.
+
+Under appropriate dominated-family and regularity conditions, a statistic $`S`$ is minimal sufficient if:
+
+```math
+\frac{p_\theta(\mathbf y)}
+{p_\theta(\mathbf y')}
+```
+
+is independent of $`\theta`$ if and only if:
+
+```math
+S(\mathbf y)=S(\mathbf y')
+```
+
+Sufficient statistics are not unique. Minimal sufficient statistics are not literally unique as formulas either; they are unique up to one-to-one transformation. If $`U=f(S)`$ and $`f`$ is one-to-one on the statistic range, then $`U`$ carries the same information as $`S`$. A many-to-one transformation can destroy sufficiency.
+
+## H. Bernoulli examples
+
+For one Bernoulli observation:
+
+```math
+Y\sim\mathrm{Bernoulli}(p),
+\qquad
+\mathcal Y=\{0,1\}
+```
+
+The mass function is:
+
+```math
+P_p(Y=y)=p^y(1-p)^{1-y}
+```
+
+With:
+
+```math
+\eta=\log\frac{p}{1-p}
+```
+
+it becomes:
+
+```math
+P_\eta(Y=y)
+=
+\exp\left(
+\eta y-\log(1+e^\eta)
+\right)
+```
+
+The natural one-observation canonical statistic is therefore:
+
+```math
+T(Y)=Y
+```
+
+This is not because someone decreed that $`Y`$ itself must be sufficient. It appears because the Bernoulli PMF has only two outcomes, and those two outcomes provide different evidence about $`p`$:
+
+```math
+\frac{P_p(Y=1)}
+{P_p(Y=0)}
+=
+\frac{p}{1-p}
+```
+
+This ratio depends on $`p`$, so $`0\nsim1`$. A sufficient statistic for one Bernoulli observation cannot merge the outcomes $`0`$ and $`1`$. The minimal sufficient partition is:
+
+```math
+\{0\},
+\qquad
+\{1\}
+```
+
+The literal expression is not unique. The statistics:
+
+```math
+Y,
+\qquad
+1-Y,
+\qquad
+2Y+5
+```
+
+all distinguish $`0`$ and $`1`$ one-to-one, so they are information-equivalent. The usual $`T(Y)=Y`$ is chosen because it is simplest, matches the PMF directly, has $`\mathbb E[Y]=p`$, and avoids redundancy.
+
+For iid Bernoulli data:
+
+```math
+Y_1,\ldots,Y_n\overset{\mathrm{iid}}{\sim}\mathrm{Bernoulli}(p)
+```
+
+the joint likelihood is:
+
+```math
+P_p(\mathbf Y=\mathbf y)
+=
+p^{\sum_i y_i}(1-p)^{n-\sum_i y_i}
+```
+
+Define:
+
+```math
+K(\mathbf Y)=\sum_iY_i
+```
+
+The one-observation canonical statistic is $`T(Y_i)=Y_i`$, while the sample-level sufficient statistic is $`K(\mathbf Y)`$, the total number of successes. It compresses away ordering.
+
+For two possible samples:
+
+```math
+\frac{
+P_p(\mathbf Y=\mathbf y)
+}{
+P_p(\mathbf Y=\mathbf y')
+}
+=
+\left(
+\frac{p}{1-p}
+\right)^{
+\sum_i y_i-\sum_i y_i'
+}
+```
+
+This ratio is independent of $`p`$ if and only if:
+
+```math
+\sum_i y_i=\sum_i y_i'
+```
+
+Therefore $`K(\mathbf Y)=\sum_iY_i`$ is minimal sufficient. The samples $`10101`$ and $`01110`$ both have success count $`3`$, so they are likelihood-equivalent for $`p`$.
+
+## I. Gaussian and categorical examples
+
+For Gaussian data with known variance and unknown mean:
+
+```math
+Y_i\sim\mathcal N(\mu,\sigma^2)
+```
+
+with $`\sigma^2`$ fixed, the joint density can be written as:
+
+```math
+f_\mu(\mathbf y)
+=
+h(\mathbf y)
+\exp\left(
+\frac{\mu}{\sigma^2}\sum_i y_i
+-
+\frac{n\mu^2}{2\sigma^2}
+\right)
+```
+
+so $`S(\mathbf Y)=\sum_iY_i`$ is sufficient. The likelihood-ratio criterion shows minimality because:
+
+```math
+\frac{f_\mu(\mathbf y)}
+{f_\mu(\mathbf y')}
+=
+C(\mathbf y,\mathbf y')
+\exp\left[
+\frac{\mu}{\sigma^2}
+\left(
+\sum_i y_i-\sum_i y_i'
+\right)
+\right]
+```
+
+is independent of $`\mu`$ if and only if the sample sums agree.
+
+For mean-zero Gaussian data with unknown variance, parameter information enters through $`\sum_iY_i^2`$. In the one-observation case:
+
+```math
+T(Y)=Y^2
+```
+
+and:
+
+```math
+\frac{f_\sigma(y)}
+{f_\sigma(y')}
+=
+\exp\left[
+-\frac{y^2-y'^2}{2\sigma^2}
+\right]
+```
+
+is independent of $`\sigma^2`$ if and only if $`y^2=y'^2`$. Thus $`Y`$ and $`-Y`$ provide the same variance information; given $`Y^2`$, the sign no longer carries information about $`\sigma^2`$.
+
+If both mean and variance are unknown, the one-observation canonical statistic is naturally:
+
+```math
+T(Y)=
+\begin{bmatrix}
+Y\\
+Y^2
+\end{bmatrix}
+```
+
+and the iid sample statistic is:
+
+```math
+S(\mathbf Y)=
+\begin{bmatrix}
+\sum_iY_i\\
+\sum_iY_i^2
+\end{bmatrix}
+```
+
+The $`Y`$ coordinate carries location information, and $`Y^2`$ carries raw second-moment information. Minimality requires identifiability and regularity checks; it should not be asserted merely because two algebraic terms appear in the exponent.
+
+For categorical outcomes:
+
+```math
+Y\in\{1,\ldots,K\}
+```
+
+class labels are names, not magnitudes. Use indicator coordinates:
+
+```math
+T_k(Y)=\mathbf1\{Y=k\}
+```
+
+A full $`K`$-dimensional one-hot statistic has components that sum to $`1`$, so it contains one linear redundancy. A reference-class representation keeps $`K-1`$ indicators and uses the remaining class as baseline. Across samples, class counts are sufficient. Minimal representations and full one-hot representations can be information-equivalent, but the full representation carries a redundant coordinate and can create parameter identifiability issues.
+
+## J. Canonical statistic as coordinates, not always a polynomial basis
+
+Read:
+
+```math
+T(Y)=
+\begin{bmatrix}
+T_1(Y)\\
+\vdots\\
+T_m(Y)
+\end{bmatrix}
+```
+
+as a coordinate system on the observation side. The natural parameter:
+
+```math
+\eta=
+\begin{bmatrix}
+\eta_1\\
+\vdots\\
+\eta_m
+\end{bmatrix}
+```
+
+puts parameter-side weights on those coordinates, and:
+
+```math
+\eta^TT(Y)
+=
+\sum_j\eta_jT_j(Y)
+```
+
+reweights possible outcomes along those statistical directions.
+
+The coordinates $`T_j(Y)`$ are not always powers $`Y^j`$. They can be indicators, squared values, absolute values, or other functions selected by the distribution family and target parameter. More precisely, after parameter-independent terms are separated out, the distribution family determines a parameter-relevant function space on the outcome space. $`T(Y)`$ is one choice of basis for that space. For Bernoulli, the nonconstant parameter-relevant space is one-dimensional, so $`T(Y)=Y`$ is the usual basis. For a Gaussian with unknown mean and variance, the relevant space is spanned by $`Y`$ and $`Y^2`$.
+
+An invertible basis change gives an equivalent exponential-family representation. Redundant statistics give non-minimal or non-identifiable representations. Minimal sufficiency uniquely determines the likelihood-equivalence partition, not the literal formula printed for the statistic.
+
+## K. Exponential-family structure before maximum likelihood
+
+The model representation is:
+
+```math
+p_\eta(y)
+=
+b(y)\exp\left(
+\eta^TT(y)-a(\eta)
+\right)
+```
+
+For iid data, the likelihood is:
+
+```math
+L(\eta;\mathbf y)
+=
+\left[
+\prod_i b(y_i)
+\right]
+\exp\left(
+\eta^T\sum_iT(y_i)-na(\eta)
+\right)
+```
+
+MLE solves:
+
+```math
+\hat\eta
+=
+\underset{\eta}{\text{arg max}}
+\,
+L(\eta;\mathbf y)
+```
+
+It uses the statistic compression, but it does not define the canonical statistic. The canonical statistic is part of the chosen probability representation before estimation starts.
+
+The log-likelihood is:
+
+```math
+\ell(\eta)
+=
+\eta^T\sum_iT(y_i)-na(\eta)+C
+```
+
+so:
+
+```math
+\nabla_\eta\ell(\eta)
+=
+\sum_iT(y_i)-n\nabla a(\eta)
+```
+
+Using:
+
+```math
+\nabla a(\eta)=\mathbb E_\eta[T(Y)]
+```
+
+a finite interior MLE satisfies:
+
+```math
+\frac1n\sum_iT(y_i)
+=
+\mathbb E_{\hat\eta}[T(Y)]
+```
+
+The left side is the observed canonical-statistic average. The right side is the model-expected canonical statistic. Parameter estimation searches for a candidate parameter whose model-implied statistic structure matches the empirical statistic structure. This is moment matching for regular exponential-family MLE, but it is not the reason $`T(Y)`$ exists.
+
+**Refined interpretation.** The relationship between distribution parameters and sufficient statistics can be understood through likelihood comparison. Fixing the observed data and changing candidate parameters shows which data features change parameter ranking. Fixing the model family and comparing two possible datasets shows whether they provide the same relative evidence for all candidate parameters. If their likelihood ratio is parameter-independent, the datasets are equivalent for parameter inference. A minimal sufficient statistic encodes these likelihood-equivalence classes.
+
+In an exponential family, that relationship appears as the bilinear coupling $`\eta^TT(y)`$: $`T(y)`$ gives observation-side statistical coordinates, and $`\eta`$ gives natural parameter weights along those coordinates. This coupling belongs to the probability model representation, not to MLE. MLE uses the representation after the model is fixed, compresses iid data into $`\sum_iT(y_i)`$, and estimates parameters by matching empirical statistic averages to model expectations.
+
+For Gaussian models, the coordinates may include $`y`$ and $`y^2`$; for Bernoulli, $`y`$; for categorical models, indicator functions. Therefore $`T(y)`$ should be read as canonical statistical coordinates determined by the family and target parameter, not as a universal polynomial basis. Proving sufficiency requires factorization. Proving minimality requires checking redundancy, identifiability, and the likelihood-ratio criterion.
+
+![Likelihood equivalence and sufficient-statistic compression](../../assets/figures/lecture04-sufficiency-compression.png)
+
+---
+
+# Conceptual Interlude B: From Response Space to Probability Distribution
 
 > This interlude is a modeling map. It explains how the semantic type of $`Y`$ constrains the probability distribution and therefore the GLM response function.
 
@@ -873,7 +1379,7 @@ Return to main Lecture 4 flow: [7. Log-Partition Function](#7-log-partition-func
 
 ---
 
-# Conceptual Interlude B: Why Exponential Family and GLM Exist
+# Conceptual Interlude C: Why Exponential Family and GLM Exist
 
 > This interlude answers a deeper question: not merely how to use exponential family once it is given, but why this form is mathematically natural for statistical modeling, likelihood estimation, and generalized linear modeling.
 
@@ -1459,7 +1965,7 @@ x_i^T\theta
 
 The response remains random. The linear predictor chooses a coordinate of the conditional distribution before sampling; it is not an assertion that the realized response equals the score.
 
-# Conceptual Interlude C: Why GLM Components Form a Statistical Model
+# Conceptual Interlude D: Why GLM Components Form a Statistical Model
 
 > This interlude belongs after the GLM components. Section 8 lists the pieces; this interlude explains why those pieces define a coherent conditional statistical model before Section 9 turns them into a workflow.
 
@@ -1634,9 +2140,11 @@ Only under a canonical link is $`\xi_i=\eta_i`$.
 
 ## C. How Data Learn the Global Parameter
 
-Use the notation consistently: $`X`$ is the input random variable, $`x_i`$ is the observed input for sample $`i`$, $`Y_i`$ is the response random variable after conditioning on $`x_i`$, and $`y_i`$ is one realized value of $`Y_i`$. The model is about the distribution of possible $`Y_i`$ values before the realized $`y_i`$ is observed.
+The detailed likelihood-equivalence and sufficiency argument appeared in [Conceptual Interlude A](#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data). Here the same structure is read in the conditional GLM setting.
 
-The forward stochastic direction and the learning direction are different. A real but unknown mechanism would run as:
+Use the notation consistently: $`X`$ is the input random variable, $`x_i`$ is the observed input for sample $`i`$, $`Y_i`$ is the response random variable after conditioning on $`x_i`$, and $`y_i`$ is one realized value of $`Y_i`$. The model is about the distribution of possible $`Y_i`$ values before the observed $`y_i`$ is realized.
+
+The forward stochastic direction is:
 
 ```math
 \theta^\star
@@ -1650,7 +2158,7 @@ p(Y_i\mid x_i)
 y_i
 ```
 
-Learning does not algebraically invert that random sampling path. It uses observed pairs to form a likelihood:
+Learning does not invert that random sampling path. It fixes the realized dataset and varies candidate global parameters through likelihood:
 
 ```math
 \{(x_i,y_i)\}_{i=1}^n
@@ -1660,260 +2168,29 @@ L(\theta)
 \hat\theta
 ```
 
-Probability and likelihood read the same expression in different directions. In:
+For one scalar canonical GLM observation:
 
 ```math
-p(y_i\mid x_i;\theta)
-```
-
-probability fixes $`x_i`$ and $`\theta`$ and varies the possible response value. Likelihood fixes the observed pair $`(x_i,y_i)`$ and varies $`\theta`$. It is not $`P(\theta\mid\mathcal D)`$ and does not need to integrate to one over $`\theta`$.
-
-For a training set:
-
-```math
-L(\theta;\mathcal D)
-=
-\prod_{i=1}^n
-p(y_i\mid x_i;\theta)
-```
-
-and:
-
-```math
-\ell(\theta)
-=
-\sum_{i=1}^n
 \log p(y_i\mid x_i;\theta)
-```
-
-MLE chooses the best parameter inside the specified model family:
-
-```math
-\hat\theta
 =
-\underset{\theta}{\text{arg max}}
-\,
-L(\theta;\mathcal D)
-```
-
-MLE is model-relative. It does not prove the model family is true, and it may fail to exist or fail to be unique. Logistic perfect separation is the standard warning: an unregularized logistic likelihood can increase without a finite maximizer.
-
-The bridge from observations to parameters is the statistic $`T(y)`$. For one exponential-family observation:
-
-```math
-\log p(y;\eta)
-=
-\log b(y)
+T(y_i)x_i^T\theta
+-
+a(x_i^T\theta)
 +
-\eta^TT(y)
--
-a(\eta)
-```
-
-Comparing two candidate natural parameters gives:
-
-```math
-\log p(y;\eta_1)
--
-\log p(y;\eta_2)
-=
-(\eta_1-\eta_2)^TT(y)
--
-a(\eta_1)
-+
-a(\eta_2)
-```
-
-The $`\log b(y)`$ term cancels because it does not depend on the parameter. Thus $`T(y)`$ is the parameter-relevant representation of the observation; it is not itself an estimator.
-
-Keep the observation statistic and sample statistic separate:
-
-```math
-T(Y_i)
-```
-
-is the single-observation canonical statistic before realization, while:
-
-```math
-T(y_i)
-```
-
-is its realized readout. For an iid sample:
-
-```math
-S(\mathbf Y)
-=
-\sum_{i=1}^nT(Y_i)
-```
-
-and:
-
-```math
-S(\mathbf y)
-=
-\sum_{i=1}^nT(y_i)
-```
-
-A statistic $`S`$ is sufficient for $`\theta`$ when the conditional distribution of the full sample given the statistic does not depend on $`\theta`$:
-
-```math
-p_\theta(\mathbf Y=\mathbf y\mid S(\mathbf Y)=s)
-```
-
-Fisher-Neyman factorization states the same idea operationally. If:
-
-```math
-p_\theta(\mathbf y)
-=
-h(\mathbf y)
-g_\theta^{\mathrm{fac}}(S(\mathbf y))
-```
-
-then all parameter dependence flows through $`S(\mathbf y)`$. For a discrete sample space:
-
-```math
-P_\theta(\mathbf Y=\mathbf y\mid S=s)
-=
-\frac{
-h(\mathbf y)g_\theta^{\mathrm{fac}}(s)
-}{
-\sum_{\mathbf y':S(\mathbf y')=s}
-h(\mathbf y')g_\theta^{\mathrm{fac}}(s)
-}
-```
-
-so the parameter factor cancels:
-
-```math
-P_\theta(\mathbf Y=\mathbf y\mid S=s)
-=
-\frac{
-h(\mathbf y)
-}{
-\sum_{\mathbf y':S(\mathbf y')=s}
-h(\mathbf y')
-}
-```
-
-For continuous samples, the same idea uses conditional densities rather than pretending exact full-sample events have positive probability.
-
-For Bernoulli iid data:
-
-```math
-L(p)
-=
-p^{\sum_i y_i}
-(1-p)^{n-\sum_i y_i}
-```
-
-so $`S=\sum_iY_i`$ is sufficient. Given $`S=k`$, all sequences with $`k`$ successes have conditional probability $`1/\binom{n}{k}`$, independent of $`p`$. For example, $`(1,0,1,0,1)`$ and $`(0,1,1,1,0)`$ contain the same number of successes and give the same likelihood information about $`p`$.
-
-For known-variance Gaussian data with unknown mean, the sufficient statistic is $`\sum_i y_i`$, equivalently the sample mean. Given that mean, the residual arrangement no longer adds information about $`\mu`$ in the known-variance model, though it may matter for variance or model-checking questions.
-
-If both mean and variance are unknown, the statistic must include both $`\sum_i y_i`$ and $`\sum_i y_i^2`$, because the coefficient on $`y^2`$ depends on the unknown variance. The raw second moment, central second moment, and regression residual square are related but distinct. Variance is recovered from first and second raw moments:
-
-```math
-\mathrm{Var}(Y)
-=
-\mathbb E[Y^2]
--
-\mathbb E[Y]^2
-```
-
-For iid exponential-family data:
-
-```math
-p(y;\eta)
-=
-b(y)
-\exp\left(
-\eta^TT(y)-a(\eta)
-\right)
-```
-
-The log-likelihood is:
-
-```math
-\ell(\eta)
-=
-\eta^T\sum_iT(y_i)
--
-na(\eta)
-+
-\sum_i\log b(y_i)
-```
-
-Thus:
-
-```math
-\nabla_\eta\ell(\eta)
-=
-\sum_iT(y_i)
--
-n\nabla a(\eta)
-```
-
-Using $`\nabla a(\eta)=\mathbb E_\eta[T(Y)]`$, an interior MLE satisfies:
-
-```math
-\frac1n\sum_iT(y_i)
-=
-\mathbb E_{\hat\eta}[T(Y)]
-```
-
-This is statistic moment matching. The left side is empirical statistic mean; the right side is model-expected statistic. It resembles method of moments, but it is specifically the exponential-family likelihood score equation, not a claim that all MLE is GMM.
-
-Keep response means and statistic means separate. The response mean is $`\mu=\mathbb E[Y]`$. The statistic expectation is $`m(\eta)=\mathbb E_\eta[T(Y)]=\nabla a(\eta)`$. Only when $`T(Y)=Y`$ do these coincide. If $`T(Y)`$ contains $`Y`$ and $`Y^2`$, then $`m(\eta)`$ contains both $`\mathbb E[Y]`$ and $`\mathbb E[Y^2]`$.
-
-In a GLM, each input has its own local natural coordinate, so the matching is feature-weighted rather than a shared label mean. For a scalar canonical GLM:
-
-```math
-\log p(y\mid x;\theta)
-=
-T(y)\theta^Tx
--
-a(\theta^Tx)
-+
-\log b(y)
+\log b(y_i)
 ```
 
 Differentiating gives:
 
 ```math
-\nabla_\theta\log p(y\mid x;\theta)
+\nabla_\theta\log p(y_i\mid x_i;\theta)
 =
-x\left(T(y)-\mathbb E[T(Y)\mid x;\theta]\right)
+x_i\left(T(y_i)-\mathbb E[T(Y_i)\mid x_i;\theta]\right)
 ```
 
-The observed statistic minus the model expectation forms a distributional residual, and the feature vector tells which coordinates of the shared parameter should move. Bernoulli gives $`x(y-p)`$, Poisson gives $`x(y-\lambda)`$, and unit-variance Gaussian regression gives $`x(y-\mu)`$.
+The observed statistic minus model-expected statistic is the distributional residual; the feature vector decides how that residual moves the shared global parameter. Bernoulli gives $`x_i(y_i-p_i)`$, Poisson gives $`x_i(y_i-\lambda_i)`$, and unit-variance Gaussian regression gives $`x_i(y_i-\mu_i)`$.
 
-The negative log-likelihood curvature is:
-
-```math
-\nabla_\theta^2\left(-\log p(y\mid x;\theta)\right)
-=
-a''(\eta)xx^T
-```
-
-and:
-
-```math
-a''(\eta)
-=
-\mathrm{Var}(T(Y)\mid x;\theta)
-\geq
-0
-```
-
-Therefore:
-
-```math
-a''(\eta)xx^T
-\succeq
-0
-```
-
-The log-partition function connects conditional mean, conditional variance, gradient residuals, Hessian curvature, and convex-friendly optimization geometry. This is not a coincidence; it is the exponential-family structure doing the work.
+This is feature-weighted matching, not a claim that every sample has its own free parameter. The local natural coordinate is $`\eta_i=x_i^T\theta`$ only under a scalar canonical link, and all local coordinates are tied together by the single learned vector $`\theta`$.
 
 ## D. Why Linear Natural Parameters Need Diagnostics
 
@@ -2086,7 +2363,7 @@ A practical workflow follows:
 1. Define the response random variable $`Y_i`$ and the realized value $`y_i`$ precisely.
 2. Choose a conditional family for $`Y_i\mid x_i`$ based on support, semantics, variance behavior, and mechanism.
 3. Identify the ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, and conditional mean $`\mu_i`$ of that local distribution.
-4. Identify the sufficient statistic $`T(Y_i)`$ whose expectation enters the likelihood score, and keep it distinct from the response mean when needed.
+4. Identify the one-observation canonical statistic $`T(Y_i)`$ and the sample statistic that enters the likelihood score; keep statistic expectation distinct from response mean when needed.
 5. Choose a link and keep the scales separate. In the canonical case, set $`\eta_i=x_i^T\theta`$ and map to $`\mu_i`$; otherwise set $`g(\mu_i)=x_i^T\theta`$ and map through $`\mu_i`$ to $`\eta_i`$.
 6. Write the conditional likelihood over the observed training set.
 7. Optimize $`\theta`$ by MLE or a regularized variant.
@@ -2930,17 +3207,26 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 
 ## Fast Review Checklist
 
-- [ ] I can distinguish $`Y_i`$ as a random variable from $`y_i`$ as the observed realization.
-- [ ] I can explain why likelihood fixes observed data and varies $`\theta`$.
-- [ ] I can explain why MLE is not $`P(\theta\mid\mathcal D)`$.
+- [ ] I can distinguish $`Y_i`$ and $`\mathbf Y`$ as random objects from $`y_i`$ and $`\mathbf y`$ as realized observations.
+- [ ] I can distinguish $`T(Y_i)`$ as a one-observation canonical statistic from $`S(\mathbf Y)`$ as a sample-level statistic.
+- [ ] I can explain why $`T(y)`$ is not inserted into the probability model after the fact.
+- [ ] I can distinguish parameter-relevant from sufficient.
+- [ ] I can explain why sufficient statistics are not unique.
+- [ ] I can use a likelihood ratio to test minimal sufficiency.
+- [ ] I can prove Bernoulli one-observation minimal sufficiency by comparing $`P_p(Y=1)/P_p(Y=0)`$.
+- [ ] I can prove Bernoulli sample success count minimal sufficiency.
+- [ ] I can explain why Gaussian unknown variance needs $`Y^2`$ information.
+- [ ] I can explain why Gaussian known-variance unknown-mean data compress to $`\sum_iY_i`$.
+- [ ] I can explain why Gaussian unknown mean and variance use $`(\sum_iY_i,\sum_iY_i^2)`$.
+- [ ] I can explain why categorical statistics use indicators rather than numeric label magnitudes.
+- [ ] I can distinguish $`\mathbb E[Y]`$ from $`\mathbb E[T(Y)]`$.
+- [ ] I can derive iid exponential-family moment matching from the score equation.
+- [ ] I can explain why MLE uses but does not create $`\eta^TT(y)`$.
 - [ ] I can distinguish a conditional assumption $`Y\mid X=x`$ from a marginal assumption on $`Y`$.
 - [ ] I can distinguish a generative model of $`p(x,y)`$ from a discriminative model of $`p(y\mid x;\theta)`$.
 - [ ] I can explain why a GLM can sample $`Y\mid x`$ without modeling complete $`(X,Y)`$ pairs.
 - [ ] I can explain why $`\eta(x)=\theta^Tx`$ is a single-index conditional-distribution coordinate, not a universal representation.
 - [ ] I can separate the representation model $`x\mapsto\eta(x)`$ from the observation model $`\eta(x)\mapsto p(Y\mid x)`$.
-- [ ] I can derive iid exponential-family moment matching from the score equation.
-- [ ] I can distinguish $`T(Y_i)`$, $`T(y_i)`$, $`S(\mathbf Y)`$, and $`S(\mathbf y)`$.
-- [ ] I can explain why Gaussian unknown variance needs second-order information.
 - [ ] I can distinguish shared-parameter iid matching from GLM feature-weighted matching through $`\sum_i x_iT(y_i)`$.
 - [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, conditional mean $`\mu_i`$, and global parameter $`\theta`$.
 - [ ] I can explain why $`\eta_i\neq\theta`$ but $`\eta_i=x_i^T\theta`$ in the scalar canonical construction.
@@ -2962,6 +3248,8 @@ Course development map:
 ```text
 Perceptron
 -> exponential family
+-> canonical statistic and likelihood equivalence
+-> sufficient-statistic compression
 -> log-partition function
 -> GLM construction
 -> Bernoulli / Poisson / Gaussian GLMs
@@ -2975,10 +3263,12 @@ GLM statistical-inference explanation:
 real stochastic mechanism
 -> conditional distribution
 -> random Y_i and observed y_i
--> T(y_i) and S(y)
+-> one-observation T(Y_i) and realized T(y_i)
+-> likelihood-ratio equivalence classes
+-> sample statistic S(y)
 -> likelihood
 -> maximum likelihood estimation
--> sufficient-statistic / moment matching
+-> statistic moment matching
 -> shared theta
 -> xi_i = x_i^T theta
 -> link, natural parameter, and conditional mean
@@ -3047,8 +3337,10 @@ x_new
 | What uncertainty model? | conditional family for $`Y_i\mid x_i`$ | Gaussian, Bernoulli, Poisson |
 | Is this joint or conditional? | model target | $`p(y\mid x;\theta)`$ for GLM |
 | Is $`p(x)`$ modeled? | covariate model | no for conditional GLM |
+| What is random versus realized? | $`Y_i`$, $`\mathbf Y`$ versus $`y_i`$, $`\mathbf y`$ | before / after observation |
 | What statistic matters? | $`T(Y_i)`$ and $`T(y_i)`$ | scalar, one-hot vector, $`(y,y^2)`$ |
 | What aggregates iid evidence? | $`S(\mathbf y)=\sum_iT(y_i)`$ | success count, sum, sum of squares |
+| What defines minimal compression? | likelihood-equivalence classes | likelihood ratio independent of parameter |
 | What aggregates GLM evidence? | $`\sum_i x_iT(y_i)`$ | feature-weighted statistic sum |
 | What is the ordinary local parameter? | $`\psi_i`$ | $`p_i`$, $`\lambda_i`$, $`\mu_i`$ |
 | What is the natural local coordinate? | $`\eta_i=q(\psi_i)`$ | log-odds, log-rate, mean coordinate |
@@ -3057,6 +3349,7 @@ x_new
 | What is the conditional mean? | $`\mu_i=g^{-1}(\xi_i)`$ | fitted mean, event probability, expected count |
 | What is the residual view? | $`\epsilon_i=Y_i-\mu_i`$ | $`\mathbb E[\epsilon_i\mid X_i]=0`$ |
 | What is optimized? | conditional likelihood / NLL | squared loss, cross-entropy, Poisson NLL |
+| What creates $`\eta^TT(y)`$? | exponential-family representation | model structure before MLE |
 | What can fail? | mean, variance/noise, distribution | bias, bad intervals, miscalibration |
 
 The long prediction formula is kept outside the table so Markdown renders it reliably:

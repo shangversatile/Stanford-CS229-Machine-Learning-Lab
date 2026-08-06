@@ -277,7 +277,7 @@ def figure_exponential_family_anatomy() -> Path:
         "density": (0.82, 0.52),
     }
     draw_box(ax, positions["eta"], "natural parameter\neta", COLORS["blue"])
-    draw_box(ax, positions["stat"], "sufficient statistic\nT(y)", COLORS["orange"])
+    draw_box(ax, positions["stat"], "canonical statistic\nT(y)", COLORS["orange"])
     draw_box(ax, positions["base"], "base measure\nb(y)", COLORS["purple"])
     draw_box(ax, positions["logpart"], "log-partition\na(eta)", COLORS["green"])
     draw_box(ax, positions["density"], "normalized model\np(y; eta)", COLORS["red"])
@@ -317,8 +317,8 @@ def figure_log_partition_moments() -> Path:
     fig, axes = plt.subplots(1, 3, figsize=(11.6, 3.8), sharex=True)
     series = [
         (a, r"$a(\eta)=\log(1+e^\eta)$", COLORS["blue"], "log partition"),
-        (mean, r"$a'(\eta)=E[Y]$", COLORS["green"], "mean"),
-        (var, r"$a''(\eta)=Var(Y)$", COLORS["red"], "variance"),
+        (mean, r"$a'(\eta)=E[T(Y)]$", COLORS["green"], "statistic mean"),
+        (var, r"$a''(\eta)=Var(T(Y))$", COLORS["red"], "statistic variance"),
     ]
     for ax, (values, label, color, title) in zip(axes, series):
         ax.plot(eta, values, color=color, linewidth=2.4, label=label)
@@ -375,7 +375,7 @@ def figure_why_exponential_family_emerges() -> Path:
         ("response\nsemantics", COLORS["blue"]),
         ("distribution\nchoice", COLORS["green"]),
         ("exponential-family\nform", COLORS["purple"]),
-        ("sufficient statistic\nT(y)", COLORS["orange"]),
+        ("canonical statistic\nT(y)", COLORS["orange"]),
         ("log-partition\na(eta)", COLORS["green"]),
         ("natural parameter\neta", COLORS["blue"]),
         (r"eta = theta^T x", COLORS["orange"]),
@@ -423,7 +423,7 @@ def figure_why_exponential_family_emerges() -> Path:
     ax.text(
         0.50,
         0.13,
-        r"normalization + sufficiency + max entropy -> $h_\theta(x)=\nabla a(\theta^Tx)$ and convex-friendly NLL",
+        r"normalization + sample compression + max entropy -> $h_\theta(x)=\nabla a(\theta^Tx)$ and convex-friendly NLL",
         ha="center",
         va="center",
         fontsize=11,
@@ -564,52 +564,90 @@ def figure_glm_construction_pipeline() -> Path:
 
 
 def figure_sufficiency_compression() -> Path:
-    """Show how a sufficient statistic compresses parameter-relevant information."""
-    fig, ax = plt.subplots(figsize=(12.8, 6.6))
+    """Show likelihood-equivalence classes and sufficient-statistic compression."""
+    fig, ax = plt.subplots(figsize=(14.2, 7.2))
     ax.set_axis_off()
 
     positions = {
-        "sample": (0.18, 0.64),
-        "split": (0.42, 0.64),
-        "stat": (0.66, 0.78),
-        "arrange": (0.66, 0.46),
-        "infer": (0.88, 0.78),
+        "datasets": (0.12, 0.66),
+        "classes": (0.36, 0.66),
+        "stat": (0.60, 0.66),
+        "estimate": (0.83, 0.66),
+        "single": (0.28, 0.25),
+        "sample": (0.58, 0.25),
+        "warning": (0.82, 0.25),
     }
     boxes = {
-        "sample": ("full Bernoulli sample\n(1,0,1,0,1)\n(0,1,1,1,0)", COLORS["blue"]),
-        "split": ("same success count\nk = 3", COLORS["yellow"]),
-        "stat": ("S(y) = sum y_i\nparameter-relevant", COLORS["green"]),
-        "arrange": ("remaining arrangement\nparameter-irrelevant\ngiven S", COLORS["gray"]),
-        "infer": ("likelihood for p\np^3(1-p)^2", COLORS["purple"]),
+        "datasets": (
+            "full possible datasets\n10101\n01110\n11000\n00001",
+            COLORS["blue"],
+        ),
+        "classes": (
+            "likelihood-ratio\nequivalence classes\nk = 3: 10101, 01110\nk = 2: 11000\nk = 1: 00001",
+            COLORS["yellow"],
+        ),
+        "stat": (
+            "minimal sufficient\nstatistic\nK(y) = sum y_i",
+            COLORS["green"],
+        ),
+        "estimate": (
+            "parameter estimation\nL(p; y) = p^K(1-p)^(n-K)\np_hat = K / n",
+            COLORS["purple"],
+        ),
+        "single": (
+            "single observation\nY_i -> T(Y_i)\nrealized: y_i -> T(y_i)",
+            COLORS["orange"],
+        ),
+        "sample": (
+            "full sample\nY -> S(Y)\nS(Y) = sum_i T(Y_i)",
+            COLORS["green"],
+        ),
+        "warning": (
+            "do not conflate\nT(Y_i): one-observation readout\nS(Y): sample compression",
+            COLORS["red"],
+        ),
     }
     for key, (label, color) in boxes.items():
         draw_box(ax, positions[key], label, color)
 
-    draw_connector(ax, positions["sample"], positions["split"])
-    draw_connector(ax, positions["split"], positions["stat"])
-    draw_connector(ax, positions["split"], positions["arrange"])
-    draw_connector(ax, positions["stat"], positions["infer"])
+    for start_key, end_key in [
+        ("datasets", "classes"),
+        ("classes", "stat"),
+        ("stat", "estimate"),
+        ("single", "sample"),
+        ("sample", "warning"),
+    ]:
+        draw_connector(ax, positions[start_key], positions[end_key])
 
     ax.text(
         0.50,
         0.92,
-        "Sufficiency Compression: Keep the Parameter-Relevant Readout",
+        "Likelihood Equivalence and Sufficient-Statistic Compression",
         ha="center",
         va="center",
-        fontsize=14.0,
+        fontsize=14.5,
         fontweight="semibold",
         color=COLORS["black"],
     )
     ax.text(
-        0.66,
-        0.25,
-        "Given S = k, the arrangement can still describe the sample, but it does not change likelihood comparisons for p.",
+        0.36,
+        0.48,
+        "Datasets in the same class have likelihood ratios independent of p; different success counts are distinct classes.",
         ha="center",
         va="center",
-        fontsize=11.0,
+        fontsize=10.8,
         color=COLORS["gray"],
     )
-    ax.set_title("Sufficient Statistic Versus Remaining Sample Detail")
+    ax.text(
+        0.50,
+        0.08,
+        "Minimal sufficiency encodes likelihood-equivalence classes; MLE then uses the compressed statistic.",
+        ha="center",
+        va="center",
+        fontsize=11.2,
+        color=COLORS["black"],
+    )
+    ax.set_title("Likelihood Equivalence and Sufficient-Statistic Compression")
     return save(fig, "lecture04-sufficiency-compression.png")
 
 def figure_gaussian_bernoulli_poisson_response() -> Path:

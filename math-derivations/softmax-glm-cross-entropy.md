@@ -1,6 +1,6 @@
 # Softmax GLM and Cross-Entropy
 
-## 1. One-Hot Sufficient Statistic
+## 1. One-Hot Canonical Statistic
 
 For a $K$-class categorical response, define:
 
@@ -10,7 +10,9 @@ For a $K$-class categorical response, define:
 
 For a reference-class parameterization, use $k=1,\ldots,K-1$ and treat class $K$ as the baseline. In the symmetric softmax implementation, it is common to keep all $K$ class scores and handle identifiability by regularization or by recognizing shift invariance.
 
-Expectation of the one-hot sufficient statistic gives class probabilities:
+For iid categorical samples, aggregating these one-observation readouts gives class counts. The class-count vector is the sample-level sufficient statistic for class probabilities; the one-hot vector is the per-observation canonical statistic.
+
+Expectation of the one-hot canonical statistic gives class probabilities:
 
 ```math
 \mathbb E[(T(Y))_k]=P(Y=k)

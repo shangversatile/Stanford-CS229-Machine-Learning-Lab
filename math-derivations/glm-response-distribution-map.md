@@ -1,6 +1,6 @@
 # GLM Response and Distribution Map
 
-Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-from-response-space-to-probability-distribution), [Conceptual Interlude C](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-c-why-glm-components-form-a-statistical-model), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For deeper derivations, see [Exponential Family Anatomy](exponential-family-anatomy.md), [GLM Construction Recipe](glm-construction-recipe.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), and [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md).
+Cross-link: see the main Lecture 4 note, especially [Conceptual Interlude B](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-b-from-response-space-to-probability-distribution), [Conceptual Interlude D](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-d-why-glm-components-form-a-statistical-model), [GLM Components](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#8-glm-components), [GLM Workflow](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#9-the-complete-glm-modeling-workflow), and [Hypothesis Function](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#10-deep-meaning-of-the-hypothesis-function). For deeper derivations, see [Exponential Family Anatomy](exponential-family-anatomy.md), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [GLM Construction Recipe](glm-construction-recipe.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), and [Sufficient Statistics, Likelihood, and Moments](sufficient-statistics-likelihood-and-moments.md).
 
 ## 1. Why distribution choice comes before loss choice
 
@@ -215,7 +215,7 @@ with:
 \sum_{k=1}^{K}\phi_{ik}=1
 ```
 
-**Statistic.** The statistic is one-hot or reference-class one-hot. It records category identity; it does not treat the class label as a magnitude.
+**Statistic.** The one-observation canonical statistic is one-hot or reference-class one-hot. It records category identity; it does not treat the class label as a magnitude. For iid categorical samples, the sample-level sufficient statistic is the class-count vector.
 
 ```math
 T_k(Y_i)=\mathbf1\{Y_i=k\}
