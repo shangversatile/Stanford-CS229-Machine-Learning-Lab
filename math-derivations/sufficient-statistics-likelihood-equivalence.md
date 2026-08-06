@@ -817,7 +817,13 @@ T_m(Y)
 \end{bmatrix}
 ```
 
-is best read as a chosen coordinate basis for the parameter-relevant functions of the observation. It is not always a polynomial basis.
+is best read as one chosen coordinate basis for the parameter-relevant functions of the observation. It is not always a polynomial basis. The more intrinsic object is the observation-function space spanned by log-likelihood ratios, after parameter-independent terms are removed:
+
+```math
+\log p_{\eta_1}(Y)-\log p_{\eta_2}(Y)
+```
+
+Those ratios identify the functions of $`Y`$ that can change how candidate parameters compare. The components $`T_1(Y),\ldots,T_m(Y)`$ choose coordinates for that space.
 
 The natural parameter vector:
 
