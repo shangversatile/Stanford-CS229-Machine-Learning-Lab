@@ -2893,24 +2893,61 @@ h_\theta(x)=\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
 
 ## 14. Multinomial Exponential-Family Form
 
-对 $`K`$ 类 categorical outcome，使用 $`K-1`$ 个 independent probability parameters，并把第 $`K`$ 类作为 reference class。令：
+This section is a one-observation distribution derivation. It is not yet the sample likelihood and it is not yet the feature-dependent GLM response.
+
+Notation:
+
+* $`Y`$ denotes one categorical response random variable with support $`\{1,\ldots,K\}`$.
+* $`y`$ denotes one realized category value, or the dummy outcome argument inside $`p(y;\phi)`$.
+* $`T(Y)`$ is a random $`K-1`$ dimensional reference-class indicator statistic induced by $`Y`$.
+* $`T(y)`$ is the deterministic indicator vector obtained after substituting a realized value $`y`$.
+* $`k`$ is a class index, not a sample index.
+
+对 $`K`$ 类 categorical outcome，probability parameters 满足：
+
+```math
+\phi_k=P(Y=k),
+\quad k=1,\ldots,K
+```
+
+```math
+\sum_{k=1}^{K}\phi_k=1
+```
+
+所以只有 $`K-1`$ 个 independent probability parameters。CS229 的 reference-class derivation 把第 $`K`$ 类作为 baseline，令：
 
 ```math
 \phi_K=1-\sum_{k=1}^{K-1}\phi_k
 ```
 
-定义 sufficient statistic。这里 $`\mathbf1\{\cdot\}`$ is the indicator function: it equals $`1`$ when the condition inside braces is true, and $`0`$ otherwise.
+定义 one-observation canonical statistic：
+
+```math
+T(Y)
+=
+\begin{bmatrix}
+\mathbf1\{Y=1\}\\
+\vdots\\
+\mathbf1\{Y=K-1\}
+\end{bmatrix}
+```
+
+For a realized value $`y`$:
 
 ```math
 (T(y))_k=\mathbf1\{y=k\},
 \quad k=1,\ldots,K-1
 ```
 
-它的 expectation 是 class probability：
+这里 $`\mathbf1\{\cdot\}`$ is the indicator function: it equals $`1`$ when the condition inside braces is true, and $`0`$ otherwise. If $`y=K`$, then $`T(y)=0`$, so the reference class is represented by the all-zero vector in this $`K-1`$ dimensional coordinate system.
+
+它的 expectation 是 class probability。注意这里 expectation is over the random variable $`Y`$, not over a dataset:
 
 ```math
 \mathbb E[(T(Y))_k]=P(Y=k)=\phi_k
 ```
+
+For iid samples, the corresponding sample-level statistic would be $`\sum_iT(y_i)`$, i.e. class counts for the first $`K-1`$ classes; the reference-class count is inferred from the total sample size. Section 14 only needs the one-observation form.
 
 Categorical PMF 可以写成：
 
@@ -2920,7 +2957,7 @@ p(y;\phi)
 \prod_{k=1}^{K}\phi_k^{\mathbf1\{y=k\}}
 ```
 
-把 reference class 拆出来：
+把 reference class 拆出来。因为 exactly one class indicator equals $`1`$:
 
 ```math
 p(y;\phi)
@@ -2950,7 +2987,7 @@ p(y;\phi)
 \quad k=1,\ldots,K-1
 ```
 
-指数化并归一化：
+Equivalently:
 
 ```math
 e^{\eta_k}=\frac{\phi_k}{\phi_K}
@@ -2960,7 +2997,7 @@ e^{\eta_k}=\frac{\phi_k}{\phi_K}
 \phi_k=e^{\eta_k}\phi_K
 ```
 
-利用 $`\sum_{k=1}^{K}\phi_k=1`$：
+利用 normalization:
 
 ```math
 \phi_K\left(1+\sum_{k=1}^{K-1}e^{\eta_k}\right)
@@ -2984,23 +3021,119 @@ e^{\eta_k}=\frac{\phi_k}{\phi_K}
 \quad k=1,\ldots,K-1
 ```
 
+This also identifies the log-partition function:
+
+```math
+a(\eta)
+=
+\log\left(1+\sum_{j=1}^{K-1}e^{\eta_j}\right)
+```
+
+因为：
+
+```math
+\log\phi_K
+=
+-a(\eta)
+```
+
+所以 the multinomial one-trial distribution has exponential-family form:
+
+```math
+p(y;\eta)
+=
+\exp\left(\eta^TT(y)-a(\eta)\right)
+```
+
+with $`b(y)=1`$ in this finite categorical representation.
+
+Check the two cases:
+
+* If $`y=k<K`$, then $`\eta^TT(y)=\eta_k`$, so $`p(y=k;\eta)=e^{\eta_k-a(\eta)}=\phi_k`$.
+* If $`y=K`$, then $`T(y)=0`$, so $`p(y=K;\eta)=e^{-a(\eta)}=\phi_K`$.
+
 这就是 reference-class parameterization 下 softmax 的来源。
+
+In the GLM step, Section 15 sets the local natural parameter to class-specific linear scores, e.g. $`\eta_k(x)=\theta_k^Tx`$ for $`k<K`$ and $`\eta_K(x)=0`$, then rewrites the same probability map in symmetric softmax form.
 
 ## 15. Softmax Response Function
 
-若为每个 class 定义 linear score：
+Section 14 derived a categorical distribution indexed by natural parameters $`\eta_1,\ldots,\eta_{K-1}`$. The GLM step makes those natural parameters depend on features. In the canonical-link construction emphasized by CS229, the local natural parameter for sample input $`x`$ is a linear score:
 
 ```math
-s_k(x)=\theta_k^Tx
+\eta_k(x)=\theta_k^Tx,
+\quad k=1,\ldots,K-1
 ```
 
-则 symmetric softmax response 是：
+with the reference class fixed by:
+
+```math
+\eta_K(x)=0
+```
+
+Here $`\theta_k`$ is a global class-specific parameter vector learned from all samples, while $`\eta_k(x)`$ is the local natural coordinate induced for one input $`x`$. Substituting $`\eta_k(x)=\theta_k^Tx`$ into the reference-class probabilities from Section 14 gives:
+
+```math
+p(y=k\mid x;\Theta)
+=
+\frac{\exp(\theta_k^Tx)}
+{1+\sum_{j=1}^{K-1}\exp(\theta_j^Tx)},
+\quad k=1,\ldots,K-1
+```
+
+and:
+
+```math
+p(y=K\mid x;\Theta)
+=
+\frac{1}
+{1+\sum_{j=1}^{K-1}\exp(\theta_j^Tx)}
+```
+
+This is already a valid categorical distribution over the whole class set. Nonnegativity comes from exponentials, and joint normalization comes from one shared denominator:
+
+```math
+\sum_{k=1}^{K}p(y=k\mid x;\Theta)
+=
+\frac{\sum_{k=1}^{K-1}\exp(\theta_k^Tx)+1}
+{1+\sum_{j=1}^{K-1}\exp(\theta_j^Tx)}
+=1
+```
+
+所以 softmax 确保的不是 “each class probability is individually normalized” 这种弱条件；它确保的是 for each input $`x`$, the entire class-probability vector lies on the simplex:
+
+```math
+p(\cdot\mid x;\Theta)\in\Delta^{K-1}
+```
+
+Equivalently, every class is competing for the same unit probability mass.
+
+Symmetric softmax 是同一个模型的冗余参数化。若为每个 class 定义 linear score：
+
+```math
+s_k(x)=\theta_k^Tx,
+\quad k=1,\ldots,K
+```
+
+则 response 写成：
 
 ```math
 p(y=k\mid x;\Theta)
 =
 \frac{\exp(\theta_k^Tx)}
 {\sum_{j=1}^{K}\exp(\theta_j^Tx)}
+```
+
+This symmetric form is obtained from the reference-class form by setting the baseline score to zero, or conversely by allowing all $`K`$ classes to carry scores and remembering that only score differences are identifiable.
+
+Normalization is still joint across all classes:
+
+```math
+\sum_{k=1}^{K}p(y=k\mid x;\Theta)
+=
+\frac{\sum_{k=1}^{K}\exp(\theta_k^Tx)}
+{\sum_{j=1}^{K}\exp(\theta_j^Tx)}
+=1
 ```
 
 解释：
@@ -3048,19 +3181,57 @@ Softmax 不是 independent one-vs-rest logistic regression。One-vs-rest 会训�
 
 ## 16. Softmax Likelihood and Cross-Entropy
 
-定义 one-hot target：
+Now move from one conditional categorical distribution to a dataset:
+
+```math
+\mathcal D=\{(x^{(i)},y^{(i)})\}_{i=1}^{m}
+```
+
+For sample $`i`$, define the one-hot target distribution:
 
 ```math
 t_{ik}=\mathbf1\{y^{(i)}=k\}
 ```
 
-记：
+Thus $`t_i=(t_{i1},\ldots,t_{iK})`$ is the empirical / realized categorical distribution for that one observed label: it puts probability $`1`$ on the observed class and $`0`$ on all other classes.
+
+The model prediction is the softmax probability vector:
 
 ```math
 p_{ik}=p(y=k\mid x^{(i)};\Theta)
 ```
 
-Likelihood 是：
+where:
+
+```math
+p_{ik}
+=
+\frac{\exp(\theta_k^Tx^{(i)})}
+{\sum_{j=1}^{K}\exp(\theta_j^Tx^{(i)})}
+```
+
+Both $`t_i`$ and $`p_i`$ are distributions over the same $`K`$ mutually exclusive classes:
+
+```math
+\sum_{k=1}^{K}t_{ik}=1,
+\quad
+\sum_{k=1}^{K}p_{ik}=1
+```
+
+The second equality is not an extra training constraint. It is guaranteed by the softmax denominator for every input $`x^{(i)}`$.
+
+For one sample, the categorical probability assigned to the observed label is:
+
+```math
+p(y^{(i)}\mid x^{(i)};\Theta)
+=
+\prod_{k=1}^{K}
+p_{ik}^{t_{ik}}
+```
+
+If $`y^{(i)}=r`$, then $`t_{ir}=1`$ and all other $`t_{ik}=0`$, so this product equals $`p_{ir}`$. The product notation is just a compact way to select the observed class probability.
+
+Assuming conditional independence across samples given the inputs and parameters, the conditional likelihood is:
 
 ```math
 L(\Theta)
@@ -3070,7 +3241,7 @@ L(\Theta)
 p_{ik}^{t_{ik}}
 ```
 
-Log-likelihood：
+Taking logs gives:
 
 ```math
 \ell(\Theta)
@@ -3080,7 +3251,7 @@ Log-likelihood：
 t_{ik}\log p_{ik}
 ```
 
-Negative log likelihood，也就是 multiclass cross-entropy：
+Negative log likelihood is:
 
 ```math
 J(\Theta)
@@ -3090,7 +3261,104 @@ J(\Theta)
 t_{ik}\log p_{ik}
 ```
 
-为了推导 gradient，先写单样本 loss：
+Cross-entropy is defined between two probability distributions over the same support. For class probabilities, let:
+
+```math
+q_i=(q_{i1},\ldots,q_{iK})
+```
+
+be the actual or target distribution for sample $`i`$, and let:
+
+```math
+p_i=(p_{i1},\ldots,p_{iK})
+```
+
+be the model-predicted distribution. Both must satisfy:
+
+```math
+\sum_{k=1}^{K}q_{ik}=1,
+\quad
+\sum_{k=1}^{K}p_{ik}=1
+```
+
+The cross-entropy from $`q_i`$ to $`p_i`$ is:
+
+```math
+H(q_i,p_i)
+=
+-\sum_{k=1}^{K}q_{ik}\log p_{ik}
+```
+
+Equivalently, it is the expected negative log probability assigned by the predicted distribution when the outcome is actually drawn from $`q_i`$:
+
+```math
+H(q_i,p_i)
+=
+\mathbb E_{Y\sim q_i}[-\log p_i(Y)]
+```
+
+So cross-entropy measures the average surprise or coding cost incurred when using $`p_i`$ to encode outcomes generated by $`q_i`$. It is not a symmetric distance metric, but it becomes a valid optimization measure of distribution mismatch because:
+
+If $`q_{ik}>0`$ but $`p_{ik}`$ is very small, the term $`-q_{ik}\log p_{ik}`$ becomes large. In the limiting case $`p_{ik}=0`$ with $`q_{ik}>0`$, the cross-entropy is infinite. Softmax avoids exact zero probabilities because exponentials are positive, but it still heavily penalizes assigning tiny probability to a class that the target distribution says is plausible.
+
+```math
+H(q_i,p_i)
+=
+H(q_i)
++
+D_{\mathrm{KL}}(q_i\,\|\,p_i)
+```
+
+where:
+
+```math
+H(q_i)
+=
+-\sum_{k=1}^{K}q_{ik}\log q_{ik}
+```
+
+and:
+
+```math
+D_{\mathrm{KL}}(q_i\,\|\,p_i)
+=
+\sum_{k=1}^{K}q_{ik}\log\frac{q_{ik}}{p_{ik}}
+\ge 0
+```
+
+The entropy term $`H(q_i)`$ depends only on the actual distribution, not on the model parameters. Therefore, when $`q_i`$ is fixed, minimizing cross-entropy over $`\Theta`$ is equivalent to minimizing $`D_{\mathrm{KL}}(q_i\,\|\,p_i)`$. The minimum is achieved when the predicted distribution matches the target distribution wherever the model family can represent it.
+
+In supervised classification, the observed one-hot target $`t_i`$ plays the empirical role of $`q_i`$, so:
+
+```math
+J(\Theta)
+=
+\sum_{i=1}^{m}H(t_i,p_i)
+```
+
+For a one-hot target, $`H(t_i)=0`$ and cross-entropy reduces to:
+
+```math
+H(t_i,p_i)
+=
+-\log p_{i,y^{(i)}}
+```
+
+So minimizing cross-entropy means assigning high predicted probability to the actual observed class while keeping the entire predicted vector a valid categorical distribution. With soft labels or label distributions, the same formula compares the whole target probability vector against the whole predicted probability vector.
+
+More generally, if the true conditional distribution were $`q(k\mid x)`$, the expected cross-entropy would satisfy:
+
+```math
+H(q(\cdot\mid x),p_\Theta(\cdot\mid x))
+=
+H(q(\cdot\mid x))
++
+D_{\mathrm{KL}}\left(q(\cdot\mid x)\,\|\,p_\Theta(\cdot\mid x)\right)
+```
+
+The first term does not depend on $`\Theta`$, so minimizing cross-entropy is equivalent to minimizing the KL mismatch from the actual class distribution to the model's predicted class distribution. The dataset version replaces the unknown $`q`$ with observed one-hot targets.
+
+To see the objective explicitly as a function of $`\Theta`$, plug the softmax formula into the NLL. For one sample:
 
 ```math
 J_i
@@ -3098,7 +3366,7 @@ J_i
 -\sum_{k=1}^{K}t_{ik}\log p_{ik}
 ```
 
-由于：
+Since:
 
 ```math
 \log p_{ik}
@@ -3108,7 +3376,7 @@ J_i
 \log\sum_{j=1}^{K}\exp(\theta_j^Tx^{(i)})
 ```
 
-所以：
+we get:
 
 ```math
 J_i
@@ -3119,7 +3387,7 @@ J_i
 \log\sum_{j=1}^{K}\exp(\theta_j^Tx^{(i)})
 ```
 
-one-hot target 满足 $`\sum_k t_{ik}=1`$，故：
+Because $`\sum_k t_{ik}=1`$:
 
 ```math
 J_i
@@ -3129,7 +3397,9 @@ J_i
 \log\sum_{j=1}^{K}\exp(\theta_j^Tx^{(i)})
 ```
 
-对 $`\theta_r`$ 求 gradient：
+This is the theta-dependent formula used for optimization: the first term rewards the observed class score, while the log-sum-exp term penalizes the total normalized mass assigned across all classes.
+
+Differentiate with respect to $`\theta_r`$:
 
 ```math
 \nabla_{\theta_r}J_i
@@ -3141,7 +3411,7 @@ J_i
 x^{(i)}
 ```
 
-即：
+The fraction is exactly $`p_{ir}`$, so:
 
 ```math
 \nabla_{\theta_r}J_i
@@ -3149,7 +3419,7 @@ x^{(i)}
 (p_{ir}-t_{ir})x^{(i)}
 ```
 
-汇总所有 samples：
+Summing over samples:
 
 ```math
 \nabla_{\theta_k}J
@@ -3158,7 +3428,13 @@ x^{(i)}
 (p_{ik}-t_{ik})x^{(i)}
 ```
 
-所有 class parameters 是 jointly trained 的，因为每个 $`p_{ik}`$ 的 denominator 包含全部 class scores。
+The residual $`p_{ik}-t_{ik}`$ is a probability-distribution mismatch on class $`k`$ for sample $`i`$. All class parameters are jointly trained because every $`p_{ik}`$ shares the same denominator:
+
+```math
+\sum_{j=1}^{K}\exp(\theta_j^Tx^{(i)})
+```
+
+This shared denominator is also what makes the model different from independent one-vs-rest logistic regression: softmax compares one normalized predicted categorical distribution against one normalized actual target distribution for each sample.
 
 ## 17. Reliability View
 
