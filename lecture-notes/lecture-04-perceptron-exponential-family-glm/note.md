@@ -2899,7 +2899,7 @@ h_\theta(x)=\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
 \phi_K=1-\sum_{k=1}^{K-1}\phi_k
 ```
 
-定义 sufficient statistic：
+定义 sufficient statistic。这里 $`\mathbf1\{\cdot\}`$ is the indicator function: it equals $`1`$ when the condition inside braces is true, and $`0`$ otherwise.
 
 ```math
 (T(y))_k=\mathbf1\{y=k\},
