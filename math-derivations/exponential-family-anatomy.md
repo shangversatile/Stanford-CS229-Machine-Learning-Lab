@@ -1,6 +1,6 @@
 # Exponential Family Anatomy
 
-Cross-link: see [Lecture 4 Section 6](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Lecture 4 Conceptual Interlude A](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), [GLM Construction Recipe](glm-construction-recipe.md), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
+Cross-link: see [Lecture 4 Section 6: Anatomy of the Exponential Family](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#6-anatomy-of-the-exponential-family), [Lecture 4 Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Sufficient Statistics and Likelihood Equivalence](sufficient-statistics-likelihood-equivalence.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), [GLM Construction Recipe](glm-construction-recipe.md), and [Why Exponential Family and GLM Exist](why-exponential-family-and-glm.md).
 
 ## 1. Canonical form
 

@@ -7,28 +7,28 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | Module | Purpose |
 |---|---|
 | [1. Core Question](#1-core-question) | What Lecture 4 is really trying to unify |
-| [2. Perceptron](#2-perceptron-as-a-non-probabilistic-linear-classifier) | Linear classification without probabilistic modeling |
-| [3. Perceptron vs GLM](#3-why-perceptron-is-discussed-before-glm) | Why linear score alone does not define a model |
-| [4. Newton Bridge](#4-newton-method-as-an-optimization-bridge) | Why nonlinear likelihood models need iterative optimization |
-| [5. Exponential Family Motivation](#5-why-exponential-family-is-introduced) | Why this family is introduced |
-| [6. Exponential Family Anatomy](#6-anatomy-of-the-exponential-family) | What $`\eta`$, $`T(y)`$, $`a(\eta)`$, and $`b(y)`$ mean |
-| [Conceptual Interlude A](#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data) | Notation, canonical statistics, sufficiency, and likelihood equivalence |
-| [Conceptual Interlude B](#conceptual-interlude-b-from-response-space-to-probability-distribution) | How output space guides distribution choice |
-| [Conceptual Interlude C](#conceptual-interlude-c-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
-| [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
-| [Mathematical Interlude B](#mathematical-interlude-b-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
+| [2. Perceptron as a Non-probabilistic Linear Classifier](#2-perceptron-as-a-non-probabilistic-linear-classifier) | Linear classification without probabilistic modeling |
+| [3. Why Perceptron Is Discussed Before GLM](#3-why-perceptron-is-discussed-before-glm) | Why linear score alone does not define a model |
+| [4. Newton Method as an Optimization Bridge](#4-newton-method-as-an-optimization-bridge) | Why nonlinear likelihood models need iterative optimization |
+| [5. Why Exponential Family Is Introduced](#5-why-exponential-family-is-introduced) | Why this family is introduced |
+| [6. Anatomy of the Exponential Family](#6-anatomy-of-the-exponential-family) | What $`\eta`$, $`T(y)`$, $`a(\eta)`$, and $`b(y)`$ mean |
+| [Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?](#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data) | Notation, canonical statistics, sufficiency, and likelihood equivalence |
+| [Conceptual Interlude B: From Response Space to Probability Distribution](#conceptual-interlude-b-from-response-space-to-probability-distribution) | How output space guides distribution choice |
+| [Conceptual Interlude C: Why Exponential Family and GLM Exist](#conceptual-interlude-c-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
+| [7. Log-Partition Function as the Mathematical Engine](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
+| [Mathematical Interlude: Why Exponential-Family MLE Is Convex-Friendly](#mathematical-interlude-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
 | [8. GLM Components](#8-glm-components) | Random component, parameter scales, systematic component, link, response |
-| [Conceptual Interlude D](#conceptual-interlude-d-why-glm-components-form-a-statistical-model) | Why the GLM components define a conditional statistical model |
-| [9. GLM Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
-| [10. Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
+| [Conceptual Interlude D: Why GLM Components Form a Statistical Model](#conceptual-interlude-d-why-glm-components-form-a-statistical-model) | Why the GLM components define a conditional statistical model |
+| [9. The Complete GLM Modeling Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
+| [10. Deep Meaning of the Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
 | [11. Gaussian GLM](#11-gaussian-glm) | Real-valued regression |
 | [12. Bernoulli GLM](#12-bernoulli-glm) | Binary classification |
 | [13. Poisson GLM](#13-poisson-glm) | Count regression |
-| [14. Multinomial Form](#14-multinomial-exponential-family-form) | Multiclass sufficient statistic |
-| [15. Softmax Response](#15-softmax-response-function) | Multiclass probability model |
-| [16. Softmax Cross-Entropy](#16-softmax-likelihood-and-cross-entropy) | Multiclass NLL and gradient |
+| [14. Multinomial Exponential-Family Form](#14-multinomial-exponential-family-form) | Multiclass sufficient statistic |
+| [15. Softmax Response Function](#15-softmax-response-function) | Multiclass probability model |
+| [16. Softmax Likelihood and Cross-Entropy](#16-softmax-likelihood-and-cross-entropy) | Multiclass NLL and gradient |
 | [17. Reliability View](#17-reliability-view) | Mean, variance/noise, distributional failure modes, and diagnostics |
-| [18. PS1 Connection](#18-connection-to-ps1) | Assignment-gate connection |
+| [18. Connection to PS1](#18-connection-to-ps1) | Assignment-gate connection |
 | [19. Takeaways](#19-takeaways) | Final synthesis |
 | [Fast Review Checklist](#fast-review-checklist) | Self-check questions for the lecture |
 | [Concept Map Summary](#concept-map-summary) | One-page modeling map |
@@ -1377,7 +1377,7 @@ Use the same reasoning pattern every time: define $`Y`$, write its legal support
 A strong answer does not say only “the label is numeric, so use regression.” It says what the number means. If the number is a class ID, use categorical/softmax; if it is a count, use a count model; if it is a positive amount, use a positive continuous model; if it is a probability, use a model whose random variable lives in $`(0,1)`$ or on the simplex.
 ---
 
-Return to main Lecture 4 flow: [7. Log-Partition Function](#7-log-partition-function-as-the-mathematical-engine).
+Return to main Lecture 4 flow: [7. Log-Partition Function as the Mathematical Engine](#7-log-partition-function-as-the-mathematical-engine).
 
 ---
 
@@ -1679,7 +1679,7 @@ v^T\mathrm{Cov}_{\eta}(T(Y))v
 
 ---
 
-# Mathematical Interlude B: Why Exponential-Family MLE Is Convex-Friendly
+# Mathematical Interlude: Why Exponential-Family MLE Is Convex-Friendly
 
 > This interlude explains why exponential-family likelihoods have favorable optimization geometry through the log-partition function.
 
@@ -2142,7 +2142,7 @@ Only under a canonical link is $`\xi_i=\eta_i`$.
 
 ## C. How Data Learn the Global Parameter
 
-The detailed likelihood-equivalence and sufficiency argument appeared in [Conceptual Interlude A](#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data). Here the same structure is read in the conditional GLM setting.
+The detailed likelihood-equivalence and sufficiency argument appeared in [Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?](#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data). Here the same structure is read in the conditional GLM setting.
 
 Use the notation consistently: $`X`$ is the input random variable, $`x_i`$ is the observed input for sample $`i`$, $`Y_i`$ is the response random variable after conditioning on $`x_i`$, and $`y_i`$ is one realized value of $`Y_i`$. The model is about the distribution of possible $`Y_i`$ values before the observed $`y_i`$ is realized.
 
@@ -2307,7 +2307,7 @@ Choosing the family decides which outputs are legal, how probability mass is all
 
 ---
 
-Return to main Lecture 4 flow: GLM Workflow.
+Return to main Lecture 4 flow: [9. The Complete GLM Modeling Workflow](#9-the-complete-glm-modeling-workflow).
 ## 9. The Complete GLM Modeling Workflow
 
 A GLM should be read in three directions: the forward probability model, the inverse learning problem, and the post-training prediction problem. Keeping those directions separate prevents $`\theta`$, $`\eta_i`$, $`\psi_i`$, $`Y_i`$, and $`y_i`$ from collapsing into one vague object.
