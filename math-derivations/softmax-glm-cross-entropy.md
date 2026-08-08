@@ -18,6 +18,29 @@ Expectation of the one-hot canonical statistic gives class probabilities:
 \mathbb E[(T(Y))_k]=P(Y=k)
 ```
 
+Equivalently:
+
+```math
+\mathbb E[T(Y)]
+=
+\begin{bmatrix}
+\phi_1\\
+\vdots\\
+\phi_K
+\end{bmatrix}
+=
+\phi
+```
+
+For one realized label $y=i$, $T(y)$ is a fixed one-hot vector. For the random label $Y$ before realization, $T(Y)$ is a random one-hot vector, and its expectation is the probability vector:
+
+```text
+Y -> T(Y) -> E[T(Y)]
+Y=y -> T(y)
+```
+
+These are different levels: the expectation is over one categorical random label, not an average over dataset samples. For the categorical family, $\mathbb E[T(Y)]=\phi$, so the log-partition gradient $\nabla a(\eta)=\mathbb E[T(Y)]$ gives the class-probability / mean-parameter vector. Softmax therefore maps the linear/natural parameters associated with $x$ to the conditional mean of the one-hot sufficient statistic, which is exactly the class-probability vector.
+
 ## 2. Reference Class Derivation
 
 Categorical probability mass:
