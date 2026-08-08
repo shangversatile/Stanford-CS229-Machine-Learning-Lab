@@ -2947,6 +2947,8 @@ For a realized value $`y`$:
 \mathbb E[(T(Y))_k]=P(Y=k)=\phi_k
 ```
 
+In the GLM response step, read the same identity conditionally: $`\mathbb E[(T(Y))_k\mid X=x;\Theta]=P(Y=k\mid X=x;\Theta)`$, so softmax maps $`\eta(x)`$ to the conditional mean coordinate of the one-hot statistic.
+
 For iid samples, the corresponding sample-level statistic would be $`\sum_iT(y_i)`$, i.e. class counts for the first $`K-1`$ classes; the reference-class count is inferred from the total sample size. Section 14 only needs the one-observation form.
 
 Categorical PMF 可以写成：

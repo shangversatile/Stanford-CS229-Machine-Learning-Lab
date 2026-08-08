@@ -2,20 +2,94 @@
 
 ## 1. One-Hot Canonical Statistic
 
-For a $K$-class categorical response, define:
+For a $K$-class categorical random variable:
+
+```math
+Y\in\{1,\ldots,K\}
+```
+
+define the one-hot statistic:
+
+```math
+T(Y)
+=
+\begin{bmatrix}
+\mathbf1\{Y=1\}\\
+\vdots\\
+\mathbf1\{Y=K\}
+\end{bmatrix}
+```
+
+Here $Y$ is the categorical random variable, $y$ is one realized value, $T(Y)$ is a random vector, and $T(y)$ is fixed after $y$ is observed:
 
 ```math
 (T(y))_k=\mathbf1\{y=k\}
 ```
 
-For a reference-class parameterization, use $k=1,\ldots,K-1$ and treat class $K$ as the baseline. In the symmetric softmax implementation, it is common to keep all $K$ class scores and handle identifiability by regularization or by recognizing shift invariance.
+Therefore the $i$th component before realization is:
+
+```math
+(T(Y))_i=\mathbf1\{Y=i\}
+```
+
+This component is itself a $0$-$1$ random variable. Its expectation is not an average over training-sample indices, not an average over the $K$ coordinates of $T(Y)$, and not an average of an already observed fixed vector $T(y)$. It averages over all possible category values of the same categorical random variable $Y$, weighted by the probabilities assigned by the current model.
+
+The general identity is:
+
+```math
+\mathbb E[\mathbf1\{A\}]=P(A)
+```
+
+So here this is just:
+
+```math
+\mathbb E[\mathbf1\{Y=i\}]=P(Y=i)
+```
+
+Here $(T(j))_i$ means the $i$th component of the one-hot vector that would be obtained if the realized category were $j$:
+
+```math
+(T(j))_i=\mathbf1\{j=i\}
+```
+
+Therefore the discrete expectation is:
+
+```math
+\mathbb E[(T(Y))_i]
+=
+\sum_{j=1}^{K}(T(j))_iP(Y=j)
+=
+\sum_{j=1}^{K}\mathbf1\{j=i\}P(Y=j)
+=
+P(Y=i)
+=
+\phi_i
+```
+
+The sum collapses because $(T(j))_i=1$ only when $j=i$, and $(T(j))_i=0$ for all other categories.
+
+For a three-class example with $P(Y=1)=0.2$, $P(Y=2)=0.5$, and $P(Y=3)=0.3$:
+
+```math
+\mathbb E[(T(Y))_2]=\mathbb E[\mathbf1\{Y=2\}]
+```
+
+```math
+\mathbb E[(T(Y))_2]=0\cdot0.2+1\cdot0.5+0\cdot0.3=0.5
+```
+
+Across repeated draws from this categorical distribution, $(T(Y))_2$ is $1$ about $50\%$ of the time and $0$ otherwise, so its expectation is $0.5$.
+
+This example is only for intuition; the mathematical reason is still the indicator expectation identity above.
+
+For a reference-class parameterization, keep $k=1,\ldots,K-1$ and treat class $K$ as the baseline. In the symmetric softmax implementation, it is common to keep all $K$ class scores and handle identifiability by regularization or by recognizing shift invariance.
 
 For iid categorical samples, aggregating these one-observation readouts gives class counts. The class-count vector is the sample-level sufficient statistic for class probabilities; the one-hot vector is the per-observation canonical statistic.
 
 Expectation of the one-hot canonical statistic gives class probabilities:
 
 ```math
-\mathbb E[(T(Y))_k]=P(Y=k)
+\mathbb E[(T(Y))_k]=P(Y=k)=\phi_k
 ```
 
 Equivalently:
@@ -39,7 +113,29 @@ Y -> T(Y) -> E[T(Y)]
 Y=y -> T(y)
 ```
 
-These are different levels: the expectation is over one categorical random label, not an average over dataset samples. For the categorical family, $\mathbb E[T(Y)]=\phi$, so the log-partition gradient $\nabla a(\eta)=\mathbb E[T(Y)]$ gives the class-probability / mean-parameter vector. Softmax therefore maps the linear/natural parameters associated with $x$ to the conditional mean of the one-hot sufficient statistic, which is exactly the class-probability vector.
+Official GLM derivations often first write the shorthand:
+
+```math
+\mathbb E[(T(Y))_i]=P(Y=i)=\phi_i
+```
+
+But in the actual supervised GLM, each input $x$ defines its own conditional categorical distribution. Therefore the stricter statement is:
+
+```math
+\mathbb E[(T(Y))_i\mid X=x;\Theta]
+=
+P(Y=i\mid X=x;\Theta)
+=
+\phi_i(x)
+```
+
+In vector form:
+
+```math
+\mathbb E[T(Y)\mid X=x;\Theta]=\phi(x)
+```
+
+These are different levels. For the categorical family, $\mathbb E[T(Y)]=\phi$, so the log-partition gradient $\nabla a(\eta)=\mathbb E[T(Y)]$ gives the class-probability / mean-parameter vector. In the GLM, softmax maps the linear/natural parameters associated with $x$ to the conditional mean of the one-hot sufficient statistic, which is exactly the class-probability vector.
 
 ## 2. Reference Class Derivation
 
