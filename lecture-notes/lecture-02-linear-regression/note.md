@@ -1,5 +1,14 @@
 # Lecture 2: Supervised Learning Setup and Linear Regression
 
+**Related math derivations**
+
+| Topic in this note | Deep-dive |
+|---|---|
+| Least squares, batch gradient, normal equation, and Gaussian MLE | [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md) |
+| Transpose identities and gradient-contour geometry | [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md) |
+| Probability versus likelihood and MLE as loss construction | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md) |
+| ML view versus probabilistic view of squared loss | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md) |
+
 ## 1. Core Question
 
 Lecture 2 不只是介绍一个名为 linear regression 的算法。它第一次把 supervised learning 写成一条可以推导、计算、实现和检验的完整链路：
@@ -90,6 +99,8 @@ $$h_\theta(x)=\theta^T\phi(x)$$
 
 ## 4. Least Squares Objective
 
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#2-scalar-objective).
+
 本笔记使用 residual convention
 
 $$r=X\theta-y,$$
@@ -127,6 +138,8 @@ $$\frac{d}{du}\frac12u^2=u.$$
 * **Objective mismatch**：MSE 较低不必然等于真实决策成本较低。
 
 ## 5. Gradient Descent and LMS
+
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#3-gradient-of-one-example) and [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#4-batch-gradient).
 
 Gradient descent 是 numerical optimization method。它不直接给出 optimum 的闭式表达，而是从当前参数出发迭代：
 
@@ -229,6 +242,8 @@ Learning rate $\alpha$ 不能脱离 objective geometry 来理解：
 
 ## 7. Geometric Proof: Gradient is Perpendicular to Contours
 
+Detailed companion: [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md#2-curve-based-proof) and [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md#3-surface-normal-projection-proof).
+
 ### 7.1 Contour-line proof
 
 对 differentiable function $z=f(x,y)$，equal-height contour 定义为
@@ -293,6 +308,8 @@ Contour $f(x,y)=c$ 可以看作 surface 与 horizontal plane $z=c$ 的交线，�
 
 ## 8. Matrix View of Linear Regression
 
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#1-setup-and-dimensions).
+
 把所有样本同时写入 design matrix 后，
 
 $$h_\theta(X)=X\theta,$$
@@ -310,6 +327,8 @@ Matrix notation 的价值不只是“写得短”：
 * **Projection geometry**：把 fitted values 看作 column space 中的向量。
 
 ## 9. Matrix Multiplication and Transpose Identity
+
+Detailed companion: [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md).
 
 后续展开 objective 会使用
 
@@ -335,6 +354,8 @@ $$(AB)^T=B^TA^T.$$
 完整推导见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
 
 ## 10. Normal Equation: Full Derivation
+
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#5-normal-equation).
 
 从 matrix objective 开始：
 
@@ -465,6 +486,8 @@ Therefore, $\hat{y}$ is the orthogonal projection of $y$ onto $\mathrm{Col}(X)$.
 图中 subspace line 表示 $\mathrm{Col}(X)$， $\hat{y}=X\hat{\theta}$ 位于该 subspace 上，residual 从 projection point 垂直指向 $y$。这条正交关系与 normal equation 完全等价。
 
 ## 11. Probabilistic Interpretation and MLE
+
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#9-probabilistic-interpretation) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md#6-how-gaussian-mle-produces-squared-loss).
 
 Least squares 可以从一个 data-generating assumption 推出。假设
 
