@@ -3629,13 +3629,16 @@ x_new
 | Is $`p(x)`$ modeled? | covariate model | no for conditional GLM |
 | What is random versus realized? | $`Y_i`$, $`\mathbf Y`$ versus $`y_i`$, $`\mathbf y`$ | before / after observation |
 | What statistic matters? | $`T(Y_i)`$ and $`T(y_i)`$ | scalar, one-hot vector, $`(y,y^2)`$ |
+| What removes categorical redundancy? | $`K-1`$ reference-class indicators | class $`K`$ as zero vector, not a privileged class |
 | What aggregates iid evidence? | $`S(\mathbf y)=\sum_iT(y_i)`$ | success count, sum, sum of squares |
 | What defines minimal compression? | likelihood-equivalence classes | likelihood ratio independent of parameter |
 | What aggregates GLM evidence? | $`\sum_i x_iT(y_i)`$ | feature-weighted statistic sum |
 | What is the ordinary local parameter? | $`\psi_i`$ | $`p_i`$, $`\lambda_i`$, $`\mu_i`$ |
+| Which parameter is a mean? | ordinary / natural / mean / statistic expectation | Bernoulli $`p=\mathbb E[Y]`$, categorical $`\phi=\mathbb E[T(Y)]`$ |
 | What is the natural local coordinate? | $`\eta_i=q(\psi_i)`$ | log-odds, log-rate, mean coordinate |
 | What is globally learned? | $`\theta`$ | shared feature-effect vector |
 | What is systematic? | $`\xi_i=s_\theta(x_i)=x_i^T\theta`$ | feature-side score |
+| What does $`\theta^Tx=c`$ mean? | level set of $`\xi_i`$, canonical $`\eta_i`$ | iso-probability surface before decision rule |
 | What is the conditional mean? | $`\mu_i=g^{-1}(\xi_i)`$ | fitted mean, event probability, expected count |
 | What is the residual view? | $`\epsilon_i=Y_i-\mu_i`$ | $`\mathbb E[\epsilon_i\mid X_i]=0`$ |
 | What is optimized? | conditional likelihood / NLL | squared loss, cross-entropy, Poisson NLL |
