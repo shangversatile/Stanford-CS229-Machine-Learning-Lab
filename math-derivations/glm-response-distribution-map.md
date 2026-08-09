@@ -67,6 +67,116 @@ The table keeps formulas short; the family sections below give the derivations.
 The residual column is a conditional-mean residual. It does not imply fixed Gaussian noise except in the Gaussian identity-link model with an explicit homoscedastic Gaussian assumption. Bernoulli residuals have support $`\{-p_i,1-p_i\}`$; Poisson residual variance grows with $`\lambda_i`$.
 
 The global parameter is not an ordinary distribution parameter for a single sample. It parameterizes the mapping from $`x_i`$ to the local distribution scale.
+
+### 4.1 Distribution parameter, mean parameter, and natural parameter are different objects
+
+Keep four objects separate:
+
+* ordinary distribution parameter: the familiar parameterization used to name a distribution member;
+* mean / expectation parameter: the model-implied expectation, either $`\mathbb E[Y]`$ or $`\mathbb E[T(Y)]`$ depending on the statistic scale;
+* natural parameter $`\eta`$: the canonical exponential-family coordinate;
+* dispersion / nuisance parameter: additional spread or shape parameters not always modeled by the GLM linear predictor.
+
+In Bernoulli:
+
+```math
+Y\sim\mathrm{Bernoulli}(p)
+```
+
+```math
+\mathbb E[Y]=p
+```
+
+so the ordinary parameter $`p`$ is also the scalar response mean. But the natural parameter is:
+
+```math
+\eta=\log\frac{p}{1-p}
+```
+
+and therefore $`\eta\neq p`$.
+
+In Poisson:
+
+```math
+Y\sim\mathrm{Poisson}(\lambda)
+```
+
+```math
+\mathbb E[Y]=\lambda
+```
+
+so the ordinary rate $`\lambda`$ again happens to be the scalar mean. The natural parameter is different:
+
+```math
+\eta=\log\lambda
+```
+
+In Gaussian:
+
+```math
+Y\sim\mathcal N(\mu,\sigma^2)
+```
+
+```math
+\mathbb E[Y]=\mu
+```
+
+but the distribution also contains the variance parameter $`\sigma^2`$. The variance is plainly not the mean. In the standard Gaussian GLM, the conditional mean is usually the part made systematic in $`x`$, while dispersion can be fixed, estimated separately, or modeled with a richer variance structure.
+
+For Gamma with shape-rate parameterization:
+
+```math
+Y\sim\mathrm{Gamma}(\alpha,\beta)
+```
+
+the mean is:
+
+```math
+\mathbb E[Y]=\frac{\alpha}{\beta}
+```
+
+The ordinary parameters $`\alpha`$ and $`\beta`$ are not themselves the mean. A different ordinary parameterization, such as shape-scale, changes the parameter names and mean formula but not the lesson: ordinary distribution coordinates need not equal the response mean.
+
+Categorical is the most important case for softmax. For:
+
+```math
+Y\in\{1,\ldots,K\}
+```
+
+do not write $`\mathbb E[Y]=\phi`$. If class labels are treated as numeric codes, then:
+
+```math
+\mathbb E[Y]=\sum_{k=1}^{K}k\phi_k
+```
+
+but for nominal classes that number usually has no meaningful category interpretation. The correct statistic-scale object is the one-hot canonical statistic:
+
+```math
+T_k(Y)=\mathbf1\{Y=k\}
+```
+
+so:
+
+```math
+\mathbb E[T_k(Y)]=\phi_k
+```
+
+and in vector form:
+
+```math
+\mathbb E[T(Y)]=\phi
+```
+
+The general exponential-family identity is:
+
+```math
+\mathbb E_\eta[T(Y)]
+=
+\nabla a(\eta)
+```
+
+not "the distribution parameter equals $`\mathbb E[Y]`$." Only when $`T(Y)=Y`$ does this become a direct statement about the scalar response mean. In a GLM, $`\mu(x)=\mathbb E[Y\mid X=x]`$ is often the response mean being systematically modeled, but the response distribution may still have other ordinary parameters, natural coordinates, and dispersion terms.
+
 ## 5. Gaussian
 
 **Support.** $`Y_i\in\mathbb R`$.

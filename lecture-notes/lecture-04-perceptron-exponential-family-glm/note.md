@@ -1806,6 +1806,8 @@ This determines support, probability or density structure, and mean-variance beh
 
 The ordinary parameter $`\psi_i`$ is the familiar local parameter of the chosen distribution. Examples include a Bernoulli success probability $`p_i`$, a Poisson rate $`\lambda_i`$, or a Gaussian mean $`\mu_i`$ under fixed variance. It belongs to sample $`i`$'s conditional distribution, not to the whole dataset as a free parameter per sample.
 
+Ordinary distribution parameters are not always conditional means: Bernoulli $`p`$ and Poisson $`\lambda`$ happen to be means, Gaussian also has variance/dispersion, Gamma shape-rate parameters are not themselves the mean, and categorical $`\phi`$ is $`\mathbb E[T(Y)]`$ rather than $`\mathbb E[Y]`$. See [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md#41-distribution-parameter-mean-parameter-and-natural-parameter-are-different-objects).
+
 ### 8.3 Natural parameter
 
 The natural parameter $`\eta_i`$ is the canonical coordinate of the same local distribution. Ordinary and natural coordinates are related by:
@@ -1918,6 +1920,8 @@ y
 ```
 
 Gaussian identity-link regression is special because the linear predictor, natural parameter, and conditional mean coincide. Bernoulli and Poisson GLMs do not have this coincidence: log-odds and log-rate are not themselves probabilities or expected counts. This special Gaussian collapse is what makes the misleading slogan "a GLM is just a linear predictor plus zero-mean noise" feel natural. The safer statement is: a GLM puts linear structure on a chosen distribution scale, maps to the conditional mean, and then specifies distribution-specific conditional randomness on the observation scale.
+
+For the geometry-probability bridge, read $`\theta^Tx=c`$ as a level set of the systematic component. Under a canonical link it is also a level set of the natural parameter and therefore of the induced conditional distribution. A logistic decision boundary is only the $`P(Y=1\mid x)=0.5`$ level set after a threshold rule is imposed; the probability model comes first. The fuller derivation is in [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md#4-systematic-component-general-link-and-canonical-link).
 
 ### 8.8 Global parameter sharing
 
@@ -2317,6 +2321,7 @@ Conditional probabilistic branch for a general GLM:
 ```text
 x_i
 -> xi_i = x_i^T theta
+-> xi_i = c defines a level set in input space
 -> mu_i = g^{-1}(xi_i)
 -> eta_i = q(mu_i)
 -> conditional distribution p(Y_i | x_i; theta)
@@ -3056,6 +3061,8 @@ Check the two cases:
 
 这就是 reference-class parameterization 下 softmax 的来源。
 
+The detailed derivation of the $`\phi_K^{1-\sum_{k=1}^{K-1}T_k(y)}`$ term, why $`1-T_j(y)`$ cannot represent the reference class, and why the full $`K`$-dimensional one-hot statistic is redundant is collected in [Softmax GLM and Cross-Entropy](../../math-derivations/softmax-glm-cross-entropy.md#2-reference-class-derivation).
+
 In the GLM step, Section 15 sets the local natural parameter to class-specific linear scores, e.g. $`\eta_k(x)=\theta_k^Tx`$ for $`k<K`$ and $`\eta_K(x)=0`$, then rewrites the same probability map in symmetric softmax form.
 
 ## 15. Softmax Response Function
@@ -3510,6 +3517,8 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can distinguish shared-parameter iid matching from GLM feature-weighted matching through $`\sum_i x_iT(y_i)`$.
 - [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, conditional mean $`\mu_i`$, and global parameter $`\theta`$.
 - [ ] I can explain why $`\eta_i\neq\theta`$ but $`\eta_i=x_i^T\theta`$ in the scalar canonical construction.
+- [ ] I can explain why $`\theta^Tx=c`$ is a level set of the systematic component and why a decision boundary is a downstream thresholded level set.
+- [ ] I can explain why ordinary distribution parameters, natural parameters, mean parameters, and dispersion parameters need not be the same object.
 - [ ] I can distinguish natural-parameter scale, mean / response scale, and observation scale.
 - [ ] I can explain why residuals are centered on $`\mu(X)`$, not generally on $`\eta(X)`$.
 - [ ] I can state the Gaussian equivalence between $`Y\mid X=x`$ and $`Y=\theta^TX+\epsilon`$ with conditional Gaussian noise.
@@ -3518,6 +3527,7 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can explain the column-space constraint behind $`\boldsymbol\eta=X\theta`$.
 - [ ] I can distinguish conditional modeling from joint modeling without claiming covariate shift disappears.
 - [ ] I can explain why multiclass uses categorical/multinomial rather than Poisson.
+- [ ] I can explain why a $`K`$-class categorical model can use only $`K-1`$ reference-class indicators and why $`1-T_j(Y)`$ is not the reference-class indicator.
 - [ ] I can derive sigmoid from Bernoulli and exponential response from Poisson.
 - [ ] I can list conditional mean, variance/noise, and full conditional distribution misspecification as separate reliability risks.
 

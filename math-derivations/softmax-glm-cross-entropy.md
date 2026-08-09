@@ -147,6 +147,108 @@ p(y;\phi)
 \prod_{k=1}^{K}\phi_k^{\mathbf1\{y=k\}}
 ```
 
+For a one-trial categorical outcome, exactly one class indicator is $`1`$:
+
+```math
+\sum_{k=1}^{K}\mathbf1\{y=k\}=1
+```
+
+If the reference-class statistic keeps only:
+
+```math
+T_k(y)=\mathbf1\{y=k\},
+\quad k=1,\ldots,K-1
+```
+
+then the missing class indicator is determined by the others:
+
+```math
+\mathbf1\{y=K\}
+=
+1-\sum_{k=1}^{K-1}\mathbf1\{y=k\}
+=
+1-\sum_{k=1}^{K-1}T_k(y)
+```
+
+This identity is the only reason the exponent of $`\phi_K`$ becomes:
+
+```math
+1-\sum_{k=1}^{K-1}T_k(y)
+```
+
+The PMF can therefore be written as:
+
+```math
+p(y;\phi)
+=
+\left(
+\prod_{k=1}^{K-1}\phi_k^{T_k(y)}
+\right)
+\phi_K^{1-\sum_{k=1}^{K-1}T_k(y)}
+```
+
+It cannot be replaced by $`1-T_j(y)`$ for an arbitrary class $`j`$, because:
+
+```math
+1-T_j(y)=\mathbf1\{y\neq j\}
+```
+
+That is true for every non-$`j`$ class, not only for class $`K`$. For $`K=4`$, if $`T_1(y)=\mathbf1\{y=1\}`$, then $`1-T_1(y)`$ has values:
+
+```text
+y = 1 -> 0
+y = 2 -> 1
+y = 3 -> 1
+y = 4 -> 1
+```
+
+so it is not $`\mathbf1\{y=4\}`$. By contrast:
+
+```math
+1-T_1(y)-T_2(y)-T_3(y)
+```
+
+has values $`0,0,0,1`$ across $`y=1,2,3,4`$, exactly matching $`\mathbf1\{y=4\}`$.
+
+The full $`K`$-dimensional one-hot vector:
+
+```math
+\begin{bmatrix}
+\mathbf1\{Y=1\}\\
+\vdots\\
+\mathbf1\{Y=K\}
+\end{bmatrix}
+```
+
+always satisfies:
+
+```math
+\sum_{k=1}^{K}T_k(Y)=1
+```
+
+so its coordinates have one deterministic affine constraint and only $`K-1`$ degrees of freedom. The reference-class representation keeps:
+
+```math
+T(Y)
+=
+\begin{bmatrix}
+\mathbf1\{Y=1\}\\
+\vdots\\
+\mathbf1\{Y=K-1\}
+\end{bmatrix}
+```
+
+In this coordinate choice:
+
+```text
+Y = 1     -> e_1
+...
+Y = K - 1 -> e_{K-1}
+Y = K     -> 0
+```
+
+Choosing class $`K`$ as the zero/reference vector is a coordinate choice, not an intrinsic privilege of class $`K`$. Any class could be selected as the reference class, just as any nonredundant basis can represent the same categorical family.
+
 Use class $K$ as reference:
 
 ```math
@@ -181,6 +283,8 @@ and:
 ```math
 T_k(y)=\mathbf1\{y=k\}
 ```
+
+Each $`\eta_k`$ is the log-odds coordinate of class $`k`$ relative to the chosen reference class $`K`$.
 
 The log-partition function is:
 

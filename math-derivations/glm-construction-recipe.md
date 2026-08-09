@@ -216,6 +216,87 @@ Only in that case:
 
 This equality is a condition, not a general GLM fact. With a noncanonical link, the systematic component $`\xi_i`$ and natural parameter $`\eta_i`$ are connected indirectly through $`\mu_i`$.
 
+The same scalar $`\xi(x)=\theta^Tx`$ has two complementary readings. Geometrically, for any constant $`c`$, the set:
+
+```math
+\theta^Tx=c
+```
+
+is a hyperplane in input space. Statistically, that hyperplane is a level set of the systematic component: every point on it receives the same $`\xi(x)=c`$. Under a canonical link, this also means the same natural coordinate $`\eta(x)=c`$ and therefore the same local response-distribution parameterization. With a general link, the model instead says:
+
+```math
+g(\mu(x))=\theta^Tx
+```
+
+so the hyperplane is a level set of the linked conditional mean, not necessarily a level set of the natural parameter itself.
+
+Thus a GLM should be read in this order:
+
+```text
+x
+-> linear predictor xi(x) = theta^T x
+-> distribution coordinate through the link
+-> conditional response distribution p(Y | X = x)
+-> random response Y
+```
+
+The score $`\theta^Tx`$ is not generically "the probability." It is the systematic coordinate produced from $`x`$. With a canonical link, it is the natural parameter of the conditional response distribution; with a noncanonical link, it is the chosen link-scale coordinate for the conditional mean.
+
+For logistic regression:
+
+```math
+P(Y=1\mid x)=\sigma(\theta^Tx)
+```
+
+so:
+
+```math
+\theta^Tx=c
+```
+
+is an iso-probability surface:
+
+```math
+P(Y=1\mid x)=\sigma(c)
+```
+
+The probabilistic model creates a whole family of equal-probability surfaces. The classification decision boundary is only one special level set after a decision rule is imposed. With a $`0.5`$ threshold:
+
+```math
+P(Y=1\mid x)=0.5
+\quad\Longleftrightarrow\quad
+\theta^Tx=0
+```
+
+So the correct order is probability model first, decision rule second, decision boundary third. The GLM is not "draw a hyperplane and then attach a probability"; it is a conditional distribution model whose link-scale level sets happen to be hyperplanes when the systematic component is linear.
+
+For softmax with class $`K`$ chosen as the reference class:
+
+```math
+\eta_k(x)=\theta_k^Tx,
+\quad k=1,\ldots,K-1
+```
+
+means:
+
+```math
+\eta_k(x)
+=
+\log\frac{P(Y=k\mid x)}
+{P(Y=K\mid x)}
+```
+
+In the symmetric $`K`$-score implementation, the same relative statement is:
+
+```math
+\log\frac{P(Y=i\mid x)}
+{P(Y=j\mid x)}
+=
+(\theta_i-\theta_j)^Tx
+```
+
+The multiple linear score surfaces are the geometry in input space of a conditional categorical distribution; they are not separate independent binary probability models.
+
 ## 5. Mean map from the log-partition function
 
 The log-partition function is:
