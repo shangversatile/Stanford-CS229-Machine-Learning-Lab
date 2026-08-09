@@ -1,6 +1,6 @@
 # Response Spaces, Measures, and Expectations
 
-Cross-link: see [Lecture 4 Conceptual Interlude E: What Does a Response Value Mean?](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-e-what-does-a-response-value-mean), [Softmax GLM and Cross-Entropy](softmax-glm-cross-entropy.md), [GLM Response and Distribution Map](glm-response-distribution-map.md), [Exponential Family Anatomy](exponential-family-anatomy.md), and [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md).
+Cross-link: see [Lecture 4 Conceptual Interlude E: What Does a Response Value Mean?](../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-e-what-does-a-response-value-mean), [Softmax GLM and Cross-Entropy](10-softmax-glm-cross-entropy.md), [GLM Response and Distribution Map](08-glm-response-distribution-map.md), [Exponential Family Anatomy](02-exponential-family-anatomy.md), and [Log-Partition Mean, Variance, and Convexity](05-log-partition-mean-variance-convexity.md).
 
 ## 1. Why E[T(Y)] raises a deeper question
 

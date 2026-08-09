@@ -146,9 +146,9 @@ $$m\geq \frac{k}{V_dr^d}.$$
 
 LWR 假设每个 query point $x$ 附近都有足够样本来拟合稳定的 local model $\theta(x)$。在高维中，除非 $m$ 指数增长，否则这个假设会失效。
 
-![Neighborhood volume decays exponentially with dimension](../assets/figures/lecture03-neighborhood-volume-decay.png)
+![Neighborhood volume decays exponentially with dimension](../../assets/figures/lecture03-neighborhood-volume-decay.png)
 
-![Sample size required for fixed local coverage grows exponentially](../assets/figures/lecture03-sample-size-exponential-growth.png)
+![Sample size required for fixed local coverage grows exponentially](../../assets/figures/lecture03-sample-size-exponential-growth.png)
 
 ### Distance Concentration
 
@@ -194,7 +194,7 @@ $$\frac{D_{\max}^2-D_{\min}^2}{\mathbb{E}[D^2]}=O\left(\sqrt{\frac{\log m}{d}}\r
 
 当 $d$ 很大且 $\log m\ll d$ 时，nearest 和 farthest distances 的 relative difference 变小。这不表示所有 distances 完全相等，而是表示 Euclidean distance 的 ranking signal 相对于整体 distance scale 变弱。
 
-![Distances concentrate as dimension increases](../assets/figures/lecture03-distance-concentration-derivation.png)
+![Distances concentrate as dimension increases](../../assets/figures/lecture03-distance-concentration-derivation.png)
 
 ## Consequence for Gaussian Kernel Weights
 
@@ -214,7 +214,7 @@ $$w^{(i)}(x)\approx \exp\left(-\frac{d}{12\tau^2}\right).$$
 * large $\tau$：all points look similarly weighted，LWR 接近 global fitting；
 * intermediate $\tau$：often unstable and highly data-dependent。
 
-![LWR Gaussian weights degenerate in high dimensions](../assets/figures/lecture03-lwr-weights-high-dimensional-degeneracy.png)
+![LWR Gaussian weights degenerate in high dimensions](../../assets/figures/lecture03-lwr-weights-high-dimensional-degeneracy.png)
 
 这就是 LWR 在 low-dimensional visual examples 中强大、但在 high-dimensional feature spaces 中脆弱的深层原因。LWR 假设 locality 既 statistically populated 又 geometrically meaningful。高维同时破坏这两个条件：local neighborhoods 除非数据指数增长否则接近空，而 distance-based weighting 因 distances concentrate 变得不够 informative。
 

@@ -4,10 +4,10 @@
 
 | Topic in this note | Deep-dive |
 |---|---|
-| Supervised learning as objective-driven modeling | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md) |
-| Probability, likelihood, and why NLL becomes a loss | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md) |
-| Response semantics behind regression and classification | [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md) |
-| What a response value means before choosing a model | [Response Spaces, Measures, and Expectations](../../math-derivations/response-spaces-measures-and-expectations.md) |
+| Supervised learning as objective-driven modeling | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md) |
+| Probability, likelihood, and why NLL becomes a loss | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md) |
+| Response semantics behind regression and classification | [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md) |
+| What a response value means before choosing a model | [Response Spaces, Measures, and Expectations](../../math-derivations/lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md) |
 
 ## 1. Core Question
 
@@ -39,7 +39,7 @@ Lecture 1 的作用是给出 machine learning 领域的地图，而不是在第�
 
 ## 3. Key Concepts
 
-Detailed companion: [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md#1-core-distinction) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md).
+Detailed companion: [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md#1-core-distinction) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md).
 
 ### 3.1 Supervised Learning
 
@@ -111,7 +111,7 @@ Generalization 指模型在 unseen data 上的表现。低 training error 不足
 
 ## 4. Regression vs Classification
 
-Detailed companion: [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md#2-support-sets-and-response-semantics) and [Response Spaces, Measures, and Expectations](../../math-derivations/response-spaces-measures-and-expectations.md#6-real-valued-regression-responses).
+Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#2-support-sets-and-response-semantics) and [Response Spaces, Measures, and Expectations](../../math-derivations/lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md#6-real-valued-regression-responses).
 
 Regression 问的是：“How much?” Classification 问的是：“Which class?” 二者的区别不只是输出类型不同，还会影响 loss design、evaluation metrics、decision boundary 和 error interpretation。
 
@@ -178,7 +178,7 @@ Linear models 在二维中对应 lines，在三维中对应 planes，在更高�
 
 ## 6. Conceptual Structure
 
-Detailed companion: [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md).
+Detailed companion: [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md).
 
 ```mermaid
 flowchart LR

@@ -1,6 +1,6 @@
 # Sufficient Statistics and Likelihood Equivalence
 
-Cross-link: see [Lecture 4 Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Exponential Family Anatomy](exponential-family-anatomy.md), [Log-Partition Mean, Variance, and Convexity](log-partition-mean-variance-convexity.md), and [GLM Construction Recipe](glm-construction-recipe.md).
+Cross-link: see [Lecture 4 Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?](../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data), [Exponential Family Anatomy](02-exponential-family-anatomy.md), [Log-Partition Mean, Variance, and Convexity](05-log-partition-mean-variance-convexity.md), and [GLM Construction Recipe](07-glm-construction-recipe.md).
 
 This note separates five objects that are often collapsed in informal discussion:
 

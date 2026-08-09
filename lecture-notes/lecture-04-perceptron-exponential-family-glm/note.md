@@ -38,18 +38,18 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 
 | Topic in this note | Deep-dive |
 |---|---|
-| Perceptron boundary, update, and margin geometry | [Perceptron Vector Geometry](../../math-derivations/perceptron-vector-geometry.md) |
-| Newton method bridge and convergence behavior | [Newton Method and Quadratic Convergence](../../math-derivations/newton-method-quadratic-convergence.md) |
-| Logistic regression gradient / Hessian bridge from Lecture 3 | [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md) |
-| Exponential-family components and canonical statistics | [Exponential Family Anatomy](../../math-derivations/exponential-family-anatomy.md) |
-| Sufficiency, minimality, and likelihood equivalence | [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/sufficient-statistics-likelihood-equivalence.md) |
-| Sufficient-statistic moment matching | [Sufficient Statistics, Likelihood, and Moments](../../math-derivations/sufficient-statistics-likelihood-and-moments.md) |
-| Log-partition mean, covariance, convexity, and GLM training bridge | [Log-Partition Mean, Variance, and Convexity](../../math-derivations/log-partition-mean-variance-convexity.md) |
-| Why exponential family and GLMs arise | [Why Exponential Family and GLM Exist](../../math-derivations/why-exponential-family-and-glm.md) |
-| GLM construction, links, parameter hierarchy, and geometry | [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md) |
-| Response semantics and distribution choice | [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md) |
-| Response spaces, measures, observables, and categorical expectation | [Response Spaces, Measures, and Expectations](../../math-derivations/response-spaces-measures-and-expectations.md) |
-| Multinomial / softmax, reference class, cross-entropy, and gradients | [Softmax GLM and Cross-Entropy](../../math-derivations/softmax-glm-cross-entropy.md) |
+| Perceptron boundary, update, and margin geometry | [Perceptron Vector Geometry](../../math-derivations/lecture-04-perceptron-exponential-family-glm/01-perceptron-vector-geometry.md) |
+| Newton method bridge and convergence behavior | [Newton Method and Quadratic Convergence](../../math-derivations/lecture-03-locally-weighted-logistic-regression/03-newton-method-quadratic-convergence.md) |
+| Logistic regression gradient / Hessian bridge from Lecture 3 | [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md) |
+| Exponential-family components and canonical statistics | [Exponential Family Anatomy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/02-exponential-family-anatomy.md) |
+| Sufficiency, minimality, and likelihood equivalence | [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/lecture-04-perceptron-exponential-family-glm/03-sufficient-statistics-likelihood-equivalence.md) |
+| Sufficient-statistic moment matching | [Sufficient Statistics, Likelihood, and Moments](../../math-derivations/lecture-04-perceptron-exponential-family-glm/04-sufficient-statistics-likelihood-and-moments.md) |
+| Log-partition mean, covariance, convexity, and GLM training bridge | [Log-Partition Mean, Variance, and Convexity](../../math-derivations/lecture-04-perceptron-exponential-family-glm/05-log-partition-mean-variance-convexity.md) |
+| Why exponential family and GLMs arise | [Why Exponential Family and GLM Exist](../../math-derivations/lecture-04-perceptron-exponential-family-glm/06-why-exponential-family-and-glm.md) |
+| GLM construction, links, parameter hierarchy, and geometry | [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md) |
+| Response semantics and distribution choice | [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md) |
+| Response spaces, measures, observables, and categorical expectation | [Response Spaces, Measures, and Expectations](../../math-derivations/lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md) |
+| Multinomial / softmax, reference class, cross-entropy, and gradients | [Softmax GLM and Cross-Entropy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/10-softmax-glm-cross-entropy.md) |
 
 ## 1. Core Question
 
@@ -84,7 +84,7 @@ Newton method 是 Lecture 3 到 Lecture 4 的桥：它解释 logistic regression
 
 ## 2. Perceptron as a Non-probabilistic Linear Classifier
 
-Detailed companion: [Perceptron Vector Geometry](../../math-derivations/perceptron-vector-geometry.md).
+Detailed companion: [Perceptron Vector Geometry](../../math-derivations/lecture-04-perceptron-exponential-family-glm/01-perceptron-vector-geometry.md).
 
 Perceptron 使用 signed labels：
 
@@ -164,7 +164,7 @@ Perceptron 和 logistic regression 可以共享同一个 linear score $`\theta^T
 
 ## 4. Newton Method as an Optimization Bridge
 
-Detailed companion: [Newton Method and Quadratic Convergence](../../math-derivations/newton-method-quadratic-convergence.md) and [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md).
+Detailed companion: [Newton Method and Quadratic Convergence](../../math-derivations/lecture-03-locally-weighted-logistic-regression/03-newton-method-quadratic-convergence.md) and [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md).
 
 Newton method 的 multivariate optimization update 是：
 
@@ -256,7 +256,7 @@ H=X^TX
 
 ## 5. Why Exponential Family Is Introduced
 
-Detailed companion: [Why Exponential Family and GLM Exist](../../math-derivations/why-exponential-family-and-glm.md) and [Exponential Family Anatomy](../../math-derivations/exponential-family-anatomy.md).
+Detailed companion: [Why Exponential Family and GLM Exist](../../math-derivations/lecture-04-perceptron-exponential-family-glm/06-why-exponential-family-and-glm.md) and [Exponential Family Anatomy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/02-exponential-family-anatomy.md).
 
 Exponential family 的 canonical form 是：
 
@@ -276,7 +276,7 @@ p(y;\eta)=b(y)\exp\left(\eta^TT(y)-a(\eta)\right)
 
 ## 6. Anatomy of the Exponential Family
 
-Detailed companion: [Exponential Family Anatomy](../../math-derivations/exponential-family-anatomy.md), [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/sufficient-statistics-likelihood-equivalence.md), and [Sufficient Statistics, Likelihood, and Moments](../../math-derivations/sufficient-statistics-likelihood-and-moments.md).
+Detailed companion: [Exponential Family Anatomy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/02-exponential-family-anatomy.md), [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/lecture-04-perceptron-exponential-family-glm/03-sufficient-statistics-likelihood-equivalence.md), and [Sufficient Statistics, Likelihood, and Moments](../../math-derivations/lecture-04-perceptron-exponential-family-glm/04-sufficient-statistics-likelihood-and-moments.md).
 
 ### 6.1 Intuition: what each component is doing
 
@@ -422,7 +422,7 @@ h_\theta(x)=\mathbb E[T(Y)|x;\theta]=\nabla a(\eta(x))
 
 # Conceptual Interlude A: What Information About a Parameter Is Actually in the Data?
 
-> This interlude is the notation and likelihood-equivalence layer behind sufficient statistics. A more formal derivation is collected in [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/sufficient-statistics-likelihood-equivalence.md).
+> This interlude is the notation and likelihood-equivalence layer behind sufficient statistics. A more formal derivation is collected in [Sufficient Statistics and Likelihood Equivalence](../../math-derivations/lecture-04-perceptron-exponential-family-glm/03-sufficient-statistics-likelihood-equivalence.md).
 
 ---
 
@@ -1081,7 +1081,7 @@ For Gaussian models, the coordinates may include $`y`$ and $`y^2`$; for Bernoull
 # Conceptual Interlude B: From Response Space to Probability Distribution
 
 > This interlude is a modeling map. It explains how the semantic type of $`Y`$ constrains the probability distribution and therefore the GLM response function.
-> Detailed companion: [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md) and [Response Spaces, Measures, and Expectations](../../math-derivations/response-spaces-measures-and-expectations.md).
+> Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md) and [Response Spaces, Measures, and Expectations](../../math-derivations/lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md).
 
 ---
 
@@ -1416,7 +1416,7 @@ Return to main Lecture 4 flow: [7. Log-Partition Function as the Mathematical En
 
 ![Why exponential family emerges](../../assets/figures/lecture04-why-exponential-family-emerges.png)
 
-For a longer derivation, see [Why Exponential Family and GLM Exist](../../math-derivations/why-exponential-family-and-glm.md).
+For a longer derivation, see [Why Exponential Family and GLM Exist](../../math-derivations/lecture-04-perceptron-exponential-family-glm/06-why-exponential-family-and-glm.md).
 
 ## A. The original problem: linear models were too narrow
 
@@ -1581,7 +1581,7 @@ Return to main Lecture 4 flow: now that the origin of exponential-family form is
 
 ## 7. Log-Partition Function as the Mathematical Engine
 
-Detailed companion: [Log-Partition Mean, Variance, and Convexity](../../math-derivations/log-partition-mean-variance-convexity.md).
+Detailed companion: [Log-Partition Mean, Variance, and Convexity](../../math-derivations/lecture-04-perceptron-exponential-family-glm/05-log-partition-mean-variance-convexity.md).
 
 先定义 unnormalized normalizer：
 
@@ -1711,7 +1711,7 @@ v^T\mathrm{Cov}_{\eta}(T(Y))v
 # Mathematical Interlude: Why Exponential-Family MLE Is Convex-Friendly
 
 > This interlude explains why exponential-family likelihoods have favorable optimization geometry through the log-partition function.
-> Detailed companion: [Log-Partition Mean, Variance, and Convexity](../../math-derivations/log-partition-mean-variance-convexity.md#6-concavity-of-log-likelihood).
+> Detailed companion: [Log-Partition Mean, Variance, and Convexity](../../math-derivations/lecture-04-perceptron-exponential-family-glm/05-log-partition-mean-variance-convexity.md#6-concavity-of-log-likelihood).
 
 ---
 
@@ -1812,7 +1812,7 @@ Next: GLM Components applies the exponential-family machinery to supervised cond
 
 ## 8. GLM Components
 
-Detailed companion: [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md) and [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md).
+Detailed companion: [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md) and [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md).
 
 CS229's GLM construction can be read as a layered conditional-distribution model. The key is to keep ordinary distribution parameters, natural parameters, the systematic component, and the global trainable parameter separate.
 
@@ -1838,7 +1838,7 @@ This determines support, probability or density structure, and mean-variance beh
 
 The ordinary parameter $`\psi_i`$ is the familiar local parameter of the chosen distribution. Examples include a Bernoulli success probability $`p_i`$, a Poisson rate $`\lambda_i`$, or a Gaussian mean $`\mu_i`$ under fixed variance. It belongs to sample $`i`$'s conditional distribution, not to the whole dataset as a free parameter per sample.
 
-Ordinary distribution parameters are not always conditional means: Bernoulli $`p`$ and Poisson $`\lambda`$ happen to be means, Gaussian also has variance/dispersion, Gamma shape-rate parameters are not themselves the mean, and categorical $`\phi`$ is $`\mathbb E[T(Y)]`$ rather than $`\mathbb E[Y]`$. See [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md#41-distribution-parameter-mean-parameter-and-natural-parameter-are-different-objects).
+Ordinary distribution parameters are not always conditional means: Bernoulli $`p`$ and Poisson $`\lambda`$ happen to be means, Gaussian also has variance/dispersion, Gamma shape-rate parameters are not themselves the mean, and categorical $`\phi`$ is $`\mathbb E[T(Y)]`$ rather than $`\mathbb E[Y]`$. See [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#41-distribution-parameter-mean-parameter-and-natural-parameter-are-different-objects).
 
 ### 8.3 Natural parameter
 
@@ -1953,7 +1953,7 @@ y
 
 Gaussian identity-link regression is special because the linear predictor, natural parameter, and conditional mean coincide. Bernoulli and Poisson GLMs do not have this coincidence: log-odds and log-rate are not themselves probabilities or expected counts. This special Gaussian collapse is what makes the misleading slogan "a GLM is just a linear predictor plus zero-mean noise" feel natural. The safer statement is: a GLM puts linear structure on a chosen distribution scale, maps to the conditional mean, and then specifies distribution-specific conditional randomness on the observation scale.
 
-For the geometry-probability bridge, read $`\theta^Tx=c`$ as a level set of the systematic component. Under a canonical link it is also a level set of the natural parameter and therefore of the induced conditional distribution. A logistic decision boundary is only the $`P(Y=1\mid x)=0.5`$ level set after a threshold rule is imposed; the probability model comes first. The fuller derivation is in [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md#4-systematic-component-general-link-and-canonical-link).
+For the geometry-probability bridge, read $`\theta^Tx=c`$ as a level set of the systematic component. Under a canonical link it is also a level set of the natural parameter and therefore of the induced conditional distribution. A logistic decision boundary is only the $`P(Y=1\mid x)=0.5`$ level set after a threshold rule is imposed; the probability model comes first. The fuller derivation is in [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#4-systematic-component-general-link-and-canonical-link).
 
 ### 8.8 Global parameter sharing
 
@@ -2006,7 +2006,7 @@ The response remains random. The linear predictor chooses a coordinate of the co
 # Conceptual Interlude D: Why GLM Components Form a Statistical Model
 
 > This interlude belongs after the GLM components. Section 8 lists the pieces; this interlude explains why those pieces define a coherent conditional statistical model before Section 9 turns them into a workflow.
-> Detailed companion: [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md) and [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md).
+> Detailed companion: [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md) and [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md).
 
 ---
 
@@ -2616,7 +2616,7 @@ It is legitimate to notice that sigmoid, exponential, and softmax are nonlinear 
 
 ## 11. Gaussian GLM
 
-Detailed companion: [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md#5-gaussian) and [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md#12-canonical-examples).
+Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#5-gaussian) and [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#12-canonical-examples).
 
 采用 official fixed-variance derivation，令 variance 为 $`1`$。Gaussian density：
 
@@ -2721,7 +2721,7 @@ Gaussian log likelihood 忽略与 $`\theta`$ 无关的常数后等价于：
 
 ## 12. Bernoulli GLM
 
-Detailed companion: [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md#6-bernoulli) and [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md).
+Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#6-bernoulli) and [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md).
 
 Bernoulli distribution：
 
@@ -2867,7 +2867,7 @@ Probability sensitivity is controlled by $`p_i(1-p_i)`$, while the training grad
 
 ## 13. Poisson GLM
 
-Detailed companion: [GLM Response and Distribution Map](../../math-derivations/glm-response-distribution-map.md#7-poisson) and [GLM Construction Recipe](../../math-derivations/glm-construction-recipe.md#12-canonical-examples).
+Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#7-poisson) and [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#12-canonical-examples).
 
 Poisson distribution：
 
@@ -2937,7 +2937,7 @@ h_\theta(x)=\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
 
 ## 14. Multinomial Exponential-Family Form
 
-Detailed companion: [Softmax GLM and Cross-Entropy](../../math-derivations/softmax-glm-cross-entropy.md#2-reference-class-derivation) and [Response Spaces, Measures, and Expectations](../../math-derivations/response-spaces-measures-and-expectations.md).
+Detailed companion: [Softmax GLM and Cross-Entropy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/10-softmax-glm-cross-entropy.md#2-reference-class-derivation) and [Response Spaces, Measures, and Expectations](../../math-derivations/lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md).
 
 This section is a one-observation distribution derivation. It is not yet the sample likelihood and it is not yet the feature-dependent GLM response.
 
@@ -3104,7 +3104,7 @@ Check the two cases:
 
 这就是 reference-class parameterization 下 softmax 的来源。
 
-The detailed derivation of the $`\phi_K^{1-\sum_{k=1}^{K-1}T_k(y)}`$ term, why $`1-T_j(y)`$ cannot represent the reference class, and why the full $`K`$-dimensional one-hot statistic is redundant is collected in [Softmax GLM and Cross-Entropy](../../math-derivations/softmax-glm-cross-entropy.md#2-reference-class-derivation).
+The detailed derivation of the $`\phi_K^{1-\sum_{k=1}^{K-1}T_k(y)}`$ term, why $`1-T_j(y)`$ cannot represent the reference class, and why the full $`K`$-dimensional one-hot statistic is redundant is collected in [Softmax GLM and Cross-Entropy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/10-softmax-glm-cross-entropy.md#2-reference-class-derivation).
 
 After the response-space interlude below, Section 15 returns to the GLM step: set the local natural parameter to class-specific linear scores, e.g. $`\eta_k(x)=\theta_k^Tx`$ for $`k<K`$ and $`\eta_K(x)=0`$, then rewrite the same probability map in symmetric softmax form.
 
@@ -3112,7 +3112,7 @@ After the response-space interlude below, Section 15 returns to the GLM step: se
 
 ### From E[Y] to E[T(Y)], Response Spaces, and Probability Measures
 
-> This interlude starts from the softmax identity $`\mathbb E[(T(Y))_i]=P(Y=i)=\phi_i`$ and asks why this is the right object for a categorical response. A more formal version is collected in [Response Spaces, Measures, and Expectations](../../math-derivations/response-spaces-measures-and-expectations.md).
+> This interlude starts from the softmax identity $`\mathbb E[(T(Y))_i]=P(Y=i)=\phi_i`$ and asks why this is the right object for a categorical response. A more formal version is collected in [Response Spaces, Measures, and Expectations](../../math-derivations/lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md).
 
 The local derivation above says:
 
@@ -3675,7 +3675,7 @@ Return to main Lecture 4 flow: [15. Softmax Response Function](#15-softmax-respo
 
 ## 15. Softmax Response Function
 
-Detailed companion: [Softmax GLM and Cross-Entropy](../../math-derivations/softmax-glm-cross-entropy.md#3-softmax-probabilities).
+Detailed companion: [Softmax GLM and Cross-Entropy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/10-softmax-glm-cross-entropy.md#3-softmax-probabilities).
 
 Section 14 derived a categorical distribution indexed by natural parameters $`\eta_1,\ldots,\eta_{K-1}`$. The GLM step makes those natural parameters depend on features. In the canonical-link construction emphasized by CS229, the local natural parameter for sample input $`x`$ is a linear score:
 
@@ -3800,7 +3800,7 @@ Softmax 不是 independent one-vs-rest logistic regression。One-vs-rest 会训�
 
 ## 16. Softmax Likelihood and Cross-Entropy
 
-Detailed companion: [Softmax GLM and Cross-Entropy](../../math-derivations/softmax-glm-cross-entropy.md#5-nll-and-cross-entropy).
+Detailed companion: [Softmax GLM and Cross-Entropy](../../math-derivations/lecture-04-perceptron-exponential-family-glm/10-softmax-glm-cross-entropy.md#5-nll-and-cross-entropy).
 
 Now move from one conditional categorical distribution to a dataset:
 

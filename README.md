@@ -39,7 +39,7 @@ CS229 is treated here as a foundational machine learning course for advanced AI 
 
 * `syllabus-analysis/`: Course positioning, official resource mapping, and module dependency planning.
 * `lecture-notes/`: Lecture-level notes focused on core questions, derivations, implementation insights, and research connections.
-* `math-derivations/`: Standalone derivation records for core algorithms and probabilistic interpretations.
+* `math-derivations/`: Lecture-ordered standalone derivation records for core algorithms and probabilistic interpretations.
 * `assignments/`: Independent assignment workspaces and the academic integrity policy for public repository use.
 * `labs/`: From-scratch implementation labs that connect CS229 theory with reproducible code.
 * `src/`: Reusable Python package for implementations, optimization utilities, metrics, data helpers, and visualization code.

@@ -1,6 +1,6 @@
 # Softmax GLM and Cross-Entropy
 
-Cross-link: see [Lecture 4 Section 14: Multinomial Exponential-Family Form](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#14-multinomial-exponential-family-form), [Lecture 4 Conceptual Interlude E: What Does a Response Value Mean?](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-e-what-does-a-response-value-mean), and [Response Spaces, Measures, and Expectations](response-spaces-measures-and-expectations.md).
+Cross-link: see [Lecture 4 Section 14: Multinomial Exponential-Family Form](../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#14-multinomial-exponential-family-form), [Lecture 4 Conceptual Interlude E: What Does a Response Value Mean?](../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-e-what-does-a-response-value-mean), and [Response Spaces, Measures, and Expectations](09-response-spaces-measures-and-expectations.md).
 
 ## 1. One-Hot Canonical Statistic
 
@@ -139,7 +139,7 @@ In vector form:
 
 These are different levels. For the categorical family, $\mathbb E[T(Y)]=\phi$, so the log-partition gradient $\nabla a(\eta)=\mathbb E[T(Y)]$ gives the class-probability / mean-parameter vector. In the GLM, softmax maps the linear/natural parameters associated with $x$ to the conditional mean of the one-hot sufficient statistic, which is exactly the class-probability vector.
 
-For the response-space reason this is $`\mathbb E[T(Y)]`$ rather than an intrinsic scalar-coded $`\mathbb E[Y]`$, see [Response Spaces, Measures, and Expectations](response-spaces-measures-and-expectations.md).
+For the response-space reason this is $`\mathbb E[T(Y)]`$ rather than an intrinsic scalar-coded $`\mathbb E[Y]`$, see [Response Spaces, Measures, and Expectations](09-response-spaces-measures-and-expectations.md).
 
 ## 2. Reference Class Derivation
 

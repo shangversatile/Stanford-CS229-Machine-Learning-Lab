@@ -4,12 +4,12 @@
 
 | Topic in this note | Deep-dive |
 |---|---|
-| ML objective view versus probabilistic modeling view | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md) |
-| Probability versus likelihood, MLE, NLL, and MAP contrast | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md) |
-| Locally weighted regression, bandwidth, and high-dimensional failure | [Locally Weighted Regression](../../math-derivations/locally-weighted-regression.md) |
-| Logistic regression likelihood, gradient, Hessian, and Newton update | [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md) |
-| Newton method and quadratic convergence proof | [Newton Method and Quadratic Convergence](../../math-derivations/newton-method-quadratic-convergence.md) |
-| Linear regression bridge from Lecture 2 | [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md) |
+| ML objective view versus probabilistic modeling view | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md) |
+| Probability versus likelihood, MLE, NLL, and MAP contrast | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md) |
+| Locally weighted regression, bandwidth, and high-dimensional failure | [Locally Weighted Regression](../../math-derivations/lecture-03-locally-weighted-logistic-regression/01-locally-weighted-regression.md) |
+| Logistic regression likelihood, gradient, Hessian, and Newton update | [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md) |
+| Newton method and quadratic convergence proof | [Newton Method and Quadratic Convergence](../../math-derivations/lecture-03-locally-weighted-logistic-regression/03-newton-method-quadratic-convergence.md) |
+| Linear regression bridge from Lecture 2 | [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md) |
 
 ## 1. Core Question
 
@@ -27,7 +27,7 @@ Global Linear Regression -> Local Linear Approximation -> Probability vs Likelih
 
 > This interlude is not a new algorithmic topic. It is the conceptual bridge that explains why the same training objective can be understood both as empirical loss minimization and as likelihood-based statistical estimation.
 
-Detailed companion: [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md).
+Detailed companion: [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md).
 
 ---
 
@@ -321,7 +321,7 @@ Non-parametric learning 也不是说“模型没有参数”。它通常意味�
 
 ## 4. Locally Weighted Regression
 
-Detailed companion: [Locally Weighted Regression](../../math-derivations/locally-weighted-regression.md).
+Detailed companion: [Locally Weighted Regression](../../math-derivations/lecture-03-locally-weighted-logistic-regression/01-locally-weighted-regression.md).
 
 LWR 常用 Gaussian-kernel-like weight：
 
@@ -501,7 +501,7 @@ $$w^{(i)}(x)\approx \exp\left(-\frac{d}{12\tau^2}\right).$$
 
 ## 7. Probability vs Likelihood
 
-Detailed companion: [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md#1-probability-vs-likelihood) and [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md#7-probability-vs-likelihood).
+Detailed companion: [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md#1-probability-vs-likelihood) and [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md#7-probability-vs-likelihood).
 
 Probability 和 likelihood 使用同一个 density 或 mass function，但关注对象不同。
 
@@ -519,7 +519,7 @@ Likelihood asks: given the observed data, which parameter makes it most plausibl
 
 ## 8. Gaussian Noise, MLE, and Squared Loss
 
-Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#9-probabilistic-interpretation) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md#6-how-gaussian-mle-produces-squared-loss).
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#9-probabilistic-interpretation) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md#6-how-gaussian-mle-produces-squared-loss).
 
 Linear regression 的 probabilistic interpretation 从一个 noise model 开始：
 
@@ -619,7 +619,7 @@ $$h_{\theta}(x)^0\left(1-h_{\theta}(x)\right)^1=1-h_{\theta}(x).$$
 
 ## 13. Logistic Regression Loss from MLE
 
-Detailed companion: [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md#2-bernoulli-likelihood) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md#7-how-bernoulli-mle-produces-cross-entropy).
+Detailed companion: [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md#2-bernoulli-likelihood) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md#7-how-bernoulli-mle-produces-cross-entropy).
 
 在 independent samples 下，log likelihood 是：
 
@@ -635,7 +635,7 @@ Cross-entropy 的含义也很强：如果真实 $y=1$，模型却给 $h_{\theta}
 
 ## 14. Logistic Regression Gradient
 
-Detailed companion: [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md#5-step-by-step-gradient-derivation).
+Detailed companion: [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md#5-step-by-step-gradient-derivation).
 
 利用 $g'(z)=g(z)(1-g(z))$，logistic regression negative log likelihood 的 gradient 是：
 
@@ -693,7 +693,7 @@ $$\sum_{i=1}^{m}\left(g(\theta^Tx^{(i)})-y^{(i)}\right)x^{(i)}=0.$$
 
 ## 18. Newton Method
 
-Detailed companion: [Newton Method and Quadratic Convergence](../../math-derivations/newton-method-quadratic-convergence.md) and [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/logistic-regression-gradient-newton.md#8-newton-update-for-logistic-regression).
+Detailed companion: [Newton Method and Quadratic Convergence](../../math-derivations/lecture-03-locally-weighted-logistic-regression/03-newton-method-quadratic-convergence.md) and [Logistic Regression: Gradient, Hessian, and Newton Method](../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md#8-newton-update-for-logistic-regression).
 
 一维 Newton method 可以从 second-order Taylor approximation 推出：
 
@@ -717,7 +717,7 @@ Gradient descent 只使用 slope，Newton method 同时使用 slope 和 curvatur
 
 ## 19. Quadratic Convergence of Newton Method
 
-Detailed companion: [Newton Method and Quadratic Convergence](../../math-derivations/newton-method-quadratic-convergence.md#6-quadratic-convergence-theorem).
+Detailed companion: [Newton Method and Quadratic Convergence](../../math-derivations/lecture-03-locally-weighted-logistic-regression/03-newton-method-quadratic-convergence.md#6-quadratic-convergence-theorem).
 
 把 Newton method 写成 root finding。令 $F(\theta)=f'(\theta)$，目标是找到 $F(\theta^\star)=0$。Newton update 是：
 

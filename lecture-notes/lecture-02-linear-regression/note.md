@@ -4,10 +4,10 @@
 
 | Topic in this note | Deep-dive |
 |---|---|
-| Least squares, batch gradient, normal equation, and Gaussian MLE | [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md) |
-| Transpose identities and gradient-contour geometry | [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md) |
-| Probability versus likelihood and MLE as loss construction | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md) |
-| ML view versus probabilistic view of squared loss | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/ml-vs-probabilistic-modeling.md) |
+| Least squares, batch gradient, normal equation, and Gaussian MLE | [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md) |
+| Transpose identities and gradient-contour geometry | [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/lecture-02-linear-regression/02-matrix-transpose-and-gradient-geometry.md) |
+| Probability versus likelihood and MLE as loss construction | [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md) |
+| ML view versus probabilistic view of squared loss | [Machine Learning View vs Probabilistic Modeling View](../../math-derivations/lecture-01-introduction/01-ml-vs-probabilistic-modeling.md) |
 
 ## 1. Core Question
 
@@ -99,7 +99,7 @@ $$h_\theta(x)=\theta^T\phi(x)$$
 
 ## 4. Least Squares Objective
 
-Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#2-scalar-objective).
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#2-scalar-objective).
 
 本笔记使用 residual convention
 
@@ -139,7 +139,7 @@ $$\frac{d}{du}\frac12u^2=u.$$
 
 ## 5. Gradient Descent and LMS
 
-Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#3-gradient-of-one-example) and [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#4-batch-gradient).
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#3-gradient-of-one-example) and [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#4-batch-gradient).
 
 Gradient descent 是 numerical optimization method。它不直接给出 optimum 的闭式表达，而是从当前参数出发迭代：
 
@@ -242,7 +242,7 @@ Learning rate $\alpha$ 不能脱离 objective geometry 来理解：
 
 ## 7. Geometric Proof: Gradient is Perpendicular to Contours
 
-Detailed companion: [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md#2-curve-based-proof) and [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md#3-surface-normal-projection-proof).
+Detailed companion: [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/lecture-02-linear-regression/02-matrix-transpose-and-gradient-geometry.md#2-curve-based-proof) and [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/lecture-02-linear-regression/02-matrix-transpose-and-gradient-geometry.md#3-surface-normal-projection-proof).
 
 ### 7.1 Contour-line proof
 
@@ -304,11 +304,11 @@ Contour $f(x,y)=c$ 可以看作 surface 与 horizontal plane $z=c$ 的交线，�
 
 ![Surface normal projection and gradient](../../assets/figures/lecture02-surface-normal-projection.png)
 
-这个证明保留了“surface normal 投影为 gradient”的几何想法，同时说明了 contour 来自 horizontal slice。详细证明见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
+这个证明保留了“surface normal 投影为 gradient”的几何想法，同时说明了 contour 来自 horizontal slice。详细证明见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/lecture-02-linear-regression/02-matrix-transpose-and-gradient-geometry.md)。
 
 ## 8. Matrix View of Linear Regression
 
-Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#1-setup-and-dimensions).
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#1-setup-and-dimensions).
 
 把所有样本同时写入 design matrix 后，
 
@@ -328,7 +328,7 @@ Matrix notation 的价值不只是“写得短”：
 
 ## 9. Matrix Multiplication and Transpose Identity
 
-Detailed companion: [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md).
+Detailed companion: [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/lecture-02-linear-regression/02-matrix-transpose-and-gradient-geometry.md).
 
 后续展开 objective 会使用
 
@@ -351,11 +351,11 @@ The transpose product reverses the composition order:
 
 $$(AB)^T=B^TA^T.$$
 
-完整推导见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/matrix-transpose-and-gradient-geometry.md)。
+完整推导见 [Matrix Transpose Identity and Gradient-Contour Geometry](../../math-derivations/lecture-02-linear-regression/02-matrix-transpose-and-gradient-geometry.md)。
 
 ## 10. Normal Equation: Full Derivation
 
-Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#5-normal-equation).
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#5-normal-equation).
 
 从 matrix objective 开始：
 
@@ -487,7 +487,7 @@ Therefore, $\hat{y}$ is the orthogonal projection of $y$ onto $\mathrm{Col}(X)$.
 
 ## 11. Probabilistic Interpretation and MLE
 
-Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/linear-regression-mle-map.md#9-probabilistic-interpretation) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/probability-likelihood-mle.md#6-how-gaussian-mle-produces-squared-loss).
+Detailed companion: [Linear Regression: Least Squares, Normal Equation, and MLE](../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md#9-probabilistic-interpretation) and [Probability, Likelihood, and Maximum Likelihood Estimation](../../math-derivations/lecture-01-introduction/02-probability-likelihood-mle.md#6-how-gaussian-mle-produces-squared-loss).
 
 Least squares 可以从一个 data-generating assumption 推出。假设
 
