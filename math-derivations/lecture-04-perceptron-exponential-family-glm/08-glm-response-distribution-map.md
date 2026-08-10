@@ -215,7 +215,46 @@ p(y_i;\mu_i,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y_i-\mu_i)^
 \eta_i=\mu_i
 ```
 
-With fixed non-unit variance in ordinary density form, the natural coordinate can be scaled by the variance. If variance is also unknown, the natural parameter becomes vector-valued and the statistic must include second-order information.
+The one-observation expansion is:
+
+```math
+p(y;\mu)
+=
+\frac{1}{\sqrt{2\pi}}
+\exp\left(
+-\frac12y^2+\mu y-\frac12\mu^2
+\right)
+```
+
+Thus $`\mu y`$ is the natural pairing, $`-\frac12\mu^2`$ becomes $`-a(\eta)`$, and $`-\frac12y^2-\frac12\log(2\pi)`$ belongs to $`\log b(y)`$ because it is independent of the unknown mean. Therefore:
+
+```math
+T(y)=y,
+\qquad
+a(\eta)=\frac{\eta^2}{2},
+\qquad
+m(\eta)=a'(\eta)=\eta
+```
+
+Since $`T(Y)=Y`$, the expectation parameter is the scalar response mean:
+
+```math
+\mu=\mathbb E[Y]=m(\eta)=\eta
+```
+
+With fixed non-unit variance in ordinary density form:
+
+```math
+\eta=\frac{\mu}{\sigma^2},
+\qquad
+a(\eta)=\frac{\sigma^2\eta^2}{2},
+\qquad
+m(\eta)=\sigma^2\eta=\mu,
+\qquad
+\ell_c(\mu)=\frac{\mu}{\sigma^2}
+```
+
+If variance is also unknown, the natural parameter becomes vector-valued and the statistic must include second-order information.
 
 **Canonical GLM meaning.**
 
@@ -228,6 +267,8 @@ So:
 ```math
 h_\theta(x_i)=\mu_i=x_i^T\theta
 ```
+
+This display is the CS229 variance-one convention, or equivalently a coefficient parameterization where the score is the mean coordinate. With known non-unit variance, the canonical natural coordinate is $`\eta_i=\mu_i/\sigma^2`$; keeping the usual mean model $`\mu_i=x_i^T\theta`$ means $`\eta_i=x_i^T\theta/\sigma^2`$.
 
 **Variance structure.** Fixed-variance Gaussian regression assumes constant conditional variance around the mean.
 
@@ -259,6 +300,26 @@ The inverse map is:
 
 ```math
 p_i=\frac{1}{1+\exp(-\eta_i)}
+```
+
+Equivalently, $`a(\eta)=\log(1+e^\eta)`$ and:
+
+```math
+m(\eta)
+=
+a'(\eta)
+=
+\frac{e^\eta}{1+e^\eta}
+=
+\mathbb E[Y]
+```
+
+Because Bernoulli has $`p_i=\mathbb E[Y_i]`$, the canonical link is:
+
+```math
+\ell_c(\mu_i)
+=
+\log\frac{\mu_i}{1-\mu_i}
 ```
 
 **Canonical GLM meaning.**
@@ -309,6 +370,24 @@ The inverse map is:
 \lambda_i=\exp(\eta_i)
 ```
 
+Equivalently, $`a(\eta)=e^\eta`$ and:
+
+```math
+m(\eta)
+=
+a'(\eta)
+=
+e^\eta
+=
+\mathbb E[Y]
+```
+
+Because Poisson has $`\lambda_i=\mathbb E[Y_i]`$, the canonical link is:
+
+```math
+\ell_c(\mu_i)=\log\mu_i
+```
+
 **Canonical GLM meaning.**
 
 ```math
@@ -350,6 +429,44 @@ with:
 ```math
 T_k(Y_i)=\mathbf1\{Y_i=k\}
 ```
+
+With class $`K`$ as reference:
+
+```math
+\eta_{ik}
+=
+\log\frac{\phi_{ik}}{\phi_{iK}},
+\quad
+k<K
+```
+
+and:
+
+```math
+a(\eta_i)
+=
+\log\left(1+\sum_{j=1}^{K-1}e^{\eta_{ij}}\right)
+```
+
+The expectation map returns class probabilities on the statistic scale:
+
+```math
+m_k(\eta_i)
+=
+\frac{\partial a}{\partial\eta_{ik}}
+=
+\phi_{ik}
+```
+
+So the canonical link is reference logits:
+
+```math
+\ell_c(\phi_i)_k
+=
+\log\frac{\phi_{ik}}{\phi_{iK}}
+```
+
+and softmax is the inverse link / response map.
 
 **GLM role.** Softmax maps class scores to a coupled probability vector. All class probabilities share one normalization, so they are not independent one-vs-rest probabilities.
 

@@ -296,6 +296,30 @@ The log-partition function is:
 a(\eta)=\log\left(1+\sum_{j=1}^{K-1}e^{\eta_j}\right)
 ```
 
+Its gradient is the expectation map for the reference-class one-hot statistic:
+
+```math
+m_k(\eta)
+=
+\frac{\partial a}{\partial\eta_k}
+=
+\frac{e^{\eta_k}}{1+\sum_{j=1}^{K-1}e^{\eta_j}}
+=
+\mathbb E[T_k(Y)]
+=
+\phi_k
+```
+
+Thus reference logits are the canonical link:
+
+```math
+\ell_c(\phi)_k
+=
+\log\frac{\phi_k}{\phi_K}
+```
+
+and softmax is the inverse link / response map from natural scores to class probabilities.
+
 ## 3. Softmax Probabilities
 
 From:

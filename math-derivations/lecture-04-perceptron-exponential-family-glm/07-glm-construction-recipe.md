@@ -773,7 +773,7 @@ The realized response remains random.
 
 ## 10. Gaussian regression sufficient statistics
 
-For fixed-design Gaussian regression:
+For fixed-design Gaussian regression, treat $`X`$ as observed and fixed. The conditional model is:
 
 ```math
 \mathbf y\mid X;\theta
@@ -781,46 +781,113 @@ For fixed-design Gaussian regression:
 \mathcal N(X\theta,\sigma^2I)
 ```
 
-If $`\sigma^2`$ is known, the log-likelihood is:
+Assume first that $`\sigma^2`$ is known and the parameter of interest is only $`\theta`$. The conditional density is:
 
 ```math
-\ell(\theta)
+p(\mathbf y\mid X;\theta)
 =
+(2\pi\sigma^2)^{-n/2}
+\exp\left[
 -\frac{1}{2\sigma^2}
 (\mathbf y-X\theta)^T(\mathbf y-X\theta)
-+
-C
+\right]
 ```
 
 Expand:
 
 ```math
-\ell(\theta)
+(\mathbf y-X\theta)^T(\mathbf y-X\theta)
 =
-\frac{1}{\sigma^2}
-\theta^TX^T\mathbf y
+\mathbf y^T\mathbf y
 -
-\frac{1}{2\sigma^2}
-\theta^TX^TX\theta
+2\theta^TX^T\mathbf y
 +
-C(X,\mathbf y)
+\theta^TX^TX\theta
 ```
 
-Given $`X`$, the response-dependent statistic for $`\theta`$ is:
+Substitute this expansion into the density:
 
 ```math
+p(\mathbf y\mid X;\theta)
+=
+(2\pi\sigma^2)^{-n/2}
+\exp\left[
+-\frac{1}{2\sigma^2}\mathbf y^T\mathbf y
+\right]
+\exp\left[
+\frac{1}{\sigma^2}\theta^TX^T\mathbf y
+-
+\frac{1}{2\sigma^2}\theta^TX^TX\theta
+\right]
+```
+
+This is a Fisher-Neyman factorization:
+
+```math
+p(\mathbf y\mid X;\theta)
+=
+h(\mathbf y;X)
+g_\theta(S(\mathbf y;X),X)
+```
+
+with:
+
+```math
+h(\mathbf y;X)
+=
+(2\pi\sigma^2)^{-n/2}
+\exp\left[
+-\frac{1}{2\sigma^2}\mathbf y^T\mathbf y
+\right]
+```
+
+and:
+
+```math
+S(\mathbf y;X)
+=
 X^T\mathbf y
 =
 \sum_i x_i y_i
 ```
 
-If $`\sigma^2`$ is unknown too, the likelihood also depends on:
+The key point is conditional on $`X`$ and known $`\sigma^2`$: the term $`\mathbf y^T\mathbf y`$ still affects the numerical density, but it does not contain the unknown $`\theta`$. It therefore belongs to the base factor $`h(\mathbf y;X)`$ for inference about $`\theta`$.
+
+The parameter-dependent part of the likelihood sees the response vector only through:
+
+```math
+\theta^TX^T\mathbf y
+```
+
+Thus, by the Fisher-Neyman factorization theorem, $`X^T\mathbf Y`$ is sufficient for $`\theta`$ in this fixed-design, known-variance Gaussian regression model.
+
+This is the regression analogue of iid Gaussian mean sufficiency, but it is not the same statistic. In an iid shared-mean model:
+
+```math
+Y_i\sim\mathcal N(\mu,\sigma^2)
+```
+
+all samples share the same scalar coefficient for $`y_i`$, so the sufficient statistic is $`\sum_iY_i`$. In regression:
+
+```math
+\mu_i=x_i^T\theta
+```
+
+the same global $`\theta`$ is seen through different feature vectors $`x_i`$, so the sufficient statistic becomes the feature-weighted sum $`\sum_i x_iY_i=X^T\mathbf Y`$.
+
+If $`\sigma^2`$ is unknown too, the parameter of interest is $`(\theta,\sigma^2)`$, and $`\mathbf y^T\mathbf y`$ can no longer be treated merely as a parameter-independent base factor. The conditional likelihood then depends on both:
+
+```math
+X^T\mathbf y
+```
+
+and:
 
 ```math
 \mathbf y^T\mathbf y
 ```
 
-This differs from the iid shared-mean Gaussian model. There, the common mean uses $`\sum_i y_i`$. In regression, different means are tied together by the features, so $`X^T\mathbf y`$ is the feature-weighted sufficient statistic for the global slope vector.
+This mirrors the ordinary Gaussian fact that unknown mean and variance require both first-moment and second-moment information.
 
 ## 11. Linearity is a design choice
 
@@ -851,34 +918,193 @@ The separation remains important. The representation model maps features to a di
 Gaussian with CS229 fixed variance one:
 
 ```math
-\eta_i=\mu_i=x_i^T\theta
+p(y;\mu)
+=
+\frac{1}{\sqrt{2\pi}}
+\exp\left(
+-\frac12y^2+\mu y-\frac12\mu^2
+\right)
 ```
 
 ```math
+\log b(y)=-\frac12y^2-\frac12\log(2\pi),
+\qquad
+T(y)=y,
+\qquad
+\eta=r(\mu)=\mu,
+\qquad
+a(\eta)=\frac{\eta^2}{2}
+```
+
+The term $`-\frac12y^2`$ is not part of $`a(\eta)`$ in the mean-only variance-one family, because it does not depend on the unknown mean. The mean map is:
+
+```math
+m(\eta)=a'(\eta)=\eta
+```
+
+Since $`T(Y)=Y`$, this is also the scalar response mean:
+
+```math
+\mu=\mathbb E[Y]=m(\eta)=\eta
+```
+
+Thus the canonical link is identity:
+
+```math
+\ell_c(\mu)=m^{-1}(\mu)=\mu
+```
+
+and the canonical GLM gives:
+
+```math
+\eta_i=x_i^T\theta,
+\qquad
 h_\theta(x_i)=\mu_i=x_i^T\theta
+```
+
+With known non-unit variance $`\sigma^2`$, the same calculation gives:
+
+```math
+\eta=\frac{\mu}{\sigma^2},
+\qquad
+a(\eta)=\frac{\sigma^2\eta^2}{2},
+\qquad
+m(\eta)=\sigma^2\eta=\mu,
+\qquad
+\ell_c(\mu)=\frac{\mu}{\sigma^2}
 ```
 
 Bernoulli logistic regression:
 
 ```math
-\eta_i=\log\frac{p_i}{1-p_i}=x_i^T\theta
+p(y;p)
+=
+\exp\left[
+y\log\frac{p}{1-p}
++
+\log(1-p)
+\right]
 ```
 
 ```math
+T(y)=y,
+\qquad
+\eta=r(p)=\log\frac{p}{1-p},
+\qquad
+a(\eta)=\log(1+e^\eta)
+```
+
+The mean map is:
+
+```math
+m(\eta)=a'(\eta)=\frac{e^\eta}{1+e^\eta}
+```
+
+Bernoulli has the distribution-specific identity $`\mu=\mathbb E[Y]=p`$, so:
+
+```math
+\ell_c(\mu)=m^{-1}(\mu)=\log\frac{\mu}{1-\mu}
+```
+
+Canonical logistic regression sets:
+
+```math
+\eta_i=x_i^T\theta,
+\qquad
 h_\theta(x_i)=p_i=\frac{1}{1+\exp(-x_i^T\theta)}
 ```
 
 Poisson regression:
 
 ```math
-\eta_i=\log\lambda_i=x_i^T\theta
+p(y;\lambda)
+=
+\frac{1}{y!}
+\exp(y\log\lambda-\lambda)
 ```
 
 ```math
+T(y)=y,
+\qquad
+\eta=r(\lambda)=\log\lambda,
+\qquad
+a(\eta)=e^\eta,
+\qquad
+b(y)=\frac{1}{y!}
+```
+
+The mean map is:
+
+```math
+m(\eta)=a'(\eta)=e^\eta
+```
+
+Poisson has the distribution-specific identity $`\mu=\mathbb E[Y]=\lambda`$, so:
+
+```math
+\ell_c(\mu)=m^{-1}(\mu)=\log\mu
+```
+
+Canonical Poisson regression sets:
+
+```math
+\eta_i=x_i^T\theta,
+\qquad
 h_\theta(x_i)=\lambda_i=\exp(x_i^T\theta)
 ```
 
-The same linear score has different statistical meanings because it is placed on different distribution scales: mean, log-odds, or log-rate.
+Categorical / softmax with class $`K`$ as reference:
+
+```math
+\eta_k=r(\phi)_k=\log\frac{\phi_k}{\phi_K},
+\quad
+k=1,\ldots,K-1
+```
+
+and:
+
+```math
+a(\eta)=\log\left(1+\sum_{j=1}^{K-1}e^{\eta_j}\right)
+```
+
+The expectation parameter is the class-probability vector on the reference statistic:
+
+```math
+m_k(\eta)
+=
+\frac{\partial a}{\partial\eta_k}
+=
+\frac{e^{\eta_k}}{1+\sum_{j=1}^{K-1}e^{\eta_j}}
+=
+\phi_k
+```
+
+The canonical link from probabilities to natural coordinates is reference logits:
+
+```math
+\ell_c(\phi)_k
+=
+\log\frac{\phi_k}{\phi_K}
+```
+
+The inverse link / response map is softmax. With class-specific linear scores:
+
+```math
+\eta_k(x)=\theta_k^Tx,
+\quad
+k<K,
+```
+
+we get:
+
+```math
+P(Y=k\mid x;\Theta)
+=
+\frac{\exp(\theta_k^Tx)}
+{1+\sum_{j=1}^{K-1}\exp(\theta_j^Tx)}
+```
+
+The same linear score has different statistical meanings because it is placed on different distribution scales: Gaussian mean coordinate, Bernoulli log-odds, Poisson log-rate, or categorical reference log-odds.
 
 ## 13. Conditional residual interpretation
 

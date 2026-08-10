@@ -2900,7 +2900,7 @@ It is legitimate to notice that sigmoid, exponential, and softmax are nonlinear 
 
 ## 11. Gaussian GLM
 
-Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#5-gaussian) and [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#12-canonical-examples).
+Detailed companion: [GLM Response and Distribution Map](../../math-derivations/lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md#5-gaussian), [Gaussian regression sufficient statistics](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#10-gaussian-regression-sufficient-statistics), and [canonical examples](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#12-canonical-examples).
 
 采用 official fixed-variance derivation，令 variance 为 $`1`$。Gaussian density：
 
@@ -2919,6 +2919,17 @@ p(y;\mu)
 \frac{1}{\sqrt{2\pi}}
 \exp\left(-\frac12y^2+\mu y-\frac12\mu^2\right)
 ```
+
+这一行要按 parameter dependence 来读。当前 family 是 variance fixed at $`1`$、only mean $`\mu`$ unknown，所以：
+
+| Term | Depends on unknown $`\mu`$? | Exponential-family role |
+| ---- | --------------------------- | ----------------------- |
+| $`\mu y`$ | yes | natural pairing $`\eta T(y)`$ |
+| $`-\frac12\mu^2`$ | yes, but not through $`y`$ | negative log-partition $`-a(\eta)`$ |
+| $`-\frac12y^2`$ | no | base-measure term $`\log b(y)`$ |
+| $`-\frac12\log(2\pi)`$ | no | base-measure normalizing constant |
+
+所以 $`-\frac12y^2`$ 不是消失了，也不是 $`a(\eta)`$ 的一部分。它仍然决定 Gaussian density 在 observation space 上的 shape，但在 fixed-variance mean-only family 中，它不含未知参数，因此进入 $`b(y)`$。如果 variance 也允许变化，$`y^2`$ 的系数会随 $`\sigma^2`$ 改变，这时 $`Y^2`$ 就必须进入 canonical statistic。
 
 写成 exponential-family form：
 
@@ -2944,25 +2955,104 @@ a(\eta)=\frac{\eta^2}{2}
 b(y)=\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{y^2}{2}\right)
 ```
 
-Moment identity 给出：
+Ordinary-to-natural map 是：
 
 ```math
-h_\theta(x)
-=
-\mathbb E[Y\mid x;\theta]
+r(\mu)=\eta=\mu
+```
+
+Natural-to-expectation map 由 log-partition function 给出：
+
+```math
+m(\eta)
 =
 a'(\eta)
 =
 \eta
 ```
 
-canonical link 设 $`\eta=\theta^Tx`$，所以：
+因为这里 $`T(Y)=Y`$，所以 expectation parameter 就是 ordinary mean：
 
 ```math
-h_\theta(x)=\theta^Tx
+\mu_T
+=
+\mathbb E[T(Y)]
+=
+\mathbb E[Y]
+=
+\mu
 ```
 
-如果把 CS229 的 variance-one 简化写回一般 fixed variance $`\sigma^2`$，Gaussian conditional model 是：
+因此：
+
+```math
+\mu
+=
+m(\eta)
+=
+\eta
+```
+
+反过来，canonical link / mean-to-natural map 是：
+
+```math
+\ell_c(\mu)
+=
+m^{-1}(\mu)
+=
+\mu
+```
+
+canonical GLM 设 $`\eta(x)=\theta^Tx`$，所以：
+
+```math
+h_\theta(x)
+=
+\mathbb E[Y\mid x;\theta]
+=
+m(\eta(x))
+=
+\theta^Tx
+```
+
+如果把 CS229 的 variance-one 简化写回一般 fixed variance $`\sigma^2`$，一观测 density 可以写成：
+
+```math
+p(y;\mu,\sigma^2)
+=
+\frac{1}{\sqrt{2\pi\sigma^2}}
+\exp\left(
+-\frac{y^2}{2\sigma^2}
++
+\frac{\mu}{\sigma^2}y
+-
+\frac{\mu^2}{2\sigma^2}
+\right)
+```
+
+此时 fixed $`\sigma^2`$ 下的 natural coordinate 是：
+
+```math
+\eta
+=
+\frac{\mu}{\sigma^2},
+\qquad
+a(\eta)
+=
+\frac{\sigma^2\eta^2}{2},
+\qquad
+m(\eta)
+=
+a'(\eta)
+=
+\sigma^2\eta
+=
+\mu
+```
+
+所以 mean-to-natural map 是 $`\ell_c(\mu)=\mu/\sigma^2`$。当 $`\sigma^2=1`$ 时，它才退化成 identity。若仍想写 $`\mu(x)=\theta^Tx`$，则 local natural coordinate 是 $`\eta(x)=\theta^Tx/\sigma^2`$；因为 $`\sigma^2`$ 已知，这个 scale 可以吸收到 coefficient parameterization 中。
+
+Gaussian conditional model 是：
 
 ```math
 Y\mid X=x;\theta
@@ -2994,14 +3084,21 @@ Y
 4. Independence from $`X`$：说明 residual distribution 不随 $`x`$ 改变；它强于 conditional mean zero。
 5. Conditional independence across samples：说明给定 covariates 后，不同样本的随机波动可以相乘成 product likelihood。
 
-Gaussian log likelihood 忽略与 $`\theta`$ 无关的常数后等价于：
+Variance-one Gaussian log likelihood 忽略与 $`\theta`$ 无关的常数后等价于：
 
 ```math
 -\frac12\sum_{i=1}^{m}
 \left(y^{(i)}-\theta^Tx^{(i)}\right)^2
 ```
 
-因此 maximizing Gaussian likelihood 等价于 minimizing squared loss。Squared loss 不是任意选择；它是 fixed-variance Gaussian conditional model 的 NLL。
+一般 fixed variance $`\sigma^2`$ 只是在前面多一个 positive scale factor $`1/\sigma^2`$：
+
+```math
+-\frac{1}{2\sigma^2}\sum_{i=1}^{m}
+\left(y^{(i)}-\theta^Tx^{(i)}\right)^2
+```
+
+因此 maximizing Gaussian likelihood 等价于 minimizing squared loss。Squared loss 不是任意选择；它是 fixed-variance Gaussian conditional model 的 NLL up to parameter-independent constants and a positive scale.
 
 ## 12. Bernoulli GLM
 
@@ -3092,6 +3189,46 @@ e^\eta=\phi(1+e^\eta)
 ```math
 a(\eta)=\log(1+e^\eta)
 ```
+
+这里有两条不同但数值上重合的路线：
+
+```math
+r(\phi)
+=
+\log\frac{\phi}{1-\phi}
+```
+
+是 ordinary probability parameter 到 natural parameter 的重写；而：
+
+```math
+m(\eta)
+=
+a'(\eta)
+=
+\frac{e^\eta}{1+e^\eta}
+```
+
+是 natural parameter 到 expectation parameter 的 map。Bernoulli 的 distribution-specific identity 是：
+
+```math
+\mu
+=
+\mathbb E[Y]
+=
+\phi
+```
+
+所以反过来的 canonical link 是：
+
+```math
+\ell_c(\mu)
+=
+m^{-1}(\mu)
+=
+\log\frac{\mu}{1-\mu}
+```
+
+它和 $`r(\phi)`$ 长得一样，不是因为 $`r`$ 和 $`\ell_c`$ 是同一个定义，而是因为 Bernoulli 恰好有 $`\phi=\mu`$。
 
 Moment identity 给出：
 
@@ -3197,6 +3334,14 @@ a(\eta)=e^\eta
 b(y)=\frac{1}{y!}
 ```
 
+Term matching is:
+
+| Term | Exponential-family role |
+| ---- | ----------------------- |
+| $`y\log\lambda`$ | $`\eta T(y)`$ with $`T(y)=y`$ and $`\eta=\log\lambda`$ |
+| $`-\lambda`$ | $`-a(\eta)`$ after substituting $`\lambda=e^\eta`$ |
+| $`-\log(y!)`$ | $`\log b(y)`$ |
+
 Moment identity：
 
 ```math
@@ -3209,7 +3354,27 @@ a'(\eta)
 e^\eta
 ```
 
-canonical link 设 $`\eta=\theta^Tx`$，于是：
+Poisson 的 ordinary rate 同时也是 scalar mean：
+
+```math
+\mu
+=
+\mathbb E[Y]
+=
+\lambda
+```
+
+因此 natural-to-mean map 是 $`m(\eta)=e^\eta`$，反过来的 canonical link 是：
+
+```math
+\ell_c(\mu)
+=
+m^{-1}(\mu)
+=
+\log\mu
+```
+
+这里 $`r(\lambda)=\log\lambda`$ 和 $`\ell_c(\mu)=\log\mu`$ 形式相同，是因为这个分布满足 $`\lambda=\mu`$。canonical link 设 $`\eta=\theta^Tx`$，于是：
 
 ```math
 h_\theta(x)=\mathbb E[Y\mid x;\theta]=e^{\theta^Tx}
@@ -3362,6 +3527,44 @@ a(\eta)
 =
 \log\left(1+\sum_{j=1}^{K-1}e^{\eta_j}\right)
 ```
+
+Its gradient gives the expectation parameter of the reference-class statistic:
+
+```math
+m_k(\eta)
+=
+\frac{\partial a}{\partial \eta_k}
+=
+\frac{e^{\eta_k}}
+{1+\sum_{j=1}^{K-1}e^{\eta_j}}
+=
+\phi_k,
+\quad k=1,\ldots,K-1
+```
+
+Thus:
+
+```math
+\mathbb E[T(Y)]
+=
+m(\eta)
+=
+\begin{bmatrix}
+\phi_1\\
+\vdots\\
+\phi_{K-1}
+\end{bmatrix}
+```
+
+The canonical link on this statistic-expectation scale is the inverse map:
+
+```math
+\ell_c(\phi)_k
+=
+\log\frac{\phi_k}{\phi_K}
+```
+
+The softmax probability formula is therefore the inverse link / response map from natural scores to class probabilities, not a separate arbitrary normalization trick.
 
 因为：
 
@@ -4402,6 +4605,7 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can prove Bernoulli sample success count minimal sufficiency.
 - [ ] I can explain why Gaussian unknown variance needs $`Y^2`$ information.
 - [ ] I can explain why Gaussian known-variance unknown-mean data compress to $`\sum_iY_i`$.
+- [ ] I can explain why $`-\frac12Y^2`$ is part of the Gaussian base measure under fixed variance but becomes parameter-relevant when variance is unknown.
 - [ ] I can explain why Gaussian unknown mean and variance use $`(\sum_iY_i,\sum_iY_i^2)`$.
 - [ ] I can explain why categorical statistics use indicators rather than numeric label magnitudes.
 - [ ] I can distinguish $`\mathbb E[Y]`$ from $`\mathbb E[T(Y)]`$.
@@ -4421,6 +4625,7 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can explain why $`\eta(x)=\theta^Tx`$ is a single-index conditional-distribution coordinate, not a universal representation.
 - [ ] I can separate the representation model $`x\mapsto\eta(x)`$ from the observation model $`\eta(x)\mapsto p(Y\mid x)`$.
 - [ ] I can distinguish shared-parameter iid matching from GLM feature-weighted matching through $`\sum_i x_iT(y_i)`$.
+- [ ] I can prove that $`X^T\mathbf Y`$ is sufficient for $`\theta`$ in fixed-design, known-variance Gaussian regression by conditional factorization.
 - [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, expectation parameter $`\mu_{T,i}`$, conditional mean $`\mu_i`$, and global parameter $`\theta`$.
 - [ ] I can state what $`r:\Psi\to\mathcal H`$, $`m:\mathcal H\to\mathcal M`$, and $`\ell_c=m^{-1}`$ each map.
 - [ ] I can classify formulas as definitions, algebraically determined relations, exponential-family theorems, distribution-specific identities, or GLM modelling choices.
