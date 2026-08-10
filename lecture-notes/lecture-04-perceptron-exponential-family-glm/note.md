@@ -17,7 +17,7 @@ Canonical reference: [Stanford CS229 supervised learning notes](https://cs229.st
 | [Conceptual Interlude C: Why Exponential Family and GLM Exist](#conceptual-interlude-c-why-exponential-family-and-glm-exist) | Why the exponential-family form and GLM construction are mathematically natural |
 | [7. Log-Partition Function as the Mathematical Engine](#7-log-partition-function-as-the-mathematical-engine) | Why $`a(\eta)`$ controls mean, variance, and convexity |
 | [Mathematical Interlude: Why Exponential-Family MLE Is Convex-Friendly](#mathematical-interlude-why-exponential-family-mle-is-convex-friendly) | Why MLE/NLL has favorable geometry |
-| [8. GLM Components](#8-glm-components) | Random component, parameter scales, systematic component, link, response |
+| [8. GLM Components](#8-glm-components) | Random component, canonical statistic, parameter scales, link, response |
 | [Conceptual Interlude D: Why GLM Components Form a Statistical Model](#conceptual-interlude-d-why-glm-components-form-a-statistical-model) | Why the GLM components define a conditional statistical model |
 | [9. The Complete GLM Modeling Workflow](#9-the-complete-glm-modeling-workflow) | Forward conditional sampling, inverse learning, and residual interpretation |
 | [10. Deep Meaning of the Hypothesis Function](#10-deep-meaning-of-the-hypothesis-function) | Why $`h_\theta(x)`$ is a conditional mean |
@@ -150,7 +150,7 @@ Perceptron 和 logistic regression 可以共享同一个 linear score $`\theta^T
 | Label convention | 常用 $`y\in\{-1,+1\}`$ | 常用 $`y\in\{0,1\}`$ |
 | Linear score | $`\theta^Tx`$ | $`\theta^Tx`$ |
 | Response function | hard sign or step | sigmoid probability |
-| Prediction | $`\hat y=\mathrm{sign}(\theta^Tx)`$ | $`P(y=1\mid x;\theta)=g(\theta^Tx)`$ |
+| Prediction | $`\hat y=\mathrm{sign}(\theta^Tx)`$ | $`P(y=1\mid x;\theta)=g^{-1}(\theta^Tx)=\sigma(\theta^Tx)`$ |
 | Loss or criterion | mistake-driven update | Bernoulli NLL / cross-entropy |
 | Update behavior | 只在错分时更新 | 每个样本按 probability residual 贡献 gradient |
 | Probability interpretation | 默认没有 | 有 conditional probability interpretation |
@@ -1834,6 +1834,88 @@ Y_i\mid x_i;\theta
 
 This determines support, probability or density structure, and mean-variance behavior. Gaussian, Bernoulli, and Poisson models are different because their random components define different outcome spaces and different uncertainty assumptions.
 
+#### What $`T(Y)`$ means before the link
+
+Once a response family is chosen, the exponential-family representation has already identified a canonical observation map:
+
+```math
+T:\mathcal Y\rightarrow\mathbb R^m
+```
+
+This map is not an arbitrary "observation coordinate" selected independently of the distribution. In:
+
+```math
+p_\eta(y)
+=
+b(y)
+\exp\left(\eta^TT(y)-a(\eta)\right)
+```
+
+the functions collected in $`T(y)`$ are exactly the observation-side functions through which the parameter-dependent part of the log likelihood is allowed to vary:
+
+```math
+\log p_\eta(y)
+=
+\eta^TT(y)-a(\eta)+\log b(y).
+```
+
+Therefore, if $`T(y)=T(y')`$, then the parameter-dependent part of:
+
+```math
+\frac{p_\eta(y)}
+{p_\eta(y')}
+```
+
+cancels. Outcomes in the same $`T`$-fiber can still differ through the base term $`b(y)`$, but those distinctions do not add likelihood information about $`\eta`$ once the canonical statistic is known.
+
+This is different from a general statistic. In ordinary statistics, a function $`S(\mathbf Y)`$ is not sufficient by definition; sufficiency is a property checked by Fisher-Neyman factorization, the conditional-distribution definition, or the likelihood-ratio criterion. In an iid exponential family:
+
+```math
+p_\eta(\mathbf y)
+=
+\prod_i b(y_i)
+\exp\left(
+\eta^T\sum_iT(y_i)-na(\eta)
+\right),
+```
+
+so:
+
+```math
+S(\mathbf Y)=\sum_iT(Y_i)
+```
+
+is sufficient by the factorization theorem. Formally, sufficiency is derived from the exponential-family factorization. Structurally, the exponential-family representation has already forced all parameter-dependent sample information to pass through the canonical statistic. The definition does not separately postulate sufficiency, but its form immediately implies it.
+
+To identify $`T`$ from an ordinary family $`p(y;\psi)`$, inspect $`\log p(y;\psi)`$ and ask which functions of $`y`$ receive coefficients that vary as the unknown parameter directions vary. For:
+
+```math
+Y\sim N(\mu,\sigma^2),
+```
+
+```math
+\log p(y;\mu,\sigma^2)
+=
+-\frac{y^2}{2\sigma^2}
++
+\frac{\mu}{\sigma^2}y
++
+\text{terms not involving }y.
+```
+
+If $`\sigma^2`$ is known and only $`\mu`$ varies, the coefficient of $`y^2`$ is fixed with respect to the unknown parameter, so $`T(y)=y`$ is enough. If both $`\mu`$ and $`\sigma^2`$ vary, both $`y`$ and $`y^2`$ have parameter-varying coefficients, so a canonical statistic is:
+
+```math
+T(y)
+=
+\begin{bmatrix}
+y\\
+y^2
+\end{bmatrix}.
+```
+
+Thus $`T`$ does not change when a particular parameter value changes. Its required structure is determined by the distribution family and by which parameter directions are free in the model.
+
 ### 8.2 Ordinary distribution parameter
 
 The ordinary parameter $`\psi_i`$ is the familiar local parameter of the chosen distribution. Examples include a Bernoulli success probability $`p_i`$, a Poisson rate $`\lambda_i`$, or a Gaussian mean $`\mu_i`$ under fixed variance. It belongs to sample $`i`$'s conditional distribution, not to the whole dataset as a free parameter per sample.
@@ -1842,14 +1924,42 @@ Ordinary distribution parameters are not always conditional means: Bernoulli $`p
 
 ### 8.3 Natural parameter
 
-The natural parameter $`\eta_i`$ is the canonical coordinate of the same local distribution. Ordinary and natural coordinates are related by:
+The natural parameter $`\eta_i`$ is the canonical parameter coordinate of the same local distribution. Ordinary and natural coordinates are related by a reparameterization map:
 
 ```math
-\eta_i=q(\psi_i)
+\eta_i=r(\psi_i),
+\qquad
+r:\Psi\rightarrow\mathcal H
 ```
 
+where $`\Psi`$ is the chosen ordinary-parameter space and $`\mathcal H`$ is the natural-parameter space. When the map is invertible on the relevant domain:
+
 ```math
-\psi_i=q^{-1}(\eta_i)
+\psi_i=r^{-1}(\eta_i).
+```
+
+This is not an arbitrary function. It comes from rewriting the same distribution family from:
+
+```math
+p(y;\psi)
+```
+
+into:
+
+```math
+p(y;\eta)
+=
+b(y)e^{\eta^TT(y)-a(\eta)}.
+```
+
+Concretely, for every admissible $`\psi\in\Psi`$, the reparameterized value $`\eta=r(\psi)`$ satisfies:
+
+```math
+p(y;\psi)
+=
+p(y;r(\psi))
+\quad
+\text{for all admissible }y.
 ```
 
 The global parameter and the natural parameter are distinct:
@@ -1858,7 +1968,40 @@ The global parameter and the natural parameter are distinct:
 \eta_i\neq\theta
 ```
 
-For Bernoulli, $`\eta_i`$ is log-odds. For Poisson, it is log-rate. For the CS229 fixed-variance-one Gaussian simplification, it equals the mean. Natural coordinates are useful because the exponential-family log density is linear in $`\eta_i`$ against $`T(y_i)`$.
+For Bernoulli, $`r(p)=\log(p/(1-p))`$; the ordinary probability $`p`$ and log-odds $`\eta`$ index the same Bernoulli distributions. For Poisson, $`r(\lambda)=\log\lambda`$. For the CS229 fixed-variance-one Gaussian simplification, $`r(\mu)=\mu`$.
+
+The expectation parameter is a third coordinate system:
+
+```math
+\mu_T
+:=
+\mathbb E_\eta[T(Y)].
+```
+
+Define:
+
+```math
+m(\eta)
+:=
+\mathbb E_\eta[T(Y)].
+```
+
+For regular exponential families:
+
+```math
+m(\eta)=\nabla a(\eta).
+```
+
+The maps $`r`$ and $`m`$ answer different questions. The map $`r`$ asks: which natural coefficient represents the ordinary distribution member? The map $`m`$ asks: given a natural parameter, what canonical statistic does the distribution expect to observe? If $`T(Y)=Y`$, then $`\mu_T=\mathbb E[Y]=\mu`$; otherwise the statistic expectation and scalar response mean must be kept separate.
+
+The two sides of the representation are:
+
+```text
+observation side: Y -> T(Y)
+parameter side:   psi <-> eta <-> mu_T
+```
+
+$`T(Y)`$ and $`\eta`$ are not two arbitrary coordinate systems selected independently. They are structurally coupled through the exponential pairing $`\eta^TT(y)`$. More precisely, $`\eta`$ is the natural parameter coordinate dual to the chosen canonical-statistic representation. If the canonical-statistic basis is changed, for example $`T'(y)=AT(y)+b`$ with an invertible linear part, the natural coordinates must change correspondingly so the same distribution family is represented. The reparameterization $`r`$ does not arise from inverting $`T`$; they are different types of maps.
 
 ### 8.4 Systematic component
 
@@ -1891,39 +2034,177 @@ where, for scalar response GLMs in this note:
 When the canonical statistic is not identical to the response, keep the statistic expectation separate:
 
 ```math
-m_i=\mathbb E[T(Y_i)\mid x_i;\theta]
+\mu_{T,i}=\mathbb E[T(Y_i)\mid x_i;\theta]
 ```
 
-The natural parameter is separately determined by the distribution's mean-to-natural map:
+The natural parameter is separately determined by the response family's expectation-to-natural map when that map is identifiable:
 
 ```math
-\eta_i=q(\mu_i)
+\eta_i=\ell_c(\mu_{T,i}),
+\qquad
+\ell_c=m^{-1}.
 ```
 
-For a noncanonical link, the systematic component and natural parameter are connected indirectly through $`\mu_i`$; they are not generally equal.
+For scalar families with $`T(Y)=Y`$, this becomes the familiar mean-to-natural relation $`\eta_i=\ell_c(\mu_i)`$. If the link is written on a scalar response mean while the canonical statistic is vector-valued, an additional distribution-specific identity is needed to translate between $`\mu_i=\mathbb E[Y_i]`$ and $`\mu_{T,i}`$.
+
+For a noncanonical link, the systematic component and natural parameter are connected indirectly through the chosen mean coordinate; they are not generally equal.
 
 ### 8.6 Canonical link
 
-The canonical link is the special case where the link equals the distribution's mean-to-natural map:
+On the statistic-expectation scale, define the canonical link as the distribution family's inverse expectation map:
 
 ```math
-g=q
+\ell_c=m^{-1}.
 ```
 
-Only then do we get:
+For scalar families with $`T(Y)=Y`$, this is the usual GLM link, so one may write $`g=\ell_c`$. This note keeps $`g`$ for the link from the chosen mean scale to the systematic component, and $`g^{-1}`$ for the inverse link / response mapping.
+
+Equivalently, first define the systematic component:
+
+```math
+\xi_i=x_i^T\theta.
+```
+
+A general construction could use $`\eta_i=f(\xi_i)`$. The canonical construction chooses:
+
+```math
+f(\xi)=\xi,
+```
+
+so:
 
 ```math
 \xi_i=\eta_i=x_i^T\theta
 ```
 
-Thus the equality between systematic component and natural parameter is not a general theorem. It is a canonical-link condition. Under a noncanonical link, $`\xi_i`$ lives on the chosen link scale while $`\eta_i`$ remains the natural coordinate of the local distribution.
+This equality is a GLM modelling choice, not a theorem that the real conditional distribution must be linear. But it is not a random choice either. The exponential-family log density:
+
+```math
+\log p(y;\eta)=\eta^TT(y)-a(\eta)+\log b(y)
+```
+
+already makes $`\eta`$ the coefficient coordinate directly coupled to the canonical statistic. Setting $`\eta_i=x_i^T\theta`$ means the feature-linear coordinate directly controls those sufficient-statistic directions.
+
+There is also an optimization consequence. In the scalar case, if:
+
+```math
+\eta_i=f(\xi_i),
+\qquad
+\xi_i=x_i^T\theta,
+```
+
+then:
+
+```math
+\nabla_\theta\ell_i
+=
+x_i f'(\xi_i)
+\left[
+T(y_i)-\mathbb E[T(Y_i)\mid x_i]
+\right].
+```
+
+The canonical choice has $`f'(\xi_i)=1`$, so the extra coordinate-transformation Jacobian disappears:
+
+```math
+\nabla_\theta\ell_i
+=
+x_i
+\left[
+T(y_i)-\mathbb E[T(Y_i)\mid x_i]
+\right].
+```
+
+At a finite interior MLE this gives direct feature-weighted moment matching:
+
+```math
+\sum_i x_iT(y_i)
+=
+\sum_i x_i\mathbb E[T(Y_i)\mid x_i].
+```
+
+The canonical scalar Hessian is tied directly to canonical-statistic variance:
+
+```math
+\nabla_\theta^2\ell
+=
+-
+\sum_i
+x_ix_i^T
+\mathrm{Var}(T(Y_i)\mid x_i).
+```
+
+Thus likelihood curvature, statistic variability, and the linear predictor are expressed in one aligned coordinate system. The detailed derivation is in [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md#4-systematic-component-general-link-and-canonical-link).
+
+The canonical choice requires conditions. A response exponential family must already be selected; $`\eta`$ must be well defined; the expectation map $`m(\eta)=\mathbb E_\eta[T(Y)]`$ must be sufficiently regular; writing $`\ell_c=m^{-1}`$ requires invertibility or identifiability on the relevant region; $`x_i^T\theta`$ must lie in the legal natural-parameter domain; and the key modelling assumption is that the useful conditional natural parameter can be represented or approximated by a linear function of the chosen features. "Canonical" means using the distribution family's own natural coordinate, not being universally correct for every dataset.
+
+#### Logical status of the main equalities
+
+Several formulas in this section look similar but have different logical status.
+
+First, the exponential-family form:
+
+```math
+p_\eta(y)=b(y)e^{\eta^TT(y)-a(\eta)}
+```
+
+is a definition of a representation. The expectation parameter:
+
+```math
+\mu_T:=\mathbb E_\eta[T(Y)]
+```
+
+is also a definition.
+
+Second, relations such as:
+
+```math
+\eta=\log\frac{p}{1-p}
+```
+
+for Bernoulli are algebraically determined after the ordinary family and canonical-statistic representation have been chosen. The map $`r`$ is found by comparing $`p(y;p)=p^y(1-p)^{1-y}`$ with the exponential-family form; it is not an extra modelling assumption.
+
+Third, identities such as:
+
+```math
+\nabla a(\eta)=\mathbb E_\eta[T(Y)],
+\qquad
+\nabla^2a(\eta)=\mathrm{Cov}_\eta(T(Y))
+```
+
+are exponential-family theorems. The iid sufficiency of $`\sum_iT(Y_i)`$ is also derived from the exponential-family factorization.
+
+Fourth, equalities such as $`\mathbb E[Y]=p`$ for Bernoulli, $`\mathbb E[Y]=\lambda`$ for Poisson, and $`\mathbb E[T(Y)]=\phi`$ for categorical data are distribution-specific identities. They explain why simple examples often make ordinary parameters and expectation parameters numerically coincide.
+
+Fifth, the GLM equations:
+
+```math
+\xi_i=x_i^T\theta
+```
+
+and, in the canonical construction:
+
+```math
+\eta_i=\xi_i
+```
+
+are modelling choices. They impose a feature-linear structure on a chosen distribution coordinate.
+
+| Status | Example | Meaning |
+| ------ | ------- | ------- |
+| Definition | $`p_\eta(y)=b(y)e^{\eta^TT(y)-a(\eta)}`$ | chosen exponential-family representation |
+| Algebraically determined relation | $`\eta=r(\psi)`$ | reparameterization of the same family |
+| Exponential-family theorem | $`\nabla a(\eta)=\mathbb E_\eta[T(Y)]`$ | consequence of the representation |
+| Distribution-specific identity | Bernoulli $`p=\mathbb E[Y]`$ | fact about one response family |
+| GLM modelling choice | $`\eta_i=x_i^T\theta`$ under canonical link | linear conditional natural-parameter assumption |
 
 ### 8.7 Scale distinctions in a GLM
 
 A GLM has several scales that should not be merged:
 
 * natural-parameter scale: the distribution coordinate such as log-odds, log-rate, or Gaussian mean coordinate;
-* mean / response scale: the conditional mean $`\mu(x)=\mathbb E[Y\mid X=x]`$;
+* expectation-parameter scale: $`\mu_T(x)=\mathbb E[T(Y)\mid X=x]`$;
+* mean / response scale: the conditional response mean $`\mu(x)=\mathbb E[Y\mid X=x]`$ when this is the prediction target;
 * observation scale: the random response $`Y`$ before realization and the observed value $`y`$ after realization.
 
 The complete conceptual chain is:
@@ -1932,8 +2213,8 @@ The complete conceptual chain is:
 x
 -> linear predictor
 -> natural parameter
--> conditional mean
 -> conditional distribution
+-> expectation parameter / conditional mean
 -> random observation
 ```
 
@@ -1944,7 +2225,7 @@ x
 \longrightarrow
 \eta(x)=x^T\theta
 \longrightarrow
-\mu(x)=g^{-1}(\eta(x))
+\mu_T(x)=m(\eta(x))
 \longrightarrow
 p(Y\mid x;\theta)
 \longrightarrow
@@ -1969,7 +2250,7 @@ For canonical scalar families with $`T(Y_i)=Y_i`$, this becomes:
 h_\theta(x_i)=\nabla a(x_i^T\theta)
 ```
 
-For vector-valued statistics such as multiclass one-hot encodings, $`\nabla a(\eta_i)`$ is the statistic expectation $`m_i=\mathbb E[T(Y_i)\mid x_i;\theta]`$, which is the probability vector used for prediction.
+For vector-valued statistics such as multiclass one-hot encodings, $`\nabla a(\eta_i)`$ is the statistic expectation $`\mu_{T,i}=\mathbb E[T(Y_i)\mid x_i;\theta]`$, which is the probability vector used for prediction.
 
 Global sharing is what makes the model learnable from finite data and usable for new inputs. It also imposes structure: if the true conditional distribution cannot be represented through the chosen feature map, family, and link, the model will underfit.
 
@@ -2356,13 +2637,14 @@ x_i
 -> xi_i = x_i^T theta
 -> xi_i = c defines a level set in input space
 -> mu_i = g^{-1}(xi_i)
--> eta_i = q(mu_i)
+-> mu_T,i if the statistic scale differs from the response mean
+-> eta_i = ell_c(mu_T,i) when the inverse expectation map is defined
 -> conditional distribution p(Y_i | x_i; theta)
 -> random Y_i
 -> observed y_i
 ```
 
-This is the probability direction. Given $`x_i`$ and $`\theta`$, the model first forms the feature-side score $`\xi_i`$. The link determines the conditional mean $`\mu_i`$, the exponential-family parameterization determines the local natural parameter $`\eta_i`$, and the resulting conditional distribution produces the random variable $`Y_i`$ before one realization $`y_i`$ is observed. The ordinary parameter $`\psi_i`$ is the distribution-specific parameterization of the same local distribution, such as $`p_i`$, $`\lambda_i`$, or $`\mu_i`$.
+This is the probability direction. Given $`x_i`$ and $`\theta`$, the model first forms the feature-side score $`\xi_i`$. The link determines the chosen mean coordinate, the response family determines the local natural parameter $`\eta_i`$ through its expectation-to-natural relation when identifiable, and the resulting conditional distribution produces the random variable $`Y_i`$ before one realization $`y_i`$ is observed. The ordinary parameter $`\psi_i`$ is the distribution-specific parameterization of the same local distribution, such as $`p_i`$, $`\lambda_i`$, or $`\mu_i`$.
 
 In the canonical-link subcase emphasized in CS229, this simplifies to $`\xi_i=\eta_i=x_i^T\theta`$. In the Gaussian identity-link subcase, the conditional mean also coincides with that score. Those coincidences are special cases, not the general GLM rule.
 
@@ -2402,9 +2684,9 @@ A practical workflow follows:
 
 1. Define the response random variable $`Y_i`$ and the realized value $`y_i`$ precisely.
 2. Choose a conditional family for $`Y_i\mid x_i`$ based on support, semantics, variance behavior, and mechanism.
-3. Identify the ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, and conditional mean $`\mu_i`$ of that local distribution.
+3. Identify the ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, statistic expectation $`\mu_{T,i}`$, and conditional mean $`\mu_i`$ of that local distribution.
 4. Identify the one-observation canonical statistic $`T(Y_i)`$ and the sample statistic that enters the likelihood score; keep statistic expectation distinct from response mean when needed.
-5. Choose a link and keep the scales separate. In the canonical case, set $`\eta_i=x_i^T\theta`$ and map to $`\mu_i`$; otherwise set $`g(\mu_i)=x_i^T\theta`$ and map through $`\mu_i`$ to $`\eta_i`$.
+5. Choose a link and keep the scales separate. In the canonical case, set $`\eta_i=x_i^T\theta`$ and map through $`m(\eta_i)=\mu_{T,i}`$; otherwise set the chosen link-scale mean relation, such as $`g(\mu_i)=x_i^T\theta`$, and use the response family's identifiable parameter map to recover $`\eta_i`$.
 6. Write the conditional likelihood over the observed training set.
 7. Optimize $`\theta`$ by MLE or a regularized variant.
 8. Use $`\hat\theta`$ to produce a conditional distribution and prediction for new inputs.
@@ -2455,7 +2737,7 @@ Prediction uses the learned parameter inside the conditional mean:
 h_{\hat\theta}(x)=\mathbb E[Y\mid x;\hat\theta]
 ```
 
-When the model predicts a statistic such as a one-hot class vector, write that statistic mean separately as $`m_{\hat\theta}(x)=\mathbb E[T(Y)\mid x;\hat\theta]`$. The hypothesis function is therefore not “the parameter that maximizes the probability.” The learned parameter is $`\hat\theta`$; the prediction is the conditional mean or statistic expectation implied by the fitted model.
+When the model predicts a statistic such as a one-hot class vector, write that statistic mean separately as $`\mu_{T,\hat\theta}(x)=\mathbb E[T(Y)\mid x;\hat\theta]`$. The hypothesis function is therefore not "the parameter that maximizes the probability." The learned parameter is $`\hat\theta`$; the prediction is the conditional mean or statistic expectation implied by the fitted model.
 
 ### B. Link, canonical link, and response mapping
 
@@ -2480,6 +2762,8 @@ The canonical link is the inverse mean map:
 ```math
 g_{\mathrm{can}}(\mu)=(\nabla a)^{-1}(\mu)
 ```
+
+This is the scalar $`T(Y)=Y`$ version of the statistic-scale definition $`\ell_c=m^{-1}`$, where $`m(\eta)=\mathbb E_\eta[T(Y)]`$.
 
 In the scalar canonical construction:
 
@@ -4109,6 +4393,8 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can distinguish $`Y_i`$ and $`\mathbf Y`$ as random objects from $`y_i`$ and $`\mathbf y`$ as realized observations.
 - [ ] I can distinguish $`T(Y_i)`$ as a one-observation canonical statistic from $`S(\mathbf Y)`$ as a sample-level statistic.
 - [ ] I can explain why $`T(y)`$ is not inserted into the probability model after the fact.
+- [ ] I can explain why $`T(y)`$ is identified by parameter-coupled likelihood terms, not by an arbitrary coordinate choice.
+- [ ] I can explain why exponential-family sufficiency is formally derived by factorization but structurally encoded by the canonical form.
 - [ ] I can distinguish parameter-relevant from sufficient.
 - [ ] I can explain why sufficient statistics are not unique.
 - [ ] I can use a likelihood ratio to test minimal sufficiency.
@@ -4135,15 +4421,19 @@ Lecture 4 把 supervised learning 从一组孤立算法转化为 principled cond
 - [ ] I can explain why $`\eta(x)=\theta^Tx`$ is a single-index conditional-distribution coordinate, not a universal representation.
 - [ ] I can separate the representation model $`x\mapsto\eta(x)`$ from the observation model $`\eta(x)\mapsto p(Y\mid x)`$.
 - [ ] I can distinguish shared-parameter iid matching from GLM feature-weighted matching through $`\sum_i x_iT(y_i)`$.
-- [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, conditional mean $`\mu_i`$, and global parameter $`\theta`$.
+- [ ] I can distinguish ordinary parameter $`\psi_i`$, natural parameter $`\eta_i`$, expectation parameter $`\mu_{T,i}`$, conditional mean $`\mu_i`$, and global parameter $`\theta`$.
+- [ ] I can state what $`r:\Psi\to\mathcal H`$, $`m:\mathcal H\to\mathcal M`$, and $`\ell_c=m^{-1}`$ each map.
+- [ ] I can classify formulas as definitions, algebraically determined relations, exponential-family theorems, distribution-specific identities, or GLM modelling choices.
 - [ ] I can explain why $`\eta_i\neq\theta`$ but $`\eta_i=x_i^T\theta`$ in the scalar canonical construction.
 - [ ] I can explain why $`\theta^Tx=c`$ is a level set of the systematic component and why a decision boundary is a downstream thresholded level set.
 - [ ] I can explain why ordinary distribution parameters, natural parameters, mean parameters, and dispersion parameters need not be the same object.
-- [ ] I can distinguish natural-parameter scale, mean / response scale, and observation scale.
+- [ ] I can distinguish natural-parameter scale, expectation-parameter scale, mean / response scale, and observation scale.
 - [ ] I can explain why residuals are centered on $`\mu(X)`$, not generally on $`\eta(X)`$.
 - [ ] I can state the Gaussian equivalence between $`Y\mid X=x`$ and $`Y=\theta^TX+\epsilon`$ with conditional Gaussian noise.
 - [ ] I can explain why Bernoulli and Poisson GLM residuals are not fixed independent Gaussian noise.
 - [ ] I can explain why systematic component and natural parameter are equal only under a canonical link.
+- [ ] I can explain why canonical alignment removes the extra score Jacobian and gives feature-weighted moment matching.
+- [ ] I can list the assumptions needed before using the canonical link and explain why it may still be misspecified.
 - [ ] I can explain the column-space constraint behind $`\boldsymbol\eta=X\theta`$.
 - [ ] I can distinguish conditional modeling from joint modeling without claiming covariate shift disappears.
 - [ ] I can explain why multiclass uses categorical/multinomial rather than Poisson.
@@ -4208,7 +4498,8 @@ Conditional probabilistic branch:
 x_i
 -> xi_i = x_i^T theta
 -> mu_i = g^{-1}(xi_i)
--> eta_i = q(mu_i)
+-> mu_T,i if the statistic scale differs from the response mean
+-> eta_i = ell_c(mu_T,i) when the inverse expectation map is defined
 -> conditional distribution p(Y_i | x_i; theta)
 -> random Y_i
 -> observed y_i
@@ -4260,7 +4551,10 @@ x_new
 | What aggregates GLM evidence? | $`\sum_i x_iT(y_i)`$ | feature-weighted statistic sum |
 | What is the ordinary local parameter? | $`\psi_i`$ | $`p_i`$, $`\lambda_i`$, $`\mu_i`$ |
 | Which parameter is a mean? | ordinary / natural / mean / statistic expectation | Bernoulli $`p=\mathbb E[Y]`$, categorical $`\phi=\mathbb E[T(Y)]`$ |
-| What is the natural local coordinate? | $`\eta_i=q(\psi_i)`$ | log-odds, log-rate, mean coordinate |
+| What is the natural local coordinate? | $`\eta_i=r(\psi_i)`$ | log-odds, log-rate, mean coordinate |
+| What is the expectation parameter? | $`\mu_{T,i}=m(\eta_i)=\mathbb E[T(Y_i)\mid x_i]`$ | probability vector, expected count, expected statistic |
+| What is the canonical link? | $`\ell_c=m^{-1}`$ when identifiable | mean/statistic expectation to natural coordinate |
+| What type of claim is this? | definition / algebra / theorem / identity / modelling choice | avoid treating all equalities as assumptions |
 | What is globally learned? | $`\theta`$ | shared feature-effect vector |
 | What is systematic? | $`\xi_i=s_\theta(x_i)=x_i^T\theta`$ | feature-side score |
 | What does $`\theta^Tx=c`$ mean? | level set of $`\xi_i`$, canonical $`\eta_i`$ | iso-probability surface before decision rule |
@@ -4283,7 +4577,7 @@ h_\theta(x_i)
 Statistic expectation, when different, is:
 
 ```math
-m_i
+\mu_{T,i}
 =
 \mathbb E[T(Y_i)\mid x_i;\theta]
 ```

@@ -22,7 +22,7 @@ It separates four jobs: what is read from the observation, which parameter coord
 | $`a(\eta)`$ | log-partition | normalizer, moment generator, and curvature engine |
 | $`b(y)`$ | base measure | parameter-independent support and baseline weighting |
 
-Do not treat $`T(y)`$ as a statistic inserted by an estimator. It is part of the probability model's representation before estimation begins.
+Do not treat $`T(y)`$ as a statistic inserted by an estimator or as an arbitrary coordinate chart on $`y`$. It is part of the probability model's representation before estimation begins, and it collects the observation-side functions through which the parameter-dependent likelihood is allowed to vary.
 
 ## 2. Why a function of $`y`$ appears
 
@@ -41,6 +41,15 @@ When this family can be expressed in canonical exponential-family form, the para
 ```
 
 Thus $`T(y)`$ is found by algebraically identifying which functions of $`y`$ are coupled to unknown parameters. It is not an extra feature added after the density is known.
+
+Equivalently, if $`T(y)=T(y')`$, then the parameter-dependent part of:
+
+```math
+\frac{p_\eta(y)}
+{p_\eta(y')}
+```
+
+cancels. Any remaining distinction between $`y`$ and $`y'`$ is parameter-independent and belongs to the base measure or support structure.
 
 Example: Bernoulli.
 
@@ -83,6 +92,8 @@ y\\
 y^2
 \end{bmatrix}
 ```
+
+If $`\sigma^2`$ were known and only $`\mu`$ varied, the coefficient of $`y^2`$ would be fixed with respect to the unknown parameter, so $`T(y)=y`$ would be enough. The structure of $`T`$ is determined by the distribution family together with the free parameter directions, not by changing a particular parameter value inside a fixed family.
 
 ## 3. Coupling as statistical coordinates
 
@@ -169,19 +180,23 @@ The same $`\eta`$ multiplies every observation, so the one-observation readouts 
 
 appears naturally as the iid sample statistic.
 
-By Fisher-Neyman factorization, this statistic is sufficient for $`\eta`$ in the regular iid model. For minimality, one must additionally check likelihood-ratio equivalence and redundancy.
+By Fisher-Neyman factorization, this statistic is sufficient for $`\eta`$ in the regular iid model. Formally, sufficiency is derived from the exponential-family factorization. Structurally, the representation has already forced all parameter-dependent sample information to pass through the canonical statistic. For minimality, one must additionally check likelihood-ratio equivalence and redundancy.
 
 ## 6. Ordinary parameter versus natural parameter
 
-Ordinary parameters are familiar coordinates for naming a distribution member. Natural parameters are canonical exponential-family coordinates. They are related by reparameterization within the same family:
+Ordinary parameters are familiar coordinates for naming a distribution member. Natural parameters are canonical exponential-family coordinates. They are related by a reparameterization within the same family:
 
 ```math
-\eta=q(\psi)
+\eta=r(\psi),
+\qquad
+r:\Psi\rightarrow\mathcal H
 ```
 
 ```math
-\psi=q^{-1}(\eta)
+\psi=r^{-1}(\eta)
 ```
+
+This means $`p(y;\psi)=p(y;r(\psi))`$ for every admissible $`y`$ and $`\psi`$ in the relevant domain. The probability measures have not changed; only the coordinates used to index them have changed.
 
 Examples:
 
@@ -194,6 +209,41 @@ Examples:
 | Categorical, reference class | $`\phi_1,\ldots,\phi_K`$ | $`\log(\phi_k/\phi_K)`$ for $`k<K`$ |
 
 Do not treat the CS229 variance-one Gaussian simplification as the whole Gaussian parameterization.
+
+The expectation parameter is another coordinate:
+
+```math
+\mu_T
+:=
+\mathbb E_\eta[T(Y)].
+```
+
+The natural-to-expectation map is:
+
+```math
+m(\eta)
+=
+\mathbb E_\eta[T(Y)]
+=
+\nabla a(\eta)
+```
+
+under regularity conditions. If $`m`$ is invertible on the relevant region, the canonical link is:
+
+```math
+\ell_c=m^{-1}.
+```
+
+These maps have different types:
+
+```text
+T: observation -> canonical statistic
+r: ordinary parameter -> natural parameter
+m: natural parameter -> expectation parameter
+ell_c: expectation parameter -> natural parameter
+```
+
+The map $`r`$ does not arise from inverting $`T`$. The coupling is instead the bilinear term $`\eta^TT(y)`$.
 
 ## 7. Non-uniqueness and redundancy
 

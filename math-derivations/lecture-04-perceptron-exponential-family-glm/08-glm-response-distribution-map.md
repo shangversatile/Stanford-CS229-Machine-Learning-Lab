@@ -177,6 +177,26 @@ The general exponential-family identity is:
 
 not "the distribution parameter equals $`\mathbb E[Y]`$." Only when $`T(Y)=Y`$ does this become a direct statement about the scalar response mean. In a GLM, $`\mu(x)=\mathbb E[Y\mid X=x]`$ is often the response mean being systematically modeled, but the response distribution may still have other ordinary parameters, natural coordinates, and dispersion terms. For the response-space reason categorical labels need indicator observables, see [Response Spaces, Measures, and Expectations](09-response-spaces-measures-and-expectations.md).
 
+Use separate names for the maps:
+
+```math
+\eta=r(\psi),
+\qquad
+\mu_T=m(\eta)=\mathbb E_\eta[T(Y)],
+\qquad
+\ell_c=m^{-1}.
+```
+
+The same formula can appear in different columns only when the distribution-specific identities collapse the parameter spaces numerically.
+
+| Family | Ordinary parameter $`\psi`$ | Natural parameter $`\eta=r(\psi)`$ | Expectation parameter $`\mu_T=m(\eta)`$ | Ordinary equals expectation? | Canonical link |
+| ------ | --------------------------- | ---------------------------------- | --------------------------------------- | ---------------------------- | -------------- |
+| Gaussian, fixed variance one | $`\mu`$ | $`\mu`$ | $`\mathbb E[Y]=\mu`$ | yes, because $`T(Y)=Y`$ | identity |
+| Gaussian, unknown mean and variance | $`(\mu,\sigma^2)`$ | $`(\mu/\sigma^2,-1/(2\sigma^2))`$ | $`(\mathbb E[Y],\mathbb E[Y^2])`$ | not as a scalar mean | vector inverse moment map |
+| Bernoulli | $`p`$ | $`\log(p/(1-p))`$ | $`\mathbb E[Y]=p`$ | yes, because $`T(Y)=Y`$ | logit |
+| Poisson | $`\lambda`$ | $`\log\lambda`$ | $`\mathbb E[Y]=\lambda`$ | yes, because $`T(Y)=Y`$ | log |
+| Categorical | $`\phi`$ | log-odds relative to a reference class | $`\mathbb E[T(Y)]=\phi`$ | yes on statistic scale, not scalar label scale | reference logits, with softmax as inverse link |
+
 ## 5. Gaussian
 
 **Support.** $`Y_i\in\mathbb R`$.
