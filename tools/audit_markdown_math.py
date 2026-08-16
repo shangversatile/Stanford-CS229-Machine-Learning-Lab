@@ -51,7 +51,6 @@ LECTURE04_FENCED_MATH_ONLY_FILES = {
     Path("math-derivations/glm-response-distribution-map.md"),
     Path("math-derivations/response-spaces-measures-and-expectations.md"),
     Path("math-derivations/softmax-glm-cross-entropy.md"),
-    Path("assignments/ps1-supervised-learning/lecture04-original-exercises.md"),
 }
 
 

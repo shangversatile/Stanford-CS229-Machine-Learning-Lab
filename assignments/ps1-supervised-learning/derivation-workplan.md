@@ -16,8 +16,8 @@
 
 ## Priority Order
 
-1. Attempt the Lecture 4 original exercise sheet without looking at derivation files.
-2. Finish logistic Hessian and Newton derivation as independent scratch work.
-3. Attempt PS1 least-squares/Newton-related exercise.
-4. Attempt LWR/logistic-related exercise.
-5. Write mistake log.
+1. Read the official PS1 handout in `official/ps1.pdf`.
+2. Attempt the PS1 derivation problems independently before checking reference derivation notes.
+3. Record scratch work or summaries under `attempts/`.
+4. Update this workplan with completed derivations and unresolved gaps.
+5. Write mistake-log entries after the attempt.

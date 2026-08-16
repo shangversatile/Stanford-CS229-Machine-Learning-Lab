@@ -108,7 +108,7 @@ By the end of this course lab, the repository should contain:
 * [x] Exponential-family properties completed
 * [x] GLM construction derivation completed
 * [x] Softmax derivation completed
-* [x] Lecture 4 original exercise sheet created
+* [x] Stanford CS229 Autumn 2018 PS1 materials imported
 * [x] Lecture 4 GLM distribution map and navigation refined
 * [x] Exponential-family and GLM origin derivation added
 * [ ] PS1 gate remains incomplete

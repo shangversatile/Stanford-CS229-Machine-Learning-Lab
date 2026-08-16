@@ -13,6 +13,7 @@ Lecture 4 is marked watched/note-completed because the user supplied Lecture 4 r
 
 ## Derivation Tasks
 
+* [ ] Official PS1 handout read from `official/ps1.pdf`
 * [ ] Least squares normal equation without skipped steps
 * [ ] Newton method for quadratic least squares
 * [ ] Logistic regression likelihood
@@ -36,12 +37,12 @@ Lecture 4 is marked watched/note-completed because the user supplied Lecture 4 r
 
 ## Reflection Tasks
 
-* [ ] Mistake log initialized
-* [ ] Assignment reflection completed
+* [ ] Mistake log updated after independent attempt
+* [ ] Assignment reflection completed in `reflection.md`
 * [ ] Public-safe summary written
 
 ## Gate Status
 
 Current status:
 
-Active, not complete.
+PS1 ready / in progress. Lecture 5 remains locked until the PS1 gate is completed.
