@@ -111,6 +111,9 @@ By the end of this course lab, the repository should contain:
 * [x] Stanford CS229 Autumn 2018 PS1 materials imported
 * [x] Lecture 4 GLM distribution map and navigation refined
 * [x] Exponential-family and GLM origin derivation added
+* [x] Lecture 5 note: complete first-pass research-level note
+* [x] Lecture 5 multivariate Gaussian, GDA, and Naive Bayes derivations added
+* [ ] Lecture 5 interactive study in progress
 * [ ] PS1 gate remains incomplete
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed

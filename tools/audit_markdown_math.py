@@ -3,8 +3,8 @@
 The script is read-only. It recursively scans Markdown files, distinguishes
 ordinary code fences from GitHub ```math fences, prints each issue with its
 path and line number, and exits with a nonzero status when findings exist.
-Lecture 4 files are checked against the newer fenced-math display policy while
-older notes still allow legacy one-line $$...$$ display formulas.
+Lecture 4+ newer files are checked against the fenced-math display policy
+while older notes still allow legacy one-line $$...$$ display formulas.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ FENCE_START = re.compile(r"^\s*(`{3,}|~{3,})")
 INLINE_CODE_SPAN = re.compile(r"`[^`]*`")
 DOLLAR_BACKTICK_INLINE_MATH = re.compile(r"\$`([^`]*)`\$")
 
-LECTURE04_FENCED_MATH_ONLY_FILES = {
+FENCED_MATH_ONLY_FILES = {
     Path("lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md"),
     Path("math-derivations/perceptron-vector-geometry.md"),
     Path("math-derivations/exponential-family-anatomy.md"),
@@ -51,6 +51,10 @@ LECTURE04_FENCED_MATH_ONLY_FILES = {
     Path("math-derivations/glm-response-distribution-map.md"),
     Path("math-derivations/response-spaces-measures-and-expectations.md"),
     Path("math-derivations/softmax-glm-cross-entropy.md"),
+    Path("lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md"),
+    Path("math-derivations/lecture-05-generative-learning-gda-naive-bayes/01-multivariate-gaussian-geometry.md"),
+    Path("math-derivations/lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md"),
+    Path("math-derivations/lecture-05-generative-learning-gda-naive-bayes/03-naive-bayes-factorization-and-mle.md"),
 }
 
 
@@ -141,7 +145,7 @@ def _opening_fence(line: str) -> tuple[str, int] | None:
 
 def _requires_fenced_math_display(path: Path) -> bool:
     """Return whether path must avoid double-dollar display formulas."""
-    return path.relative_to(ROOT) in LECTURE04_FENCED_MATH_ONLY_FILES
+    return path.relative_to(ROOT) in FENCED_MATH_ONLY_FILES
 
 
 def audit_markdown(root: Path) -> list[tuple[Path, int, str, str]]:
@@ -200,7 +204,7 @@ def audit_markdown(root: Path) -> list[tuple[Path, int, str, str]]:
                     (
                         path,
                         line_number,
-                        "Lecture 4 files must use fenced math blocks instead of double-dollar display math",
+                        "newer lecture files must use fenced math blocks instead of double-dollar display math",
                         line,
                     )
                 )

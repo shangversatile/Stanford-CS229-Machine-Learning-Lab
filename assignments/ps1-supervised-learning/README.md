@@ -77,7 +77,8 @@ Current checkpoint:
 
 * Lecture 4: complete.
 * PS1: ready / in progress.
-* Lecture 5: locked until the PS1 gate is completed.
+* Lecture 5 note: complete first-pass research-level note.
+* Lecture 5 interactive study: in progress.
 
 ## Completion Standard
 

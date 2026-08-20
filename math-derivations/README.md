@@ -12,6 +12,7 @@ Cross-lecture companions are kept in one canonical location. For example, probab
 | [lecture-02-linear-regression](lecture-02-linear-regression/README.md) | [Lecture 2](../lecture-notes/lecture-02-linear-regression/note.md) | Linear regression algebra, gradients, normal equation, projection geometry |
 | [lecture-03-locally-weighted-logistic-regression](lecture-03-locally-weighted-logistic-regression/README.md) | [Lecture 3](../lecture-notes/lecture-03-locally-weighted-logistic-regression/note.md) | Locally weighted regression, logistic likelihood, Newton method |
 | [lecture-04-perceptron-exponential-family-glm](lecture-04-perceptron-exponential-family-glm/README.md) | [Lecture 4](../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md) | Perceptron geometry, exponential family, GLM, response spaces, softmax |
+| [lecture-05-generative-learning-gda-naive-bayes](lecture-05-generative-learning-gda-naive-bayes/README.md) | [Lecture 5](../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md) | Multivariate Gaussian geometry, GDA MLE, GDA-logistic connection, Naive Bayes |
 
 ## Lecture 1: Introduction
 
@@ -41,3 +42,9 @@ Cross-lecture companions are kept in one canonical location. For example, probab
 8. [GLM Response and Distribution Map](lecture-04-perceptron-exponential-family-glm/08-glm-response-distribution-map.md)
 9. [Response Spaces, Measures, and Expectations](lecture-04-perceptron-exponential-family-glm/09-response-spaces-measures-and-expectations.md)
 10. [Softmax GLM and Cross-Entropy](lecture-04-perceptron-exponential-family-glm/10-softmax-glm-cross-entropy.md)
+
+## Lecture 5: Generative Learning, GDA, and Naive Bayes
+
+1. [Multivariate Gaussian Geometry](lecture-05-generative-learning-gda-naive-bayes/01-multivariate-gaussian-geometry.md)
+2. [GDA MLE and Logistic Connection](lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md)
+3. [Naive Bayes Factorization and MLE](lecture-05-generative-learning-gda-naive-bayes/03-naive-bayes-factorization-and-mle.md)

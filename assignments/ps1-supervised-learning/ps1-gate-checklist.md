@@ -45,4 +45,4 @@ Lecture 4 is marked watched/note-completed because the user supplied Lecture 4 r
 
 Current status:
 
-PS1 ready / in progress. Lecture 5 remains locked until the PS1 gate is completed.
+PS1 ready / in progress. Lecture 5 note is a complete first-pass research-level note, Lecture 5 interactive study is in progress, and PS1 remains incomplete.

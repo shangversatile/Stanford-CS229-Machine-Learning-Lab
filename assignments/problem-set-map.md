@@ -35,4 +35,4 @@ Not allowed:
 
 ## 4. Current Gate
 
-Current active gate is PS1 Supervised Learning Gate. The next lecture should be Lecture 4, but before moving into later supervised learning topics such as GDA and SVM, PS1-related exercises must be mapped and attempted.
+Current active gate is PS1 Supervised Learning Gate. Lecture 5 note is a complete first-pass research-level note, Lecture 5 interactive study is in progress, and the PS1 gate remains incomplete. Later supervised learning topics should still be connected back to public-safe derivation practice, implementation practice, and reflection before being marked complete.
