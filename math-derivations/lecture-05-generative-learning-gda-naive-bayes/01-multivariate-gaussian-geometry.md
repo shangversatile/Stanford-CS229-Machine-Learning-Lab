@@ -476,6 +476,56 @@ C=-2\log c-d\log(2\pi)-\log|\Sigma|.
 
 所以 covariance eigenvectors 决定 orientation，eigenvalues 决定 squared scale。
 
+也可以直接沿 eigenvector direction 验证这个结论。设 $q_j$ 是单位 eigenvector：
+
+```math
+\Sigma q_j=\lambda_j q_j.
+```
+
+从 mean 出发沿这个方向移动：
+
+```math
+x-\mu=tq_j.
+```
+
+代入 contour equation：
+
+```math
+(x-\mu)^\top\Sigma^{-1}(x-\mu)=C
+```
+
+得到：
+
+```math
+(tq_j)^\top\Sigma^{-1}(tq_j)=C.
+```
+
+由于：
+
+```math
+\Sigma^{-1}q_j=\frac1{\lambda_j}q_j,
+```
+
+所以：
+
+```math
+t^2q_j^\top\frac1{\lambda_j}q_j=C.
+```
+
+又因为 $q_j^\top q_j=1$，所以：
+
+```math
+\frac{t^2}{\lambda_j}=C.
+```
+
+因此：
+
+```math
+t=\pm\sqrt{C\lambda_j}.
+```
+
+这说明 $q_j$ 不只是“和椭球有关”的抽象方向；它精确给出从 mean 出发到等密度面的 principal radius direction。大 $\lambda_j$ 方向上，同样的 Euclidean displacement 只产生较小的 Mahalanobis penalty，所以 density 下降更慢，contour 更长；小 $\lambda_j$ 方向则相反。
+
 ## 10. 二维交叉项与旋转
 
 本节把 $d=2$ 时的 geometry 写开。核心结论是：Gaussian contour 不是直接由 $\Sigma$ 画出来的，而是由 density exponent 里的 precision quadratic form 决定：
@@ -1058,7 +1108,186 @@ c(\cos^2\theta-\sin^2\theta).
 
 忽略 eigenvector 正负号的等价表示。这说明 $45^\circ$ 是等方差对称情形的结果，不是所有相关 Gaussian contours 的普遍性质。
 
-## 11. Determinant and Density Height
+## 11. PCA Connection: Same Covariance Eigenvectors
+
+Gaussian contour 和 PCA 回答的问题不同，但它们依赖同一个 covariance eigendecomposition。
+
+Gaussian contour 从 density level set 出发：
+
+```math
+(x-\mu)^\top\Sigma^{-1}(x-\mu)=C.
+```
+
+PCA 从 projected variance 出发。对 centered random vector $X-\mu$，取任意单位方向：
+
+```math
+u\in\mathbb R^d,\qquad \|u\|_2=1.
+```
+
+投影到 $u$ 上：
+
+```math
+Z=u^\top(X-\mu).
+```
+
+投影方差为：
+
+```math
+\operatorname{Var}(Z)=\operatorname{Var}\left(u^\top X\right).
+```
+
+展开 covariance：
+
+```math
+\operatorname{Var}\left(u^\top X\right)
+=
+\mathbb E\left[\left(u^\top(X-\mu)\right)^2\right].
+```
+
+因为 $u^\top(X-\mu)$ 是 scalar：
+
+```math
+\left(u^\top(X-\mu)\right)^2
+=
+u^\top(X-\mu)(X-\mu)^\top u.
+```
+
+所以：
+
+```math
+\operatorname{Var}\left(u^\top X\right)
+=
+u^\top\mathbb E\left[(X-\mu)(X-\mu)^\top\right]u
+=
+u^\top\Sigma u.
+```
+
+PCA 第一主成分方向解：
+
+```math
+\max_{\|u\|_2=1}u^\top\Sigma u.
+```
+
+构造 Lagrangian：
+
+```math
+\mathcal L(u,\lambda)=u^\top\Sigma u-\lambda(u^\top u-1).
+```
+
+对 $u$ 求导：
+
+```math
+\nabla_u\mathcal L=2\Sigma u-2\lambda u.
+```
+
+令 gradient 为 $0$：
+
+```math
+\Sigma u=\lambda u.
+```
+
+因此 stationary directions 必须是 $\Sigma$ 的 eigenvectors。若 eigenvalues 排序为：
+
+```math
+\lambda_1\geq\lambda_2\geq\cdots\geq\lambda_d,
+```
+
+并且：
+
+```math
+\Sigma q_j=\lambda_j q_j,
+```
+
+则：
+
+```math
+q_j^\top\Sigma q_j=\lambda_j.
+```
+
+最大 projected variance 对应最大 eigenvalue，所以第一主成分方向是 $q_1$；后续主成分是在 orthogonal complement 中继续最大化 variance，得到 $q_2,q_3,\ldots$。
+
+这和 Gaussian ellipsoid 的关系是：
+
+```text
+PCA direction q_j -> projected variance lambda_j
+Gaussian contour axis q_j -> semi-axis length proportional to sqrt(lambda_j)
+```
+
+也就是说，PCA 的 eigenvalue 是 variance scale；Gaussian contour 的 axis length 是 standard-deviation scale，所以出现 $\sqrt{\lambda_j}$。
+
+PCA transform 本身就是把坐标系旋转到 covariance principal axes。令：
+
+```math
+Q=[q_1,\ldots,q_d],
+```
+
+并定义 new coordinates：
+
+```math
+z=Q^\top(X-\mu).
+```
+
+则：
+
+```math
+\operatorname{Cov}(z)
+=
+\operatorname{Cov}\left(Q^\top(X-\mu)\right)
+=
+Q^\top\Sigma Q.
+```
+
+由 $\Sigma=Q\Lambda Q^\top$ 得：
+
+```math
+Q^\top\Sigma Q
+=
+Q^\top Q\Lambda Q^\top Q
+=
+\Lambda.
+```
+
+所以 PCA coordinates 中 covariance 是 diagonal：
+
+```math
+\operatorname{Cov}(z)=\Lambda.
+```
+
+这表示 PCA 把原坐标旋转到 covariance ellipsoid 的 principal axes，使 coordinates uncorrelated。
+
+二维等方差相关情形提供了最直观的例子：
+
+```math
+\Sigma
+=
+\sigma^2
+\begin{bmatrix}
+1 & \rho\\
+\rho & 1
+\end{bmatrix}.
+```
+
+若 $\rho>0$，则：
+
+```math
+\lambda_+=\sigma^2(1+\rho)>\sigma^2(1-\rho)=\lambda_-.
+```
+
+因此 PCA first principal component 是：
+
+```math
+u_+=\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix},
+```
+
+也就是 $x=y$ 或 common-motion direction；Gaussian contour 的 long axis 也沿这个方向。若 $\rho<0$，最大方差方向换成 $x=-y$。
+
+需要保留的区别是：Gaussian contour 是 density shape 的概念，依赖 Gaussian density formula；PCA 是 covariance-based variance maximization，不要求 distribution 是 Gaussian。只有当 data distribution 确实用同一个 $\Sigma$ 的 Gaussian geometry 描述时，PCA principal directions 才可以直接解释为 Gaussian density ellipsoid 的 principal axes。
+
+## 12. Determinant and Density Height
 
 由：
 
@@ -1104,7 +1333,7 @@ P(X\in A)=\int_Ap(x;\mu,\Sigma)\,dx.
 P(X=x)=0.
 ```
 
-## 12. Connection Back to GDA
+## 13. Connection Back to GDA
 
 GDA 比较：
 

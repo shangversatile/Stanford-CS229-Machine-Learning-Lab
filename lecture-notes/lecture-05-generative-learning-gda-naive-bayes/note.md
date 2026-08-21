@@ -15,7 +15,7 @@ Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Anal
 | [5. Generative versus Discriminative Learning](#5-generative-versus-discriminative-learning) | 解释两类学习器到底在学习什么 |
 | [6. Multivariate Gaussian Distribution](#6-multivariate-gaussian-distribution) | 定义 density、mean、covariance、PSD 和 PD |
 | [7. Mahalanobis Geometry](#7-mahalanobis-geometry) | 推导 covariance-aware quadratic form |
-| [8. Gaussian Isocontours and Determinant](#8-gaussian-isocontours-and-determinant) | 连接 covariance、ellipse、density height 和 volume |
+| [8. Gaussian Isocontours and Determinant](#8-gaussian-isocontours-and-determinant) | 连接 covariance、ellipse、PCA directions、density height 和 volume |
 | [9. GDA Model and Generative Story](#9-gda-model-and-generative-story) | 定义 GDA assumptions 和 sampling direction |
 | [10. GDA Joint Likelihood and MLE](#10-gda-joint-likelihood-and-mle) | 推导参数估计和 pooled covariance 逻辑 |
 | [11. GDA Posterior Has Logistic Form](#11-gda-posterior-has-logistic-form) | 展开 posterior odds 并展示 quadratic cancellation |
@@ -102,6 +102,7 @@ Lecture 5: choose p(x | y) and p(y), then derive p(y | x).
 * 把 Gaussian quadratic form 理解成 squared Mahalanobis distance；
 * 从 density level set 推导 Gaussian ellipse / ellipsoid；
 * 把 determinant 解释为 uncertainty-volume scaling，而不是 point probability；
+* 说明 Gaussian contour 主轴、covariance eigenvectors 和 PCA 主成分方向之间的关系；
 * 写出 GDA model、generative story、joint likelihood 和 MLE；
 * 推导 GDA posterior log-odds，并说明为什么 shared covariance 会产生 linear boundary；
 * 比较 GDA 和 logistic regression 的 assumptions、sample efficiency、misspecification 和 robustness；
@@ -566,6 +567,64 @@ C=-2\log c-d\log(2\pi)-\log|\Sigma|.
 ```
 
 成比例。
+
+这也解释了为什么 covariance matrix 的 eigenvectors 是 Gaussian contour 的 principal axes。若从 mean 出发，沿第 $j$ 个 eigenvector 走：
+
+```math
+x-\mu=tq_j,
+```
+
+由于：
+
+```math
+\Sigma q_j=\lambda_j q_j
+```
+
+所以：
+
+```math
+\Sigma^{-1}q_j=\frac1{\lambda_j}q_j.
+```
+
+代入 contour equation：
+
+```math
+(tq_j)^\top\Sigma^{-1}(tq_j)=C
+```
+
+得到：
+
+```math
+\frac{t^2}{\lambda_j}=C.
+```
+
+因此：
+
+```math
+t=\pm\sqrt{C\lambda_j}.
+```
+
+大 eigenvalue 方向允许更大的 displacement，density 下降更慢，所以对应长轴；小 eigenvalue 方向更快受到 quadratic penalty，所以对应短轴。
+
+这和 PCA 使用的是同一个 covariance geometry。PCA 选择单位方向 $u$，让 centered data 在这个方向上的 projected variance 最大：
+
+```math
+\operatorname{Var}\left(u^\top X\right)=u^\top\Sigma u.
+```
+
+因此第一主成分解的是：
+
+```math
+\max_{\|u\|_2=1}u^\top\Sigma u.
+```
+
+Lagrange condition 给出：
+
+```math
+\Sigma u=\lambda u.
+```
+
+所以 PCA principal directions 也是 $\Sigma$ 的 eigenvectors；最大 eigenvalue 对应第一主成分，也对应 Gaussian ellipsoid 的最长 principal axis。区别是：Gaussian contour 研究 density level sets，PCA 研究 projected variance；PCA 本身不要求 data distribution 是 Gaussian，但当 $X\sim\mathcal N(\mu,\Sigma)$ 时，两者共享同一组 principal directions。
 
 完整理解链条是：
 
@@ -1213,6 +1272,7 @@ Boundary audit:
 * Quadratic form $(x-\mu)^\top\Sigma^{-1}(x-\mu)$ 是 squared Mahalanobis distance。
 * 多元高斯 contour 由 $\Sigma^{-1}$ 中的 quadratic form 决定；$\Sigma$ 的非对角 entry 在二维展开中产生 $xy$ 交叉项。
 * $\Sigma$ 的 eigenvectors 给 principal directions；eigenvalues 给 spread；semi-axis lengths 按 $\sqrt{\lambda_j}$ 缩放。
+* PCA 主成分方向也是 $\Sigma$ 的 eigenvectors；对 Gaussian data，它们就是等密度 ellipsoid 的 principal axes。
 * 二维等方差时，相关方向自然分解为 $x+y$ 和 $x-y$，所以主轴是 $x=y$ 与 $x=-y$；一般不等方差时旋转角满足 $\tan(2\theta)=2\sigma_{xy}/(\sigma_x^2-\sigma_y^2)$。
 * $|\Sigma|^{1/2}$ 是 volume-scaling term；density height 不是 point probability。
 * GDA 假设 $Y\sim\mathrm{Bernoulli}(\phi)$ 且 $X\mid Y=k\sim\mathcal N(\mu_k,\Sigma)$，两个 classes 共享 covariance。
@@ -1276,6 +1336,7 @@ Sigma
 -> eigendirections, eigenvalues, and possible cross terms
 -> Mahalanobis distance
 -> Gaussian density contours
+-> PCA directions as covariance principal axes
 -> GDA class-conditional comparisons
 -> boundary shape
 ```
