@@ -415,6 +415,86 @@ z=Q^\top(x-\mu).
 * 小 variance direction 中 displacement 被惩罚得更大；
 * Euclidean distance 把所有方向等权处理，Mahalanobis distance 按 covariance geometry 重新缩放距离。
 
+核心区分是：多元高斯的等密度线不是“把 covariance matrix 直接画成椭圆”。真正进入 density exponent 的对象是 precision quadratic form：
+
+```math
+(x-\mu)^\top\Sigma^{-1}(x-\mu).
+```
+
+$\Sigma$ 仍然决定 geometry，但它是通过 $\Sigma^{-1}$ 出现在 exponent 中，并通过 eigendecomposition 给出主方向和尺度。换句话说，$\Sigma$ 控制 spread 和 correlation；$\Sigma^{-1}$ 直接控制离开 mean 后 density 下降得多快。
+
+二维时令 $\mu=0$ 且：
+
+```math
+\Sigma=
+\begin{bmatrix}
+\sigma_x^2 & \sigma_{xy}\\
+\sigma_{xy} & \sigma_y^2
+\end{bmatrix}.
+```
+
+则：
+
+```math
+\Sigma^{-1}
+=
+\frac{1}{\sigma_x^2\sigma_y^2-\sigma_{xy}^2}
+\begin{bmatrix}
+\sigma_y^2 & -\sigma_{xy}\\
+-\sigma_{xy} & \sigma_x^2
+\end{bmatrix},
+```
+
+所以：
+
+```math
+\begin{bmatrix}x\\y\end{bmatrix}^\top
+\Sigma^{-1}
+\begin{bmatrix}x\\y\end{bmatrix}
+=
+\frac{
+\sigma_y^2x^2-2\sigma_{xy}xy+\sigma_x^2y^2
+}{
+\sigma_x^2\sigma_y^2-\sigma_{xy}^2
+}.
+```
+
+这说明非对角 covariance 在 exponent 里体现为 $xy$ 交叉项。若 $\sigma_{xy}=0$，等密度椭圆不旋转，主轴沿原坐标轴；若 $\sigma_{xy}\neq0$，交叉项改变主方向，椭圆会相对原坐标轴旋转。
+
+在二维等方差特例：
+
+```math
+\Sigma=\sigma^2
+\begin{bmatrix}
+1 & \rho\\
+\rho & 1
+\end{bmatrix},
+```
+
+主方向是：
+
+```math
+\frac1{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix}
+\qquad
+\frac1{\sqrt2}\begin{bmatrix}1\\-1\end{bmatrix},
+```
+
+也就是 $x=y$ 和 $x=-y$ 两个 $45^\circ$ 方向。若 $\rho>0$，沿 $x=y$ 拉长、沿 $x=-y$ 压缩；若 $\rho<0$，方向反过来。严格说，$45^\circ$ 是 $\sigma_x^2=\sigma_y^2$ 的对称特例；一般二维 covariance matrix
+
+```math
+\Sigma=
+\begin{bmatrix}
+a & c\\
+c & b
+\end{bmatrix}
+```
+
+的主轴旋转角满足：
+
+```math
+\tan(2\theta)=\frac{2c}{a-b}.
+```
+
 ![Bivariate Gaussian 3D density](../../assets/figures/lecture05-bivariate-gaussian-density-3d.png)
 
 Figure 2. Bivariate Gaussian density，参数为 $\mu=[0.6,-0.4]^\top$ 和 $\Sigma=\begin{bmatrix}1.70&0.90\\0.90&0.85\end{bmatrix}$。非零 covariance 让 bell shape 相对坐标轴发生倾斜。
@@ -1131,7 +1211,9 @@ Boundary audit:
 * 分类时可以用 $\underset{y}{\mathrm{argmax}}\ p(x\mid y)p(y)$，因为 $p(x)$ 不依赖于 $y$。
 * Non-degenerate multivariate Gaussian density 要求 $\Sigma\succ0$；一般 covariance matrix 只保证 PSD。
 * Quadratic form $(x-\mu)^\top\Sigma^{-1}(x-\mu)$ 是 squared Mahalanobis distance。
+* 多元高斯 contour 由 $\Sigma^{-1}$ 中的 quadratic form 决定；$\Sigma$ 的非对角 entry 在二维展开中产生 $xy$ 交叉项。
 * $\Sigma$ 的 eigenvectors 给 principal directions；eigenvalues 给 spread；semi-axis lengths 按 $\sqrt{\lambda_j}$ 缩放。
+* 二维等方差时，相关方向自然分解为 $x+y$ 和 $x-y$，所以主轴是 $x=y$ 与 $x=-y$；一般不等方差时旋转角满足 $\tan(2\theta)=2\sigma_{xy}/(\sigma_x^2-\sigma_y^2)$。
 * $|\Sigma|^{1/2}$ 是 volume-scaling term；density height 不是 point probability。
 * GDA 假设 $Y\sim\mathrm{Bernoulli}(\phi)$ 且 $X\mid Y=k\sim\mathcal N(\mu_k,\Sigma)$，两个 classes 共享 covariance。
 * GDA maximizes joint likelihood；logistic regression maximizes conditional likelihood。
@@ -1190,7 +1272,8 @@ Geometry map:
 
 ```text
 Sigma
--> eigendirections and eigenvalues
+-> inverse covariance in quadratic form
+-> eigendirections, eigenvalues, and possible cross terms
 -> Mahalanobis distance
 -> Gaussian density contours
 -> GDA class-conditional comparisons

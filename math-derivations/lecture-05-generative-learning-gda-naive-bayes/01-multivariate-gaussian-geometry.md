@@ -476,7 +476,589 @@ C=-2\log c-d\log(2\pi)-\log|\Sigma|.
 
 所以 covariance eigenvectors 决定 orientation，eigenvalues 决定 squared scale。
 
-## 10. Determinant and Density Height
+## 10. 二维交叉项与旋转
+
+本节把 $d=2$ 时的 geometry 写开。核心结论是：Gaussian contour 不是直接由 $\Sigma$ 画出来的，而是由 density exponent 里的 precision quadratic form 决定：
+
+```math
+(x-\mu)^\top\Sigma^{-1}(x-\mu).
+```
+
+$\Sigma$ 仍然决定 geometry，但它通过两条路径起作用：一是 $\Sigma^{-1}$ 直接进入 exponent，二是 $\Sigma=Q\Lambda Q^\top$ 给出 principal directions 和 spread。
+
+平移 mean 只改变中心，不改变 contour shape。为了看清楚，先设：
+
+```math
+\mu=
+\begin{bmatrix}
+0\\
+0
+\end{bmatrix}.
+```
+
+于是二维 density 与下面这一项成比例：
+
+```math
+p(x,y)\propto
+\exp\left(
+-\frac12
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}^{\top}
+\Sigma^{-1}
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}
+\right).
+```
+
+所以控制图像形状的是 squared Mahalanobis distance：
+
+```math
+D_M^2(x,y)=
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}^{\top}
+\Sigma^{-1}
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}.
+```
+
+等密度线满足：
+
+```math
+D_M^2(x,y)=C.
+```
+
+### 10.1 Diagonal covariance：主轴沿原坐标轴
+
+如果：
+
+```math
+\Sigma=
+\begin{bmatrix}
+\sigma_x^2 & 0\\
+0 & \sigma_y^2
+\end{bmatrix},
+```
+
+那么：
+
+```math
+\Sigma^{-1}=
+\begin{bmatrix}
+\frac1{\sigma_x^2} & 0\\
+0 & \frac1{\sigma_y^2}
+\end{bmatrix}.
+```
+
+因此：
+
+```math
+D_M^2(x,y)
+=
+\frac{x^2}{\sigma_x^2}
++
+\frac{y^2}{\sigma_y^2}.
+```
+
+等密度线方程是：
+
+```math
+\frac{x^2}{\sigma_x^2}
++
+\frac{y^2}{\sigma_y^2}
+=C.
+```
+
+也就是：
+
+```math
+\frac{x^2}{C\sigma_x^2}
++
+\frac{y^2}{C\sigma_y^2}
+=1.
+```
+
+半轴长度分别是 $\sqrt C\sigma_x$ 和 $\sqrt C\sigma_y$。如果 $\sigma_x^2>\sigma_y^2$，ellipse 沿 $x$ 方向更长；如果 $\sigma_y^2>\sigma_x^2$，ellipse 沿 $y$ 方向更长。这里没有 rotation，因为 quadratic form 里没有 $xy$ 交叉项。
+
+### 10.2 非对角 covariance 产生交叉项
+
+一般二维 non-degenerate covariance matrix 写成：
+
+```math
+\Sigma=
+\begin{bmatrix}
+\sigma_x^2 & \sigma_{xy}\\
+\sigma_{xy} & \sigma_y^2
+\end{bmatrix},
+```
+
+其中：
+
+```math
+\sigma_{xy}=\operatorname{Cov}(X,Y).
+```
+
+Positive definite 条件要求：
+
+```math
+\sigma_x^2>0,\qquad
+\sigma_y^2>0,\qquad
+\sigma_x^2\sigma_y^2-\sigma_{xy}^2>0.
+```
+
+它的逆矩阵是：
+
+```math
+\Sigma^{-1}
+=
+\frac{1}{\sigma_x^2\sigma_y^2-\sigma_{xy}^2}
+\begin{bmatrix}
+\sigma_y^2 & -\sigma_{xy}\\
+-\sigma_{xy} & \sigma_x^2
+\end{bmatrix}.
+```
+
+于是：
+
+```math
+D_M^2(x,y)
+=
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}^{\top}
+\Sigma^{-1}
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}
+```
+
+```math
+=
+\frac{
+\sigma_y^2x^2
+-2\sigma_{xy}xy
++\sigma_x^2y^2
+}{
+\sigma_x^2\sigma_y^2-\sigma_{xy}^2
+}.
+```
+
+关键项是：
+
+```math
+-2\sigma_{xy}xy.
+```
+
+这就是非对角 covariance entry 在 precision quadratic form 里的几何影响。
+
+如果 $\sigma_{xy}=0$，交叉项消失，ellipse axes 沿原来的 $x,y$ 轴。如果 $\sigma_{xy}\neq0$，contour equation 包含 $xy$ 项，principal axes 一般会旋转。
+
+还可以直接从 quadratic form 看符号。若 $\sigma_{xy}>0$ 且 $xy>0$，则：
+
+```math
+-2\sigma_{xy}xy<0.
+```
+
+这会让 $D_M^2(x,y)$ 变小。因为：
+
+```math
+p(x,y)\propto\exp\left(-\frac12D_M^2(x,y)\right),
+```
+
+所以 same-sign direction，例如 $x\approx y$，density 会相对更高。若 $xy<0$，交叉项使 $D_M^2(x,y)$ 变大，density 下降更快。因此 positive covariance 会沿 same-sign direction 拉长 contour，并沿 opposite-sign direction 压缩 contour；negative covariance 反过来。
+
+### 10.3 等方差时出现 45 度方向
+
+现在看对称的二维等方差情形：
+
+```math
+\sigma_x^2=\sigma_y^2=\sigma^2.
+```
+
+把 covariance 写成：
+
+```math
+\sigma_{xy}=\rho\sigma^2,
+```
+
+其中：
+
+```math
+\rho=\operatorname{Corr}(X,Y).
+```
+
+此时：
+
+```math
+\Sigma
+=
+\sigma^2
+\begin{bmatrix}
+1 & \rho\\
+\rho & 1
+\end{bmatrix},
+\qquad -1<\rho<1.
+```
+
+考虑方向：
+
+```math
+u_+=
+\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}.
+```
+
+有：
+
+```math
+\Sigma u_+
+=
+\sigma^2
+\begin{bmatrix}
+1 & \rho\\
+\rho & 1
+\end{bmatrix}
+\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}
+```
+
+```math
+=
+\frac{\sigma^2}{\sqrt2}
+\begin{bmatrix}
+1+\rho\\
+1+\rho
+\end{bmatrix}
+```
+
+```math
+=
+\sigma^2(1+\rho)
+\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+1
+\end{bmatrix}.
+```
+
+所以 $u_+$ 是 eigenvector，对应 eigenvalue：
+
+```math
+\lambda_+=\sigma^2(1+\rho).
+```
+
+这个方向就是直线 $y=x$。
+
+另一个方向是：
+
+```math
+u_-=
+\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+-1
+\end{bmatrix}.
+```
+
+有：
+
+```math
+\Sigma u_-
+=
+\sigma^2
+\begin{bmatrix}
+1 & \rho\\
+\rho & 1
+\end{bmatrix}
+\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+-1
+\end{bmatrix}
+```
+
+```math
+=
+\frac{\sigma^2}{\sqrt2}
+\begin{bmatrix}
+1-\rho\\
+\rho-1
+\end{bmatrix}
+```
+
+```math
+=
+\sigma^2(1-\rho)
+\frac1{\sqrt2}
+\begin{bmatrix}
+1\\
+-1
+\end{bmatrix}.
+```
+
+所以 $u_-$ 也是 eigenvector，对应 eigenvalue：
+
+```math
+\lambda_-=\sigma^2(1-\rho).
+```
+
+这个方向就是直线 $y=-x$。
+
+因此在二维等方差 Gaussian 中，非对角 correlation 自然把 geometry 分解到 $x+y$ 和 $x-y$ 两个旋转坐标上。这两个方向正好是相对原坐标轴旋转 $45^\circ$ 的方向。
+
+令：
+
+```math
+R=
+\begin{bmatrix}
+\frac1{\sqrt2} & \frac1{\sqrt2}\\
+\frac1{\sqrt2} & -\frac1{\sqrt2}
+\end{bmatrix},
+\qquad
+\begin{bmatrix}
+u\\
+v
+\end{bmatrix}
+=
+R^\top
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}.
+```
+
+则：
+
+```math
+u=\frac{x+y}{\sqrt2},
+\qquad
+v=\frac{x-y}{\sqrt2}.
+```
+
+对应 eigendecomposition 是：
+
+```math
+\Sigma=
+R
+\begin{bmatrix}
+\sigma^2(1+\rho) & 0\\
+0 & \sigma^2(1-\rho)
+\end{bmatrix}
+R^\top.
+```
+
+因此：
+
+```math
+D_M^2(x,y)
+=
+\frac{u^2}{\sigma^2(1+\rho)}
++
+\frac{v^2}{\sigma^2(1-\rho)}.
+```
+
+在旋转坐标中，density 可以写成：
+
+```math
+p(u,v)
+\propto
+\exp\left[
+-\frac12
+\left(
+\frac{u^2}{\sigma^2(1+\rho)}
++
+\frac{v^2}{\sigma^2(1-\rho)}
+\right)
+\right].
+```
+
+对应的等密度线方程是：
+
+```math
+\frac{u^2}{\sigma^2(1+\rho)}
++
+\frac{v^2}{\sigma^2(1-\rho)}
+=C.
+```
+
+若 $\rho>0$，则：
+
+```math
+\sigma^2(1+\rho)>\sigma^2,
+\qquad
+\sigma^2(1-\rho)<\sigma^2.
+```
+
+所以 $u=(x+y)/\sqrt2$ 方向，也就是 $x\approx y$，variance 更大，ellipse 沿 $x=y$ 拉长。$v=(x-y)/\sqrt2$ 方向 variance 更小，ellipse 沿 $x=-y$ 压缩。
+
+若 $\rho<0$，上述不等式反过来：ellipse 沿 $x=-y$ 拉长，沿 $x=y$ 压缩。
+
+### 10.4 从线性组合看压缩
+
+同一个结论也可以从 sum / difference 的 variance 看出来。对任意两个 random variables：
+
+```math
+\operatorname{Var}(X+Y)
+=
+\operatorname{Var}(X)
++
+\operatorname{Var}(Y)
++
+2\operatorname{Cov}(X,Y),
+```
+
+并且：
+
+```math
+\operatorname{Var}(X-Y)
+=
+\operatorname{Var}(X)
++
+\operatorname{Var}(Y)
+-
+2\operatorname{Cov}(X,Y).
+```
+
+若 $\operatorname{Var}(X)=\operatorname{Var}(Y)=\sigma^2$ 且 $\operatorname{Cov}(X,Y)=\rho\sigma^2$，则：
+
+```math
+\operatorname{Var}(X+Y)=2\sigma^2(1+\rho),
+```
+
+并且：
+
+```math
+\operatorname{Var}(X-Y)=2\sigma^2(1-\rho).
+```
+
+等价地：
+
+```math
+\operatorname{Var}\left(\frac{X+Y}{\sqrt2}\right)=\sigma^2(1+\rho),
+```
+
+并且：
+
+```math
+\operatorname{Var}\left(\frac{X-Y}{\sqrt2}\right)=\sigma^2(1-\rho).
+```
+
+所以 positive correlation 增大 common-motion coordinate $X+Y$ 的 variance，同时减小 difference coordinate $X-Y$ 的 variance。几何上就是沿 $x=y$ 拉长，沿 $x=-y$ 压缩。Negative correlation 把这两个方向互换。
+
+这比“covariance 让图像斜着压缩”更本质：covariance 改变的是 linear combinations 的 variance。在二维等方差情形，最自然的两个 linear combinations 正好是 $X+Y$ 和 $X-Y$，也就是两个 $45^\circ$ 方向。
+
+### 10.5 一般二维情形的旋转角
+
+$45^\circ$ 不是所有 correlated two-dimensional Gaussian 的结论，而是 $\sigma_x^2=\sigma_y^2$ 的对称特例。
+
+设：
+
+```math
+\Sigma=
+\begin{bmatrix}
+a & c\\
+c & b
+\end{bmatrix},
+```
+
+其中 $a>0$，$b>0$，并且 $ab-c^2>0$。令某个 principal eigenvector 和 $x$ 轴夹角为 $\theta$：
+
+```math
+q=
+\begin{bmatrix}
+\cos\theta\\
+\sin\theta
+\end{bmatrix}.
+```
+
+Eigenvector equation $\Sigma q=\lambda q$ 给出：
+
+```math
+a\cos\theta+c\sin\theta=\lambda\cos\theta,
+```
+
+以及：
+
+```math
+c\cos\theta+b\sin\theta=\lambda\sin\theta.
+```
+
+第一式乘 $\sin\theta$，第二式乘 $\cos\theta$：
+
+```math
+a\sin\theta\cos\theta+c\sin^2\theta
+=
+\lambda\sin\theta\cos\theta,
+```
+
+```math
+c\cos^2\theta+b\sin\theta\cos\theta
+=
+\lambda\sin\theta\cos\theta.
+```
+
+两个右侧相同，因此：
+
+```math
+a\sin\theta\cos\theta+c\sin^2\theta
+=
+c\cos^2\theta+b\sin\theta\cos\theta.
+```
+
+整理：
+
+```math
+(a-b)\sin\theta\cos\theta
+=
+c(\cos^2\theta-\sin^2\theta).
+```
+
+使用：
+
+```math
+\sin(2\theta)=2\sin\theta\cos\theta,
+\qquad
+\cos(2\theta)=\cos^2\theta-\sin^2\theta,
+```
+
+得到：
+
+```math
+\frac{a-b}{2}\sin(2\theta)=c\cos(2\theta).
+```
+
+当 $\cos(2\theta)\neq0$ 时：
+
+```math
+\tan(2\theta)=\frac{2c}{a-b}.
+```
+
+若 $a=b$ 且 $c\neq0$，上式对应 $\cos(2\theta)=0$，所以主方向是：
+
+```math
+\theta=\frac{\pi}{4}
+\qquad
+\theta=-\frac{\pi}{4},
+```
+
+忽略 eigenvector 正负号的等价表示。这说明 $45^\circ$ 是等方差对称情形的结果，不是所有相关 Gaussian contours 的普遍性质。
+
+## 11. Determinant and Density Height
 
 由：
 
@@ -522,7 +1104,7 @@ P(X\in A)=\int_Ap(x;\mu,\Sigma)\,dx.
 P(X=x)=0.
 ```
 
-## 11. Connection Back to GDA
+## 12. Connection Back to GDA
 
 GDA 比较：
 
