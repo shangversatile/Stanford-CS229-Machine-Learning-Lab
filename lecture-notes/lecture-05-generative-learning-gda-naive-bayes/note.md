@@ -609,7 +609,7 @@ t=\pm\sqrt{C\lambda_j}.
 这和 PCA 使用的是同一个 covariance geometry。PCA 选择单位方向 $u$，让 centered data 在这个方向上的 projected variance 最大：
 
 ```math
-\operatorname{Var}\left(u^\top X\right)=u^\top\Sigma u.
+\mathrm{Var}\left(u^\top X\right)=u^\top\Sigma u.
 ```
 
 因此第一主成分解的是：

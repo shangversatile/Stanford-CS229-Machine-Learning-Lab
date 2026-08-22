@@ -652,7 +652,7 @@ D_M^2(x,y)
 其中：
 
 ```math
-\sigma_{xy}=\operatorname{Cov}(X,Y).
+\sigma_{xy}=\mathrm{Cov}(X,Y).
 ```
 
 Positive definite 条件要求：
@@ -743,7 +743,7 @@ p(x,y)\propto\exp\left(-\frac12D_M^2(x,y)\right),
 其中：
 
 ```math
-\rho=\operatorname{Corr}(X,Y).
+\rho=\mathrm{Corr}(X,Y).
 ```
 
 此时：
@@ -963,49 +963,49 @@ p(u,v)
 同一个结论也可以从 sum / difference 的 variance 看出来。对任意两个 random variables：
 
 ```math
-\operatorname{Var}(X+Y)
+\mathrm{Var}(X+Y)
 =
-\operatorname{Var}(X)
+\mathrm{Var}(X)
 +
-\operatorname{Var}(Y)
+\mathrm{Var}(Y)
 +
-2\operatorname{Cov}(X,Y),
+2\mathrm{Cov}(X,Y),
 ```
 
 并且：
 
 ```math
-\operatorname{Var}(X-Y)
+\mathrm{Var}(X-Y)
 =
-\operatorname{Var}(X)
+\mathrm{Var}(X)
 +
-\operatorname{Var}(Y)
+\mathrm{Var}(Y)
 -
-2\operatorname{Cov}(X,Y).
+2\mathrm{Cov}(X,Y).
 ```
 
-若 $\operatorname{Var}(X)=\operatorname{Var}(Y)=\sigma^2$ 且 $\operatorname{Cov}(X,Y)=\rho\sigma^2$，则：
+若 $\mathrm{Var}(X)=\mathrm{Var}(Y)=\sigma^2$ 且 $\mathrm{Cov}(X,Y)=\rho\sigma^2$，则：
 
 ```math
-\operatorname{Var}(X+Y)=2\sigma^2(1+\rho),
+\mathrm{Var}(X+Y)=2\sigma^2(1+\rho),
 ```
 
 并且：
 
 ```math
-\operatorname{Var}(X-Y)=2\sigma^2(1-\rho).
+\mathrm{Var}(X-Y)=2\sigma^2(1-\rho).
 ```
 
 等价地：
 
 ```math
-\operatorname{Var}\left(\frac{X+Y}{\sqrt2}\right)=\sigma^2(1+\rho),
+\mathrm{Var}\left(\frac{X+Y}{\sqrt2}\right)=\sigma^2(1+\rho),
 ```
 
 并且：
 
 ```math
-\operatorname{Var}\left(\frac{X-Y}{\sqrt2}\right)=\sigma^2(1-\rho).
+\mathrm{Var}\left(\frac{X-Y}{\sqrt2}\right)=\sigma^2(1-\rho).
 ```
 
 所以 positive correlation 增大 common-motion coordinate $X+Y$ 的 variance，同时减小 difference coordinate $X-Y$ 的 variance。几何上就是沿 $x=y$ 拉长，沿 $x=-y$ 压缩。Negative correlation 把这两个方向互换。
@@ -1133,13 +1133,13 @@ Z=u^\top(X-\mu).
 投影方差为：
 
 ```math
-\operatorname{Var}(Z)=\operatorname{Var}\left(u^\top X\right).
+\mathrm{Var}(Z)=\mathrm{Var}\left(u^\top X\right).
 ```
 
 展开 covariance：
 
 ```math
-\operatorname{Var}\left(u^\top X\right)
+\mathrm{Var}\left(u^\top X\right)
 =
 \mathbb E\left[\left(u^\top(X-\mu)\right)^2\right].
 ```
@@ -1155,7 +1155,7 @@ u^\top(X-\mu)(X-\mu)^\top u.
 所以：
 
 ```math
-\operatorname{Var}\left(u^\top X\right)
+\mathrm{Var}\left(u^\top X\right)
 =
 u^\top\mathbb E\left[(X-\mu)(X-\mu)^\top\right]u
 =
@@ -1230,9 +1230,9 @@ z=Q^\top(X-\mu).
 则：
 
 ```math
-\operatorname{Cov}(z)
+\mathrm{Cov}(z)
 =
-\operatorname{Cov}\left(Q^\top(X-\mu)\right)
+\mathrm{Cov}\left(Q^\top(X-\mu)\right)
 =
 Q^\top\Sigma Q.
 ```
@@ -1250,7 +1250,7 @@ Q^\top Q\Lambda Q^\top Q
 所以 PCA coordinates 中 covariance 是 diagonal：
 
 ```math
-\operatorname{Cov}(z)=\Lambda.
+\mathrm{Cov}(z)=\Lambda.
 ```
 
 这表示 PCA 把原坐标旋转到 covariance ellipsoid 的 principal axes，使 coordinates uncorrelated。
