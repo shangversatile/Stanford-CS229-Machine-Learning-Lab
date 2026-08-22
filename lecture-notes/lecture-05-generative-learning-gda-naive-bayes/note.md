@@ -1,8 +1,8 @@
 # Lecture 5: Generative Learning Algorithms, GDA, and Naive Bayes
 
-Canonical references: [Stanford CS229 Autumn 2018 syllabus](https://cs229.stanford.edu/syllabus-autumn2018.html), [Stanford Online Lecture 5 video](https://www.youtube.com/watch?v=nt63k3bfXS0), [official CS229 Generative Algorithms notes](https://cs229.stanford.edu/notes_archive/cs229-notes2.pdf), [official multivariate Gaussian section notes](https://cs229.stanford.edu/section/gaussians.pdf), and [More on Multivariate Gaussians](https://cs229.stanford.edu/section/more_on_gaussians.pdf).
+Canonical references: [Stanford CS229 Autumn 2018 syllabus](https://cs229.stanford.edu/syllabus-autumn2018.html), [Stanford Online Lecture 5 video](https://www.youtube.com/watch?v=nt63k3bfXS0), [official CS229 Generative Algorithms notes](https://cs229.stanford.edu/notes_archive/cs229-notes2.pdf), [official multivariate Gaussian section notes](https://cs229.stanford.edu/section/gaussians.pdf), [More on Multivariate Gaussians](https://cs229.stanford.edu/section/more_on_gaussians.pdf), and historical SEE [Lecture 5 transcript](https://see.stanford.edu/materials/aimlcs229/transcripts/MachineLearning-Lecture05.html).
 
-Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Analysis 和 Naive Bayes；Lecture 6 才开始 Laplace Smoothing 和 Support Vector Machines。官方 `cs229-notes2.pdf` 的 Generative Algorithms notes 会继续讲 Laplace smoothing 和 text event models，所以本笔记把这些内容作为 notes2 continuation material 处理，不把它们塞进 Lecture 5 主线。
+Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Analysis 和 Naive Bayes；Lecture 6 才开始 Laplace Smoothing 和 Support Vector Machines。官方 `cs229-notes2.pdf` 的 Generative Algorithms notes 会继续讲 Laplace smoothing 和 text event models，所以本笔记把这些内容作为 notes2 continuation material 处理，不把它们塞进 Lecture 5 主线。旧版 SEE transcript 记录了 Andrew Ng 在同一讲中给出 Poisson、exponential family、small-data tradeoff 和 Naive Bayes 的更口语化解释；本笔记把这些内容标为 historical instructor clarification，而不是声称它们逐字属于 Autumn 2018 Lecture 5 written boundary。
 
 ## Navigation
 
@@ -18,9 +18,9 @@ Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Anal
 | [8. Gaussian Isocontours and Determinant](#8-gaussian-isocontours-and-determinant) | 连接 covariance、ellipse、PCA directions、density height 和 volume |
 | [9. GDA Model and Generative Story](#9-gda-model-and-generative-story) | 定义 GDA assumptions 和 sampling direction |
 | [10. GDA Joint Likelihood and MLE](#10-gda-joint-likelihood-and-mle) | 推导参数估计和 pooled covariance 逻辑 |
-| [11. GDA Posterior Has Logistic Form](#11-gda-posterior-has-logistic-form) | 展开 posterior odds 并展示 quadratic cancellation |
-| [12. Why the GDA Boundary Is Linear](#12-why-the-gda-boundary-is-linear) | 精确说明 linear boundary 从哪里来 |
-| [13. GDA versus Logistic Regression](#13-gda-versus-logistic-regression) | 比较 assumptions、efficiency、misspecification 和 robustness |
+| [11. GDA Posterior Has Logistic Form](#11-gda-posterior-has-logistic-form) | 用一维直觉和代数推导说明 Gaussian 如何推出 sigmoid posterior |
+| [12. Why the GDA Boundary Is Linear](#12-why-the-gda-boundary-is-linear) | 区分 density、isocontour、discriminant function、decision boundary，并解释 shared-covariance boundary |
+| [13. GDA versus Logistic Regression](#13-gda-versus-logistic-regression) | 比较 assumptions、objective、finite-sample estimator、asymptotic nuance、efficiency 和 robustness |
 | [14. Short QDA Contrast](#14-short-qda-contrast) | 说明 unequal covariance 为什么产生 quadratic boundary |
 | [15. Naive Bayes for Discrete Features](#15-naive-bayes-for-discrete-features) | 从 continuous GDA features 转到 binary word features |
 | [16. Conditional Independence](#16-conditional-independence) | 从 chain rule 推出 Naive Bayes factorization |
@@ -30,7 +30,7 @@ Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Anal
 | [20. Research-Level Synthesis](#20-research-level-synthesis) | 连接 assumptions、shift、reliability 和 failure modes |
 | [21. Official Coverage Audit](#21-official-coverage-audit) | 核对 Lecture 5 官方主题是否覆盖 |
 | [22. Fast Review Answers and Checklist](#22-fast-review-answers-and-checklist) | 快速复习答案，不放未完成问题 |
-| [23. Learning Status](#23-learning-status) | 记录 first-pass note 和 continuing study 状态 |
+| [23. Lecture Boundary and Completed Status](#23-lecture-boundary-and-completed-status) | 明确 Lecture 5 / Lecture 6 边界和本讲成品状态 |
 | [24. Concept Map Summary](#24-concept-map-summary) | 用一页 map 总结本讲逻辑 |
 
 **Related math derivations**
@@ -38,7 +38,7 @@ Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Anal
 | Topic in this note | Deep-dive |
 |---|---|
 | Multivariate Gaussian density, covariance, Mahalanobis geometry, isocontours, determinant | [Multivariate Gaussian Geometry](../../math-derivations/lecture-05-generative-learning-gda-naive-bayes/01-multivariate-gaussian-geometry.md) |
-| GDA MLE, pooled covariance, posterior odds, and logistic connection | [GDA MLE and Logistic Connection](../../math-derivations/lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md) |
+| GDA MLE, pooled covariance, discriminants, posterior geometry, and logistic/exponential-family connections | [GDA MLE and Logistic Connection](../../math-derivations/lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md) |
 | Naive Bayes factorization, Bernoulli feature likelihood, MLE, and log-space prediction | [Naive Bayes Factorization and MLE](../../math-derivations/lecture-05-generative-learning-gda-naive-bayes/03-naive-bayes-factorization-and-mle.md) |
 | Lecture 4 bridge: conditional exponential-family modeling | [GLM Construction Recipe](../../math-derivations/lecture-04-perceptron-exponential-family-glm/07-glm-construction-recipe.md) |
 
@@ -50,6 +50,7 @@ Scope note: Autumn 2018 syllabus 把 Lecture 5 标为 Gaussian Discriminant Anal
 | Bivariate Gaussian 3D density | [lecture05-bivariate-gaussian-density-3d.png](../../assets/figures/lecture05-bivariate-gaussian-density-3d.png) |
 | Same Gaussian 2D contours | [lecture05-bivariate-gaussian-contours.png](../../assets/figures/lecture05-bivariate-gaussian-contours.png) |
 | Covariance geometry variants | [lecture05-covariance-geometry-variants.png](../../assets/figures/lecture05-covariance-geometry-variants.png) |
+| One-dimensional Gaussian class-conditionals to sigmoid posterior | [lecture05-gda-1d-gaussian-to-sigmoid.png](../../assets/figures/lecture05-gda-1d-gaussian-to-sigmoid.png) |
 | GDA shared-covariance geometry | [lecture05-gda-shared-covariance-boundary.png](../../assets/figures/lecture05-gda-shared-covariance-boundary.png) |
 | Shared covariance versus unequal covariance boundary | [lecture05-gda-qda-boundary-comparison.png](../../assets/figures/lecture05-gda-qda-boundary-comparison.png) |
 | Naive Bayes conditional-independence schematic | [lecture05-naive-bayes-conditional-independence.png](../../assets/figures/lecture05-naive-bayes-conditional-independence.png) |
@@ -103,9 +104,12 @@ Lecture 5: choose p(x | y) and p(y), then derive p(y | x).
 * 从 density level set 推导 Gaussian ellipse / ellipsoid；
 * 把 determinant 解释为 uncertainty-volume scaling，而不是 point probability；
 * 说明 Gaussian contour 主轴、covariance eigenvectors 和 PCA 主成分方向之间的关系；
+* 明确区分 Gaussian density、Gaussian isocontour、discriminant function 和 decision boundary；
 * 写出 GDA model、generative story、joint likelihood 和 MLE；
 * 推导 GDA posterior log-odds，并说明为什么 shared covariance 会产生 linear boundary；
-* 比较 GDA 和 logistic regression 的 assumptions、sample efficiency、misspecification 和 robustness；
+* 解释 Gaussian contours 是 ellipses 但 GDA decision boundary 是 line / hyperplane 的原因；
+* 证明 Gaussian class-conditionals 是 logistic posterior 的 sufficient but not necessary condition；
+* 比较 GDA 和 logistic regression 的 assumptions、objective、finite-sample estimator、asymptotic nuance、sample efficiency、misspecification、robustness 和 computation；
 * 从 chain rule 加 conditional independence 推出 Naive Bayes factorization；
 * 推导 Bernoulli Naive Bayes 的 MLE 和 log-space prediction；
 * 把 GDA / NB 的 assumptions 连接到 distribution shift、reliability 和 failure modes。
@@ -115,12 +119,11 @@ Lecture 5: choose p(x | y) and p(y), then derive p(y | x).
 本讲的 source hierarchy 是：
 
 ```text
-Stanford CS229 Autumn 2018 official lecture/video
--> official CS229 written notes
--> official CS229 supplementary notes
+Stanford CS229 Autumn 2018 official syllabus and lecture/video boundary
+-> official CS229 Generative Algorithms notes
+-> official CS229 multivariate Gaussian section notes
+-> historical CS229 Lecture 5 transcript when it clarifies instructor intuition
 -> rigorous derivations and geometric explanations in this repository
--> future study-derived revisions integrated into relevant sections
--> research connections and critical extensions
 ```
 
 Autumn 2018 official syllabus 给出的边界是：
@@ -133,6 +136,8 @@ Autumn 2018 official syllabus 给出的边界是：
 Stanford Online 视频 metadata 标题为 Lecture 5 - GDA and Naive Bayes。可抽取的 YouTube chapter metadata 包含 GDA 相关章节，没有暴露单独的 Laplace smoothing 或 multinomial event model 章节。审计时页面 metadata 中存在 caption track，但 caption endpoint 返回空文本，所以本笔记不声称已经获得 transcript-level evidence。
 
 官方 `cs229-notes2.pdf` 覆盖范围比 Autumn 2018 Lecture 5 更长：它先讲 generative-learning introduction、GDA、GDA versus logistic regression、Naive Bayes，然后继续讲 Laplace smoothing 和 text event models。本笔记按照 Autumn 2018 Lecture 5 边界处理：Laplace smoothing 和 multinomial event model 不纳入 Lecture 5 主线。
+
+Historical transcript 的价值在于保留课堂解释脉络：一维 Gaussian bumps 通过 Bayes rule 生成 sigmoid posterior；Poisson class-conditionals 也生成 logistic posterior；same exponential family with different natural parameters 会给出 logistic posterior in canonical statistics；stronger correct assumptions 在 small data 下可能更 data-efficient，而 weaker assumptions 通常更 robust。Transcript 是 historical instructor clarification，不替代 Autumn 2018 syllabus 的 topic boundary。
 
 ## 4. Notation Convention
 
@@ -554,7 +559,7 @@ C=-2\log c-d\log(2\pi)-\log|\Sigma|.
 \sum_{j=1}^d\frac{z_j^2}{C\lambda_j}=1.
 ```
 
-这在 $d=2$ 中是 ellipse，在更高维是 ellipsoid。第 $j$ 个 principal semi-axis length 为：
+这在 $d=2$ 中是 ellipse，在更高维是 ellipsoid。不是 covariance matrix 本身“长得像椭圆”；covariance 是 matrix，ellipse / ellipsoid 是由 $\Sigma^{-1}$ 的 quadratic form 定义出来的 density level set。第 $j$ 个 principal semi-axis length 为：
 
 ```math
 \sqrt{C\lambda_j}.
@@ -697,6 +702,27 @@ X\mid Y=1\sim\mathcal N(\mu_1,\Sigma).
 
 这不是 Gaussian distribution 的必然性质。两个 Gaussian classes 完全可以有不同 covariance；Lecture 5 的 GDA 选择 shared covariance，是为了得到特定的 parameter sharing 和 linear posterior boundary。
 
+GDA 不是“已经假设了一切所以没有东西要学”。它 assumes the form：
+
+```math
+X\mid Y=k\sim\mathcal N(\mu_k,\Sigma),
+```
+
+但未知的：
+
+```math
+\phi,\mu_0,\mu_1,\Sigma
+```
+
+全部需要从 training data 中学习。更准确的表达是：
+
+```text
+prior structure is specified;
+parameter values are learned
+```
+
+Logistic regression 也同样不是“无假设学习”。它指定 conditional log-odds linearity，再从数据中学习 $\theta$。两者差异在于 GDA 对 joint / class-conditional structure 的假设更强。
+
 GDA 的 generative story 是：
 
 ```text
@@ -768,6 +794,178 @@ logistic regression: conditional likelihood over y given x
 \mathbf{1}\{A\}=\begin{cases}1,&\text{if }A\text{ is true}\\0,&\text{otherwise}\end{cases}.
 ```
 
+定义 class counts：
+
+```math
+N_1=\sum_{i=1}^m\mathbf{1}\{y^{(i)}=1\},
+```
+
+```math
+N_0=m-N_1.
+```
+
+完整 log-likelihood 可以写成：
+
+```math
+\ell
+=
+N_1\log\phi+N_0\log(1-\phi)
+-
+\frac{md}{2}\log(2\pi)
+-
+\frac m2\log|\Sigma|
+```
+
+```math
+-
+\frac12
+\sum_{i=1}^m
+\left[
+\mathbf 1\{y^{(i)}=0\}
+(x^{(i)}-\mu_0)^\top\Sigma^{-1}(x^{(i)}-\mu_0)
++
+\mathbf 1\{y^{(i)}=1\}
+(x^{(i)}-\mu_1)^\top\Sigma^{-1}(x^{(i)}-\mu_1)
+\right].
+```
+
+对 class prior，只看：
+
+```math
+\ell_\phi=N_1\log\phi+N_0\log(1-\phi).
+```
+
+求导：
+
+```math
+\frac{\partial\ell_\phi}{\partial\phi}
+=
+\frac{N_1}{\phi}
+-
+\frac{N_0}{1-\phi}.
+```
+
+设为 $0$，得到：
+
+```math
+N_1(1-\phi)=N_0\phi,
+```
+
+因此：
+
+```math
+\hat\phi=\frac{N_1}{m}.
+```
+
+对 class mean，只保留：
+
+```math
+\ell_{\mu_k}
+=
+-
+\frac12
+\sum_{i:y^{(i)}=k}
+(x^{(i)}-\mu_k)^\top
+\Sigma^{-1}
+(x^{(i)}-\mu_k).
+```
+
+Vector derivative 给出：
+
+```math
+\nabla_{\mu_k}\ell_{\mu_k}
+=
+\sum_{i:y^{(i)}=k}
+\Sigma^{-1}(x^{(i)}-\mu_k).
+```
+
+设为 $0$。因为 $\Sigma^{-1}$ invertible：
+
+```math
+\sum_{i:y^{(i)}=k}(x^{(i)}-\mu_k)=0.
+```
+
+所以：
+
+```math
+\hat\mu_k
+=
+\frac1{N_k}
+\sum_{i:y^{(i)}=k}x^{(i)}.
+```
+
+GDA does not arbitrarily choose the centers. The MLE Gaussian center is exactly the empirical center of the observations assigned to that class.
+
+对 shared covariance，定义：
+
+```math
+r_i=x^{(i)}-\mu_{y^{(i)}}.
+```
+
+只看 covariance-dependent 部分：
+
+```math
+\ell_\Sigma
+=
+-
+\frac m2\log|\Sigma|
+-
+\frac12\sum_i r_i^\top\Sigma^{-1}r_i.
+```
+
+使用 trace identity：
+
+```math
+r_i^\top\Sigma^{-1}r_i
+=
+\mathrm{tr}(\Sigma^{-1}r_ir_i^\top).
+```
+
+令：
+
+```math
+S=\sum_i r_ir_i^\top.
+```
+
+则：
+
+```math
+\ell_\Sigma
+=
+-
+\frac m2\log|\Sigma|
+-
+\frac12\mathrm{tr}(\Sigma^{-1}S).
+```
+
+对 precision matrix $\Omega=\Sigma^{-1}$ 求导更清楚：
+
+```math
+\ell(\Omega)
+=
+\frac m2\log|\Omega|
+-
+\frac12\mathrm{tr}(\Omega S).
+```
+
+First-order condition 是：
+
+```math
+\frac{\partial\ell}{\partial\Omega}
+=
+\frac m2\Omega^{-1}
+-
+\frac12S
+=
+0.
+```
+
+因此：
+
+```math
+m\Sigma=S.
+```
+
 GDA 的 MLE 是：
 
 ```math
@@ -793,6 +991,36 @@ Denominator 是 $m$，因为这是 Gaussian joint likelihood 下 shared covarian
 完整 derivative calculation 见 [GDA MLE and Logistic Connection](../../math-derivations/lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md#2-gda-mle-without-skipped-steps)。
 
 ## 11. GDA Posterior Has Logistic Form
+
+先看一维 shared-variance intuition：
+
+```math
+X\mid Y=0\sim\mathcal N(\mu_0,\sigma^2),
+```
+
+```math
+X\mid Y=1\sim\mathcal N(\mu_1,\sigma^2).
+```
+
+上方两条 curves 是 $p(x\mid Y=0)$ 和 $p(x\mid Y=1)$。Bayes rule 给出：
+
+```math
+P(Y=1\mid X=x)
+=
+\frac{
+\pi_1p(x\mid1)
+}{
+\pi_0p(x\mid0)
++
+\pi_1p(x\mid1)
+}.
+```
+
+随着 $x$ 从 class $0$ 的高密度区域移动到 class $1$ 的高密度区域，posterior 从接近 $0$ 平滑过渡到接近 $1$。这条 posterior curve 是 sigmoid。注意 density y-axis 和 posterior-probability y-axis 是不同量，不能混用。
+
+![One-dimensional Gaussian class-conditionals to sigmoid posterior](../../assets/figures/lecture05-gda-1d-gaussian-to-sigmoid.png)
+
+Figure 5. 一维 shared-variance GDA：上图是两个 class-conditional Gaussian densities；下图是由 Bayes rule 得到的 $P(Y=1\mid X=x)$。Gaussian crossover 和 posterior transition 对应，但它们的 y-axis 含义不同。
 
 GDA 最关键的数学连接是：它能推出 logistic-form posterior。从 posterior odds 开始：
 
@@ -902,7 +1130,63 @@ P(Y=1\mid X=x)=\frac{1}{1+\exp[-(w^\top x+b)]}.
 
 ## 12. Why the GDA Boundary Is Linear
 
-Decision boundary 是两个 posterior probabilities 相等的位置：
+先把四个常被混淆的对象分开：
+
+| Object | Mathematical form | What it is |
+|---|---|---|
+| Gaussian density | $p_k(x)=p(x\mid Y=k)$ | class $k$ 对 feature vector 的 density model |
+| Gaussian isocontour | $\{x:p_k(x)=c\}$ | 单个 class density 的 level set |
+| discriminant function | $\delta_k(x)$ | 给 class $k$ 打分的函数 |
+| decision boundary | $\{x:\delta_1(x)=\delta_0(x)\}$ | 两个 class scores 相等的 point set |
+
+Bayes classifier 是：
+
+```math
+\hat y(x)
+=
+\underset{k}{\mathrm{argmax}}\ P(Y=k\mid X=x).
+```
+
+由 Bayes rule：
+
+```math
+P(Y=k\mid X=x)
+=
+\frac{\pi_kp_k(x)}{p(x)},
+```
+
+其中：
+
+```math
+\pi_k=P(Y=k).
+```
+
+由于 $p(x)$ 不依赖 $k$，分类等价于：
+
+```math
+\hat y(x)
+=
+\underset{k}{\mathrm{argmax}}\ \pi_kp_k(x).
+```
+
+由于 log monotonic，可以定义 GDA discriminant：
+
+```math
+\delta_k(x)
+=
+\log\pi_k
+-
+\frac12\log|\Sigma_k|
+-
+\frac12
+(x-\mu_k)^\top
+\Sigma_k^{-1}
+(x-\mu_k),
+```
+
+这里忽略了对所有 classes 相同的 additive constant $-\frac d2\log(2\pi)$。Discriminant function 是用于给每一类打分的函数，不是 boundary 本身。
+
+Decision boundary 是两个 posterior probabilities 或 discriminant scores 相等的位置：
 
 ```math
 P(Y=1\mid X=x)=P(Y=0\mid X=x).
@@ -926,15 +1210,141 @@ P(Y=1\mid X=x)=P(Y=0\mid X=x).
 w^\top x+b=0.
 ```
 
+等价地：
+
+```math
+\delta_1(x)-\delta_0(x)=0.
+```
+
+完整写出：
+
+```math
+-
+\frac12
+(x-\mu_1)^\top
+\Sigma^{-1}
+(x-\mu_1)
++
+\frac12
+(x-\mu_0)^\top
+\Sigma^{-1}
+(x-\mu_0)
++
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}
+=
+0.
+```
+
+展开两个 quadratic terms 后，$x^\top\Sigma^{-1}x$ 精确抵消，最终得到：
+
+```math
+w^\top x+b=0,
+```
+
+其中：
+
+```math
+w
+=
+\Sigma^{-1}
+(\mu_1-\mu_0),
+```
+
+```math
+b
+=
+-
+\frac12
+\mu_1^\top\Sigma^{-1}\mu_1
++
+\frac12
+\mu_0^\top\Sigma^{-1}\mu_0
++
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}.
+```
+
 因此 boundary 是 hyperplane。原因不是 Gaussian 自然产生直线，而是：
 
 ```text
 shared covariance -> equal quadratic terms -> cancellation -> linear log-likelihood ratio -> linear decision boundary
 ```
 
+Gaussian contours 是：
+
+```math
+D_{\Sigma}(x,\mu_k)^2
+=
+\text{constant}.
+```
+
+GDA decision boundary 是：
+
+```math
+D_{\Sigma}(x,\mu_1)^2
+-
+D_{\Sigma}(x,\mu_0)^2
+=
+2\log
+\frac{
+\pi_1
+}{
+\pi_0
+}.
+```
+
+所以 decision boundary generally is not an isocontour of either Gaussian。Contour 是“相对同一个 class center 的 equal-density set”；boundary 是“两个 class posterior scores 相等的 set”。
+
+如果：
+
+```math
+\pi_0=\pi_1,
+```
+
+则 boundary 满足：
+
+```math
+D_{\Sigma}(x,\mu_1)
+=
+D_{\Sigma}(x,\mu_0).
+```
+
+这不是某个 Gaussian 的 isocontour，而是两个 class means 的 equal Mahalanobis-distance locus。Prior 会移动 boundary：若 $\pi_1>\pi_0$，class $1$ 在观察 $x$ 前已有更大 prior support，boundary 会向 class $0$ 一侧移动。
+
+Whitening space 提供了最清楚的几何解释。定义：
+
+```math
+z=\Sigma^{-1/2}x,
+```
+
+```math
+m_k=\Sigma^{-1/2}\mu_k.
+```
+
+则：
+
+```math
+(x-\mu_k)^\top
+\Sigma^{-1}
+(x-\mu_k)
+=
+\|z-m_k\|_2^2.
+```
+
+Shared-covariance GDA 在 whitened space 中等价于比较 $\|z-m_0\|_2^2$ 和 $\|z-m_1\|_2^2$，再加 prior correction。Equal prior 时，decision boundary 是 whitened means $m_0,m_1$ 的 Euclidean perpendicular bisector；映射回原坐标后就是 $w^\top x+b=0$。这解释了为什么 single-class Gaussian contours 是 ellipses，而 two-class shared-covariance decision boundary 是 linear。
+
 ![GDA shared-covariance geometry](../../assets/figures/lecture05-gda-shared-covariance-boundary.png)
 
-Figure 5. GDA class-conditionals，shared covariance 为 $\Sigma=\begin{bmatrix}1.25&0.55\\0.55&0.80\end{bmatrix}$，means 为 $\mu_0=[-1.3,-0.7]^\top$ 和 $\mu_1=[1.15,0.9]^\top$，class prior 为 $\phi=0.55$，红线是 Bayes/GDA decision boundary。
+Figure 6. GDA class-conditionals，shared covariance 为 $\Sigma=\begin{bmatrix}1.25&0.55\\0.55&0.80\end{bmatrix}$，means 为 $\mu_0=[-1.3,-0.7]^\top$ 和 $\mu_1=[1.15,0.9]^\top$，class prior 为 $\phi=0.55$，红线是 equal-discriminant / Bayes decision boundary。Contours 是单个 Gaussian 的 level sets；boundary 是两个 discriminants 相等的 point set。
 
 ## 13. GDA versus Logistic Regression
 
@@ -964,6 +1374,194 @@ logistic-form posterior does not imply Gaussian class-conditionals.
 
 很多不同的 joint distributions 可以产生同样的 conditional posterior shape；很多 non-Gaussian class-conditionals 也可能对应有用的 logistic-style decision rule。
 
+一个课程中常用的反例是 Poisson class-conditionals。设 scalar count feature：
+
+```math
+X\mid Y=0
+\sim
+\mathrm{Poisson}(\lambda_0),
+```
+
+```math
+X\mid Y=1
+\sim
+\mathrm{Poisson}(\lambda_1).
+```
+
+PMF 是：
+
+```math
+p(x\mid k)
+=
+\frac{
+e^{-\lambda_k}
+\lambda_k^x
+}{
+x!
+}.
+```
+
+Posterior log odds：
+
+```math
+\log
+\frac{
+P(Y=1\mid x)
+}{
+P(Y=0\mid x)
+}
+=
+\log
+\frac{\pi_1}{\pi_0}
++
+\log
+\frac{
+e^{-\lambda_1}\lambda_1^x/x!
+}{
+e^{-\lambda_0}\lambda_0^x/x!
+}.
+```
+
+化简得到：
+
+```math
+=
+x
+\log
+\frac{
+\lambda_1
+}{
+\lambda_0
+}
+-
+(\lambda_1-\lambda_0)
++
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}.
+```
+
+令：
+
+```math
+w=\log\frac{\lambda_1}{\lambda_0},
+```
+
+```math
+b=-(\lambda_1-\lambda_0)+\log\frac{\pi_1}{\pi_0}.
+```
+
+则：
+
+```math
+P(Y=1\mid x)=\sigma(wx+b).
+```
+
+Poisson class-conditionals 非 Gaussian，但 posterior 仍然是 sigmoid。因此正确逻辑是：
+
+```text
+Gaussian class-conditionals are sufficient, but not necessary, for a logistic posterior.
+```
+
+更一般地，如果 binary classes 使用同一个 exponential family：
+
+```math
+p(x\mid Y=k)
+=
+h(x)
+\exp
+\left[
+\eta_k^\top T(x)
+-
+A(\eta_k)
+\right],
+```
+
+并且具有 same support、same base measure / base density $h(x)$，class difference 只通过 natural parameter $\eta_k$ 进入，那么：
+
+```math
+\log
+\frac{
+P(Y=1\mid x)
+}{
+P(Y=0\mid x)
+}
+=
+(\eta_1-\eta_0)^\top T(x)
+-
+A(\eta_1)
++
+A(\eta_0)
++
+\log
+\frac{\pi_1}{\pi_0}.
+```
+
+因此：
+
+```math
+P(Y=1\mid x)
+=
+\sigma
+\left(
+w^\top T(x)+b
+\right),
+```
+
+其中：
+
+```math
+w=\eta_1-\eta_0,
+```
+
+```math
+b=
+\log
+\frac{\pi_1}{\pi_0}
+-
+A(\eta_1)
++
+A(\eta_0).
+```
+
+关键限定是：这是 logistic in the canonical statistic $T(x)$。只有当 $T(x)$ 本身是 raw $x$ 的 affine / linear representation，或者相关项约化成这种形式时，才是 ordinary linear logistic regression in raw $x$。
+
+Multiclass 情形同理。若 $Y\in\{1,\ldots,K\}$ 且 class-conditionals 使用同一个 exponential family，则：
+
+```math
+P(Y=k\mid x)
+=
+\frac{
+\exp
+\left[
+\eta_k^\top T(x)
+-
+A(\eta_k)
++
+\log\pi_k
+\right]
+}{
+\sum_{j=1}^K
+\exp
+\left[
+\eta_j^\top T(x)
+-
+A(\eta_j)
++
+\log\pi_j
+\right]
+}.
+```
+
+这就是 softmax over class scores：
+
+```math
+s_k(x)=\eta_k^\top T(x)-A(\eta_k)+\log\pi_k.
+```
+
 | Aspect | GDA | Logistic regression |
 |---|---|---|
 | Modeling target | $p(x\mid y)$ and $p(y)$ | $p(y\mid x)$ |
@@ -975,6 +1573,45 @@ logistic-form posterior does not imply Gaussian class-conditionals.
 | Diagnostics | 检查 class means、covariance、shape、priors | 检查 conditional calibration、residual patterns、boundary fit |
 
 这里比较的是 inductive bias。Stronger assumptions 不自动更好或更坏，而是在 flexibility 和 structure 之间做 tradeoff。真实机制接近 GDA 时，GDA 可能更 data efficient；真实机制偏离 Gaussian/shared covariance 时，logistic regression 通常更稳健。
+
+即使两者最后 conditional family 都可以写成 $\sigma(\theta^\top x)$，训练出来的 estimator 也 generally different。GDA 通过 joint likelihood 学习：
+
+```math
+\phi,\mu_0,\mu_1,\Sigma,
+```
+
+再诱导：
+
+```math
+\theta_{\mathrm{GDA}}=F(\phi,\mu_0,\mu_1,\Sigma).
+```
+
+Logistic regression 通过 conditional likelihood 直接学习：
+
+```math
+\theta_{\mathrm{LR}}.
+```
+
+因此 finite sample 中：
+
+```math
+\hat\theta_{\mathrm{GDA}}
+\neq
+\hat\theta_{\mathrm{LR}}
+```
+
+generally。原因是：
+
+```text
+different objective
++ different parameterization
++ different statistical constraints
+-> different finite-sample estimator
+```
+
+但也不要过度声称二者永远得到不同 final boundaries。如果真实 data-generating process 满足 shared-covariance GDA assumptions，那么 true conditional posterior 本来就是 linear logistic。在标准 regularity / consistency 条件下，随着 $m\to\infty$，GDA 会估计正确 joint parameters，logistic regression 会估计正确 conditional parameters，因此两者应趋向同一个 true posterior / Bayes boundary。实际差异主要来自 finite sample、model misspecification 和 efficiency。
+
+Computation 也要和 performance 分开。GDA 有 closed-form MLE，标准 unregularized logistic regression 通常需要 iterative numerical optimization；这是课程层面的 computational contrast。但 GDA 仍涉及 covariance accumulation、matrix storage、linear solve / covariance inversion、determinant evaluation 和 numerical conditioning。实际成本取决于 $m,d$、solver、sparsity、regularization 和 implementation；closed-form convenience 不等于 universally cheaper，更不等于 predictive superiority。
 
 ## 14. Short QDA Contrast
 
@@ -1013,7 +1650,7 @@ different covariance -> QDA-style quadratic geometry
 
 ![Shared covariance versus unequal covariance boundary](../../assets/figures/lecture05-gda-qda-boundary-comparison.png)
 
-Figure 6. Shared covariance 会抵消 quadratic terms，产生 linear boundary；unequal covariance 会保留 quadratic terms，从而产生 curved boundary。
+Figure 7. Shared covariance 会抵消 quadratic terms，产生 linear boundary；unequal covariance 会保留 quadratic terms，从而产生 curved boundary。
 
 ## 15. Naive Bayes for Discrete Features
 
@@ -1025,10 +1662,22 @@ Spam classification 中：
 Y\in\{0,1\}.
 ```
 
-设 vocabulary size 为 $d$。定义 binary word-presence features：
+设 vocabulary：
 
 ```math
-X_j\in\{0,1\}.
+V=\{v_1,\ldots,v_d\}.
+```
+
+定义 binary word-presence features：
+
+```math
+X_j
+=
+\mathbf1
+\{
+v_j
+\text{ appears in the email}
+\}.
 ```
 
 Realized coordinate：
@@ -1049,7 +1698,13 @@ x_j=0
 x=(x_1,\ldots,x_d)\in\{0,1\}^d.
 ```
 
-如果直接建模 $\{0,1\}^d$ 上任意 joint distribution，需要为每个 binary vector 指定 probability；当 $d$ 很大时不可行。Naive Bayes 通过强 conditional-independence assumption 大幅减少参数数量。
+如果直接建模 $\{0,1\}^d$ 上任意 joint distribution，需要为每个 binary vector 指定 probability，也就是一般要处理：
+
+```math
+2^d
+```
+
+种 feature configurations。当 $d\approx10^4$ 甚至更大时不可行。Naive Bayes 通过强 conditional-independence assumption 大幅减少参数数量。
 
 ## 16. Conditional Independence
 
@@ -1093,7 +1748,7 @@ X_j\perp X_k\mid Y.
 
 ![Naive Bayes conditional-independence schematic](../../assets/figures/lecture05-naive-bayes-conditional-independence.png)
 
-Figure 7. Naive Bayes graphical intuition。$Y$ 是 factorization 中的 shared parent，features 在给定 $Y$ 后被建模为 conditionally independent。这个图只表示 probabilistic factorization assumption，不是完整 causal claim。
+Figure 8. Naive Bayes graphical intuition。$Y$ 是 factorization 中的 shared parent，features 在给定 $Y$ 后被建模为 conditionally independent。这个图只表示 probabilistic factorization assumption，不是完整 causal claim。
 
 ## 17. Naive Bayes Parameters and MLE
 
@@ -1232,12 +1887,80 @@ p_{\mathrm{train}}(y)\neq p_{\mathrm{test}}(y),
 
 这自然连接到 distribution shift、reliability 和 mechanism change，但仍然服务于 Lecture 5 的 official models，而不是扩展成独立 research survey。
 
+GDA 和 Naive Bayes 的统一结构是：
+
+```math
+p(x,y)=p(x\mid y)p(y).
+```
+
+训练时都要建模 class prior 和 class-conditional feature distribution；预测时都用 Bayes theorem 形成 posterior，再选择 class。区别主要在于如何让 $p(X\mid Y)$ tractable：
+
+```text
+GDA -> continuous X, Gaussian class-conditionals, shared covariance
+Naive Bayes -> high-dimensional discrete/count-style X, factorized class-conditionals
+```
+
+一个 learning algorithm 的知识来源通常有两个：
+
+```text
+1. assumptions / inductive bias encoded by the modeller
+2. observations in the training data
+```
+
+小样本条件下，正确的结构假设可能显著降低 statistical uncertainty；大量数据可以降低对强先验结构的依赖。但这不等于“数据越多，raw feature distribution 越 Gaussian”。Sample size：
+
+```math
+m\to\infty
+```
+
+意味着观察到更多 iid / sampled observations；它不会改变 underlying distribution $P_X$。如果：
+
+```math
+X\sim\mathrm{Poisson}(\lambda),
+```
+
+增加更多 observations 后，$X$ 仍然是 Poisson。
+
+Central Limit Theorem 解释的是 normalized sums / aggregates。若：
+
+```math
+Z_n
+=
+\frac{
+\sum_{j=1}^n U_j
+-
+\sum_j\mathbb E[U_j]
+}{
+\sqrt{
+\sum_j\mathrm{Var}(U_j)
+}
+},
+```
+
+在适当 independence / weak dependence / finite variance 等条件下：
+
+```math
+Z_n
+\Rightarrow
+\mathcal N(0,1).
+```
+
+这解释了为什么 measurements formed from many additive small effects 经常近似 Gaussian。关键区别是：
+
+```text
+more observations of X
+!=
+X is the sum of more underlying effects
+```
+
+Large dataset does not Gaussianize raw data。更多数据甚至可能让 skewness、multimodality、heavy tails 暴露得更清楚，从而更容易发现 Gaussian assumption 不成立。
+
 ## 21. Official Coverage Audit
 
 | Official Lecture 5 topic | Status in this note |
 |---|---|
 | Discriminative versus generative algorithms | Covered in Sections 1 and 5 |
-| Bayes classification rule | Covered in Section 5 |
+| Bayes classification rule | Covered in Sections 5, 12, and 18 |
 | Multivariate Gaussian density | Covered in Section 6 |
 | Mean and covariance matrix | Covered in Section 6 |
 | PSD covariance versus PD density condition | Covered in Section 6.1 |
@@ -1248,8 +1971,11 @@ p_{\mathrm{train}}(y)\neq p_{\mathrm{test}}(y),
 | GDA joint likelihood | Covered in Section 10 |
 | GDA MLE formulas | Covered in Section 10 and detailed derivation file |
 | GDA prediction | Covered in Sections 11 and 12 |
+| GDA discriminant function versus decision boundary | Covered in Section 12 |
+| Contour versus boundary and whitening interpretation | Covered in Section 12 |
 | GDA posterior logistic form | Covered in Section 11 and detailed derivation file |
 | GDA versus logistic regression | Covered in Section 13 |
+| Poisson and exponential-family clarification of the converse | Covered in Section 13 and detailed derivation file |
 | Naive Bayes discrete-feature setup | Covered in Section 15 |
 | Conditional-independence assumption | Covered in Section 16 |
 | Naive Bayes likelihood | Covered in Section 17 and detailed derivation file |
@@ -1262,6 +1988,7 @@ Boundary audit:
 |---|---|
 | Laplace smoothing | Not part of Lecture 5 mainline: Autumn 2018 syllabus assigns it to Lecture 6; it appears later in `cs229-notes2.pdf` as continuation material |
 | Multinomial event model for text classification | Not part of Lecture 5 mainline: it appears after Laplace smoothing in `cs229-notes2.pdf`, beyond the audited Lecture 5 scope |
+| Poisson / exponential-family explanation for logistic posterior | Historical instructor clarification and logical deepening of GDA vs logistic; included in Section 13 |
 
 ## 22. Fast Review Answers and Checklist
 
@@ -1276,23 +2003,38 @@ Boundary audit:
 * 二维等方差时，相关方向自然分解为 $x+y$ 和 $x-y$，所以主轴是 $x=y$ 与 $x=-y$；一般不等方差时旋转角满足 $\tan(2\theta)=2\sigma_{xy}/(\sigma_x^2-\sigma_y^2)$。
 * $|\Sigma|^{1/2}$ 是 volume-scaling term；density height 不是 point probability。
 * GDA 假设 $Y\sim\mathrm{Bernoulli}(\phi)$ 且 $X\mid Y=k\sim\mathcal N(\mu_k,\Sigma)$，两个 classes 共享 covariance。
+* GDA 指定 model form，但 $\phi,\mu_0,\mu_1,\Sigma$ 都需要从 training data 中学习。
 * GDA maximizes joint likelihood；logistic regression maximizes conditional likelihood。
 * GDA covariance MLE 的 denominator 是 $m$，因为所有 examples 的 residual vectors 都估计同一个 shared covariance。
+* Gaussian density、Gaussian isocontour、discriminant function、decision boundary 是四个不同对象。
+* GDA decision boundary 一般不是任一 Gaussian 的 isocontour；equal prior 时它是 equal Mahalanobis-distance locus。
+* Prior probability 会移动 boundary，因为它改变 posterior odds 的 intercept。
+* Whitening 后 shared-covariance GDA 等价于比较 transformed means 的 Euclidean squared distances 加 prior correction。
 * GDA 产生 logistic posterior，是因为 shared covariance 抵消了 quadratic $x^\top\Sigma^{-1}x$ terms。
 * GDA decision boundary 是 linear，因为 posterior log-odds 是 $w^\top x+b$。
+* Gaussian class-conditionals 是 logistic posterior 的 sufficient but not necessary condition。
+* Poisson class-conditionals 也能产生 sigmoid posterior。
+* Same exponential-family class-conditionals 给出 logistic in $T(x)$；只有 $T(x)$ 对 raw $x$ 是 affine/linear 时才是 ordinary linear logistic in raw $x$。
+* Multiclass same-family generative model 通过 Bayes rule 给出 softmax over class scores。
+* Same posterior family 不代表 same estimator；finite sample 下 GDA 和 logistic regression generally 学到不同 boundary。
+* 如果真实过程满足 shared-covariance GDA assumptions，大样本下一致性会让两者趋向同一个 true posterior / Bayes boundary。
+* Closed-form MLE 是 computational contrast，不等于 GDA universally cheaper，也不等于 predictive superiority。
 * 如果 class covariances 不同，quadratic terms 留下，boundary 一般变成 quadratic。
+* Large dataset 不会自动 Gaussianize raw data；CLT 解释的是 normalized sums / aggregates。
 * Naive Bayes 假设 $X_1,\ldots,X_d$ are conditionally independent given $Y$，不是 unconditionally independent。
+* Spam email 的 binary word-presence representation 把 $X$ 放在 $\{0,1\}^d$，unrestricted class-conditional model 面临 $2^d$ configurations。
 * Bernoulli Naive Bayes 用 class-conditional empirical frequencies 估计 word-presence probabilities。
 * Naive Bayes prediction 使用 $P(Y=y)\prod_jP(X_j=x_j\mid Y=y)$，实际实现通常在 log space 中做。
 * Naive Bayes 即使 density misspecified 也可能分类正确，但 correlated evidence 会造成 overconfident probabilities。
+* GDA 和 Naive Bayes 共享 $p(x,y)=p(x\mid y)p(y)$；差异主要在如何给 $p(X\mid Y)$ 加 tractable structure。
 
-## 23. Learning Status
+## 23. Lecture Boundary and Completed Status
 
-Lecture 5 note: complete first-pass research-level note.
+Lecture 5 note: complete research-level note for the Autumn 2018 Lecture 5 mainline.
 
-Lecture 5 interactive study: in progress.
+The note keeps Gaussian Discriminant Analysis and Naive Bayes as the main line, and integrates historical instructor clarifications only where they explain the GDA-to-logistic and generative-vs-discriminative logic.
 
-下一讲的 official continuation 是 Lecture 6：Laplace smoothing 和 Support Vector Machines。通过学习过程产生的新理解，应直接整合回本笔记中最自然的正文位置。
+下一讲的 official continuation 是 Lecture 6：Laplace smoothing 和 Support Vector Machines。Lecture 5 only records the zero-frequency motivation for smoothing; the smoothing derivation belongs to Lecture 6.
 
 ## 24. Concept Map Summary
 
@@ -1305,11 +2047,14 @@ Lecture 4 conditional GLMs
 -> Bayes rule
 -> multivariate Gaussian geometry
 -> GDA class-conditionals
+-> density, isocontour, discriminant, boundary
 -> joint likelihood MLE
 -> posterior odds
 -> logistic-form posterior
+-> contour-vs-boundary geometry and whitening
 -> linear boundary from shared covariance
 -> GDA vs logistic regression
+-> Poisson / exponential-family sufficiency-not-necessity
 -> discrete feature modeling
 -> Naive Bayes conditional independence
 -> NB likelihood, MLE, prediction
@@ -1337,7 +2082,9 @@ Sigma
 -> Mahalanobis distance
 -> Gaussian density contours
 -> PCA directions as covariance principal axes
--> GDA class-conditional comparisons
+-> GDA discriminant scores
+-> equal-discriminant boundary
+-> shared covariance cancellation
 -> boundary shape
 ```
 

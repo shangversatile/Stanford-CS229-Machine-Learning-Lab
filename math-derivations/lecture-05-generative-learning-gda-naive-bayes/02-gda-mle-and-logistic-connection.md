@@ -1,6 +1,6 @@
 # GDA MLE and Logistic Connection
 
-Cross-link: see [Lecture 5 Section 9: GDA Model and Generative Story](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#9-gda-model-and-generative-story), [Lecture 5 Section 10: GDA Joint Likelihood and MLE](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#10-gda-joint-likelihood-and-mle), and [Lecture 5 Section 11: GDA Posterior Has Logistic Form](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#11-gda-posterior-has-logistic-form).
+Cross-link: see [Lecture 5 Section 9: GDA Model and Generative Story](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#9-gda-model-and-generative-story), [Lecture 5 Section 10: GDA Joint Likelihood and MLE](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#10-gda-joint-likelihood-and-mle), [Lecture 5 Section 11: GDA Posterior Has Logistic Form](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#11-gda-posterior-has-logistic-form), [Lecture 5 Section 12: Why the GDA Boundary Is Linear](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#12-why-the-gda-boundary-is-linear), and [Lecture 5 Section 13: GDA versus Logistic Regression](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#13-gda-versus-logistic-regression).
 
 ## 1. Model and Data
 
@@ -539,12 +539,360 @@ P(Y=1\mid X=x)=\frac1{1+\exp[-(w^\top x+b)]}
 
 但这里的 $X_j\mid Y$ 是 Bernoulli distribution，不是 Gaussian。更一般地，很多不同的 generative assumptions 都可能诱导出 logistic-looking posterior。Logistic regression 直接把这个 posterior form 当作 conditional model；GDA 则从更强的 Gaussian class-conditional model 推导出它。
 
-## 7. Boundary Shape and QDA Contrast
+### 6.1 Poisson Class-Conditionals Also Produce Sigmoid Posterior
+
+设 scalar count feature：
+
+```math
+X\mid Y=0
+\sim
+\mathrm{Poisson}(\lambda_0),
+```
+
+```math
+X\mid Y=1
+\sim
+\mathrm{Poisson}(\lambda_1).
+```
+
+PMF 是：
+
+```math
+p(x\mid k)
+=
+\frac{
+e^{-\lambda_k}
+\lambda_k^x
+}{
+x!
+}.
+```
+
+Posterior log odds：
+
+```math
+\log
+\frac{
+P(Y=1\mid x)
+}{
+P(Y=0\mid x)
+}
+=
+\log
+\frac{\pi_1}{\pi_0}
++
+\log
+\frac{
+e^{-\lambda_1}\lambda_1^x/x!
+}{
+e^{-\lambda_0}\lambda_0^x/x!
+}.
+```
+
+逐步化简：
+
+```math
+=
+\log
+\frac{\pi_1}{\pi_0}
++
+\left[-\lambda_1+x\log\lambda_1-\log(x!)\right]
+-
+\left[-\lambda_0+x\log\lambda_0-\log(x!)\right].
+```
+
+Cancel $\log(x!)$：
+
+```math
+=
+x
+\log
+\frac{
+\lambda_1
+}{
+\lambda_0
+}
+-
+(\lambda_1-\lambda_0)
++
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}.
+```
+
+令：
+
+```math
+w
+=
+\log
+\frac{
+\lambda_1
+}{
+\lambda_0
+},
+```
+
+```math
+b
+=
+-
+(\lambda_1-\lambda_0)
++
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}.
+```
+
+得到：
+
+```math
+P(Y=1\mid x)
+=
+\sigma(wx+b).
+```
+
+Poisson class-conditionals 非 Gaussian，但 posterior 仍然是 logistic。因此正确逻辑是：
+
+```text
+Gaussian class-conditionals are sufficient, but not necessary, for a logistic posterior.
+```
+
+### 6.2 Same Exponential Family Gives Logistic in the Canonical Statistic
+
+假设 binary classes 使用同一个 exponential family：
+
+```math
+p(x\mid Y=k)
+=
+h(x)
+\exp
+\left[
+\eta_k^\top T(x)
+-
+A(\eta_k)
+\right].
+```
+
+需要的条件是：
+
+* same support；
+* same base measure / base density $h(x)$；
+* class difference enters through natural parameter $\eta_k$；
+* $T(x)$ 是共同的 statistic representation。
+
+Posterior log odds：
+
+```math
+\log
+\frac{
+P(Y=1\mid x)
+}{
+P(Y=0\mid x)
+}
+=
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}
++
+\log
+\frac{
+p(x\mid Y=1)
+}{
+p(x\mid Y=0)
+}.
+```
+
+代入：
+
+```math
+=
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}
++
+\left[
+\eta_1^\top T(x)-A(\eta_1)+\log h(x)
+\right]
+-
+\left[
+\eta_0^\top T(x)-A(\eta_0)+\log h(x)
+\right].
+```
+
+Base term cancel：
+
+```math
+=
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}
++
+(\eta_1-\eta_0)^\top
+T(x)
+-
+A(\eta_1)
++
+A(\eta_0).
+```
+
+定义：
+
+```math
+w=\eta_1-\eta_0,
+```
+
+```math
+b=
+\log
+\frac{
+\pi_1
+}{
+\pi_0
+}
+-
+A(\eta_1)
++
+A(\eta_0).
+```
+
+得到：
+
+```math
+P(Y=1\mid x)
+=
+\sigma
+\left(
+w^\top T(x)+b
+\right).
+```
+
+这个结论是 logistic in the canonical statistic $T(x)$。它只有在 $T(x)$ 本身是 raw $x$ 的 affine / linear representation，或者相关项约化成这种形式时，才是 ordinary linear logistic regression in raw $x$。因此不能说 every exponential-family class-conditional distribution implies linear logistic regression in raw $x$。
+
+### 6.3 Multiclass Same-Family Case Gives Softmax
+
+对：
+
+```math
+Y\in\{1,\ldots,K\},
+```
+
+若：
+
+```math
+P(Y=k)=\pi_k,
+```
+
+并且：
+
+```math
+p(x\mid Y=k)
+=
+h(x)
+\exp
+\left[
+\eta_k^\top T(x)
+-
+A(\eta_k)
+\right],
+```
+
+Bayes rule 给出：
+
+```math
+P(Y=k\mid x)
+=
+\frac{
+\exp
+\left[
+\eta_k^\top T(x)
+-
+A(\eta_k)
++
+\log\pi_k
+\right]
+}{
+\sum_{j=1}^K
+\exp
+\left[
+\eta_j^\top T(x)
+-
+A(\eta_j)
++
+\log\pi_j
+\right]
+}.
+```
+
+令：
+
+```math
+s_k(x)
+=
+\eta_k^\top T(x)
+-
+A(\eta_k)
++
+\log\pi_k.
+```
+
+则：
+
+```math
+P(Y=k\mid x)
+=
+\mathrm{softmax}_k
+\left(
+s_1(x),\ldots,s_K(x)
+\right).
+```
+
+这和 Lecture 4 softmax 形成连接，但这里的出发点是 generative class-conditionals。
+
+## 7. Discriminants, Boundary Shape, and QDA Contrast
 
 Decision boundary 满足：
 
 ```math
 P(Y=1\mid X=x)=P(Y=0\mid X=x).
+```
+
+GDA discriminant function 是：
+
+```math
+\delta_k(x)
+=
+\log\pi_k
+-
+\frac12\log|\Sigma_k|
+-
+\frac12
+(x-\mu_k)^\top
+\Sigma_k^{-1}
+(x-\mu_k),
+```
+
+其中忽略了对所有 classes 相同的 additive constant。Discriminant function 是 class score；decision boundary 是 equal-score locus。Binary shared-covariance GDA 中：
+
+```math
+\mathcal B
+=
+\{x:\delta_1(x)=\delta_0(x)\}.
 ```
 
 等价于：
@@ -554,6 +902,57 @@ w^\top x+b=0.
 ```
 
 所以 shared-covariance GDA 的 boundary 是 linear hyperplane。
+
+Gaussian contours 是：
+
+```math
+D_{\Sigma}(x,\mu_k)^2
+=
+\text{constant}.
+```
+
+而 shared-covariance GDA decision boundary 是：
+
+```math
+D_{\Sigma}(x,\mu_1)^2
+-
+D_{\Sigma}(x,\mu_0)^2
+=
+2\log
+\frac{\pi_1}{\pi_0}.
+```
+
+所以 decision boundary 一般不是任一 Gaussian 的 isocontour。Equal prior 时，它变成：
+
+```math
+D_{\Sigma}(x,\mu_1)
+=
+D_{\Sigma}(x,\mu_0),
+```
+
+也就是 equal Mahalanobis-distance locus。
+
+Whitening space 可以把这个几何变成普通 Euclidean geometry。定义：
+
+```math
+z=\Sigma^{-1/2}x,
+```
+
+```math
+m_k=\Sigma^{-1/2}\mu_k.
+```
+
+则：
+
+```math
+(x-\mu_k)^\top
+\Sigma^{-1}
+(x-\mu_k)
+=
+\|z-m_k\|_2^2.
+```
+
+Equal prior 时，boundary 是 whitened means $m_0,m_1$ 的 Euclidean perpendicular bisector；映射回原坐标后就是 $w^\top x+b=0$。
 
 如果改成：
 
@@ -580,3 +979,56 @@ log density ratio 中的二次项变为：
 ```
 
 一般成立，所以 quadratic part 留下，boundary 一般是 quadratic。GDA 的 linearity 来自 shared covariance 的 cancellation，不来自 Gaussian 这个词本身。
+
+## 8. Why GDA and Logistic Regression Learn Differently
+
+GDA 和 logistic regression 都可能产生：
+
+```math
+P(Y=1\mid x)
+=
+\sigma(\theta^\top x).
+```
+
+但它们学习的对象不同。
+
+GDA 通过 joint likelihood 学习：
+
+```math
+\phi,\mu_0,\mu_1,\Sigma,
+```
+
+再由这些参数诱导：
+
+```math
+\theta_{\mathrm{GDA}}
+=
+F(\phi,\mu_0,\mu_1,\Sigma).
+```
+
+Logistic regression 通过 conditional likelihood 直接学习：
+
+```math
+\theta_{\mathrm{LR}}.
+```
+
+因此 finite sample 中：
+
+```math
+\hat\theta_{\mathrm{GDA}}
+\neq
+\hat\theta_{\mathrm{LR}}
+```
+
+generally。原因是：
+
+```text
+different objective
++ different parameterization
++ different statistical constraints
+-> different finite-sample estimator
+```
+
+如果 true data-generating process 满足 shared-covariance GDA assumptions，则 true posterior 本来就是 linear logistic。标准 consistency 条件下，随着 $m\to\infty$，GDA 会估计正确 joint parameters，logistic regression 会估计正确 conditional parameters，因此两者应趋向同一个 true posterior / Bayes boundary。实际差异主要来自 finite sample、model misspecification 和 efficiency。
+
+GDA 的 closed-form MLE 是 computational advantage 的一部分，但不要把它等同于 universally cheaper 或 predictive superiority。GDA 仍可能需要 covariance accumulation、matrix storage、linear solve / inversion、determinant evaluation 和 conditioning diagnostics。计算成本取决于 $m,d$、solver、sparsity、regularization 和 implementation。

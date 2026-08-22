@@ -16,13 +16,33 @@ Feature vector 是：
 X=(X_1,\ldots,X_d).
 ```
 
+设 vocabulary：
+
+```math
+V=\{v_1,\ldots,v_d\}.
+```
+
 每个 coordinate 是 word-presence indicator：
 
 ```math
-X_j\in\{0,1\}.
+X_j
+=
+\mathbf1
+\{
+v_j
+\text{ appears in the email}
+\}.
 ```
 
 Realized value $x_j=1$ 表示第 $j$ 个 word 出现；$x_j=0$ 表示没有出现。
+
+如果不加结构地估计 $p(X\mid Y=k)$，一般要处理：
+
+```math
+2^d
+```
+
+种 binary feature configurations。Naive Bayes 的 conditional-independence assumption 正是为了解决这个 high-dimensional discrete distribution 不可直接估计的问题。
 
 ## 2. Chain Rule before the Naive Assumption
 

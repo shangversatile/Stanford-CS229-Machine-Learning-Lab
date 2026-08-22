@@ -348,6 +348,46 @@ def draw_decision_line(ax: plt.Axes, w: np.ndarray, b: float, color: str, label:
     ax.plot(x_values, y_values, color=color, linewidth=2.4, label=label)
 
 
+def normal_pdf_1d(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
+    """Return univariate Gaussian density values."""
+    return (1.0 / (np.sqrt(2.0 * np.pi) * sigma)) * np.exp(-0.5 * ((x - mu) / sigma) ** 2)
+
+
+def figure_gda_1d_gaussian_to_sigmoid() -> Path:
+    """Show two one-dimensional Gaussian class-conditionals inducing a sigmoid posterior."""
+    mu0, mu1 = -1.25, 1.15
+    sigma = 1.0
+    pi0, pi1 = 0.45, 0.55
+    x = np.linspace(-5.0, 5.0, 700)
+    p0 = normal_pdf_1d(x, mu0, sigma)
+    p1 = normal_pdf_1d(x, mu1, sigma)
+    posterior = (pi1 * p1) / (pi0 * p0 + pi1 * p1)
+
+    fig, axes = plt.subplots(2, 1, figsize=(8.4, 7.2), sharex=True, gridspec_kw={"height_ratios": [1.05, 1.0]})
+
+    axes[0].plot(x, p0, color=COLORS["blue"], linewidth=2.4, label=r"$p(x\mid y=0)$")
+    axes[0].plot(x, p1, color=COLORS["orange"], linewidth=2.4, label=r"$p(x\mid y=1)$")
+    axes[0].fill_between(x, 0, pi0 * p0, color=COLORS["blue"], alpha=0.10, label=r"$\pi_0p(x\mid y=0)$")
+    axes[0].fill_between(x, 0, pi1 * p1, color=COLORS["orange"], alpha=0.10, label=r"$\pi_1p(x\mid y=1)$")
+    axes[0].axvline(mu0, color=COLORS["blue"], linestyle="--", linewidth=1.4)
+    axes[0].axvline(mu1, color=COLORS["orange"], linestyle="--", linewidth=1.4)
+    axes[0].set_ylabel("density")
+    axes[0].set_title("One-Dimensional GDA: Gaussian Bumps Become a Sigmoid Posterior")
+    axes[0].grid(True)
+    axes[0].legend(frameon=True, loc="upper left", ncol=2)
+
+    axes[1].plot(x, posterior, color=COLORS["red"], linewidth=2.7, label=r"$P(y=1\mid x)$")
+    axes[1].axhline(0.5, color=COLORS["gray"], linestyle="--", linewidth=1.2)
+    axes[1].set_yticks([0.0, 0.5, 1.0])
+    axes[1].set_ylim(-0.04, 1.04)
+    axes[1].set_xlabel(r"$x$")
+    axes[1].set_ylabel("posterior probability")
+    axes[1].grid(True)
+    axes[1].legend(frameon=True, loc="center right")
+
+    return save(fig, "lecture05-gda-1d-gaussian-to-sigmoid.png")
+
+
 def figure_gda_shared_covariance_boundary() -> Path:
     """Show GDA class-conditional contours and the linear Bayes boundary."""
     mu0, mu1, sigma, phi = gda_parameters()
@@ -488,6 +528,7 @@ def main() -> None:
         figure_bivariate_gaussian_density_3d,
         figure_bivariate_gaussian_contours,
         figure_covariance_geometry_variants,
+        figure_gda_1d_gaussian_to_sigmoid,
         figure_gda_shared_covariance_boundary,
         figure_gda_qda_boundary_comparison,
         figure_naive_bayes_conditional_independence,
