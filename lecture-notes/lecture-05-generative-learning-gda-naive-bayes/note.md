@@ -374,15 +374,13 @@ p(x;\mu,\Sigma)=\frac{1}{(2\pi)^{d/2}|\Sigma|^{1/2}}\exp\left(-\frac12(x-\mu)^\t
 
 符号含义：
 
-| Symbol | Meaning |
-|---|---|
-| $x$ | $\mathbb R^d$ 中的 realized point |
-| $\mu$ | mean vector，也就是 density 的中心 |
-| $\Sigma$ | covariance matrix，控制 spread 和 correlation |
-| $\det(\Sigma)$ | determinant of $\Sigma$ |
-| $\Sigma^{-1}$ | inverse covariance matrix，也叫 precision matrix |
-| $(x-\mu)^\top\Sigma^{-1}(x-\mu)$ | $x$ 到 $\mu$ 的 squared Mahalanobis distance |
-| $(2\pi)^{d/2}\det(\Sigma)^{1/2}$ | normalization scale，使总 probability mass 等于 $1$ |
+* $x$: $\mathbb R^d$ 中的 realized point。
+* $\mu$: mean vector，也就是 density 的中心。
+* $\Sigma$: covariance matrix，控制 spread 和 correlation。
+* $\det(\Sigma)$: determinant of $\Sigma$。在很多教材中也写成 $|\Sigma|$；这里避免在 Markdown table 中使用 vertical bars，因为它们容易被误解析为表格分隔符。
+* $\Sigma^{-1}$: inverse covariance matrix，也叫 precision matrix。
+* $(x-\mu)^\top\Sigma^{-1}(x-\mu)$: $x$ 到 $\mu$ 的 squared Mahalanobis distance。
+* $(2\pi)^{d/2}\det(\Sigma)^{1/2}$: normalization scale，使总 probability mass 等于 $1$。
 
 Mean 是：
 
