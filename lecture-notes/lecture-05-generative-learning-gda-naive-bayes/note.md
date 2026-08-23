@@ -379,10 +379,10 @@ p(x;\mu,\Sigma)=\frac{1}{(2\pi)^{d/2}|\Sigma|^{1/2}}\exp\left(-\frac12(x-\mu)^\t
 | $x$ | $\mathbb R^d$ 中的 realized point |
 | $\mu$ | mean vector，也就是 density 的中心 |
 | $\Sigma$ | covariance matrix，控制 spread 和 correlation |
-| $|\Sigma|$ | determinant of $\Sigma$ |
+| $\det(\Sigma)$ | determinant of $\Sigma$ |
 | $\Sigma^{-1}$ | inverse covariance matrix，也叫 precision matrix |
 | $(x-\mu)^\top\Sigma^{-1}(x-\mu)$ | $x$ 到 $\mu$ 的 squared Mahalanobis distance |
-| $(2\pi)^{d/2}|\Sigma|^{1/2}$ | normalization scale，使总 probability mass 等于 $1$ |
+| $(2\pi)^{d/2}\det(\Sigma)^{1/2}$ | normalization scale，使总 probability mass 等于 $1$ |
 
 Mean 是：
 
