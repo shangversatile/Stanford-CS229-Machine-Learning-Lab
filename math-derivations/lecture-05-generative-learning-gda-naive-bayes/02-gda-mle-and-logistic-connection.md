@@ -1,6 +1,6 @@
 # GDA MLE and Logistic Connection
 
-Cross-link: see [Lecture 5 Section 9: GDA Model and Generative Story](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#9-gda-model-and-generative-story), [Lecture 5 Section 10: GDA Joint Likelihood and MLE](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#10-gda-joint-likelihood-and-mle), [Lecture 5 Section 11: GDA Posterior Has Logistic Form](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#11-gda-posterior-has-logistic-form), [Lecture 5 Section 12: Why the GDA Boundary Is Linear](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#12-why-the-gda-boundary-is-linear), and [Lecture 5 Section 13: GDA versus Logistic Regression](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#13-gda-versus-logistic-regression).
+Cross-link: see [Lecture 5 Section 9: GDA Model and Generative Story](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#9-gda-model-and-generative-story), [Lecture 5 Section 10: GDA Joint Likelihood and MLE](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#10-gda-joint-likelihood-and-mle), [Lecture 5 Section 11: GDA Posterior Has Logistic Form](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#11-gda-posterior-has-logistic-form), [Lecture 5 Section 12: Why the GDA Boundary Is Linear](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#12-why-the-gda-boundary-is-linear), [Lecture 5 Section 13: QDA: Unequal Covariance and Quadratic Boundary](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#13-qda-unequal-covariance-and-quadratic-boundary), and [Lecture 5 Section 14: GDA versus Logistic Regression](../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#14-gda-versus-logistic-regression).
 
 ## 1. Model and Data
 
@@ -370,13 +370,19 @@ GDA 的 posterior 是：
 P(Y=y\mid X=x)=\frac{p(x\mid Y=y)P(Y=y)}{p(x)}.
 ```
 
-对 classification，只比较不同 $y$ 的 numerator：
+对 classification，$X=x$ 已经 fixed，所以 $p(x)$ 对所有 candidate labels 是同一个 positive normalization term。Bayes posterior probabilities 的数值计算仍然需要 $p(x)$；只是 MAP classification 的 argmax 可以删除这个 common denominator：
 
 ```math
-\hat y=\underset{y\in\{0,1\}}{\mathrm{argmax}}\ p(x\mid Y=y)P(Y=y).
+\hat y(x)
+=
+\underset{y\in\{0,1\}}{\mathrm{argmax}}
+P(Y=y\mid X=x)
+=
+\underset{y\in\{0,1\}}{\mathrm{argmax}}
+p(x\mid Y=y)P(Y=y).
 ```
 
-这条 rule 不是 heuristic，而是 Bayes classifier 的直接结果。
+这条 rule 不是 heuristic，而是 Bayes classifier 的直接结果。GDA training 对 $\phi,\mu_k,\Sigma$ 做 MLE；prediction 对 class labels 做 maximum a posteriori (MAP) posterior argmax。
 
 ## 4. Posterior Odds Expansion
 
@@ -954,7 +960,7 @@ m_k=\Sigma^{-1/2}\mu_k.
 
 Equal prior 时，boundary 是 whitened means $m_0,m_1$ 的 Euclidean perpendicular bisector；映射回原坐标后就是 $w^\top x+b=0$。
 
-如果改成：
+如果 relax shared-covariance assumption，改成：
 
 ```math
 X\mid Y=0\sim\mathcal N(\mu_0,\Sigma_0)
@@ -966,19 +972,92 @@ X\mid Y=0\sim\mathcal N(\mu_0,\Sigma_0)
 X\mid Y=1\sim\mathcal N(\mu_1,\Sigma_1),
 ```
 
-log density ratio 中的二次项变为：
+并定义：
 
 ```math
--\frac12x^\top\Sigma_1^{-1}x+\frac12x^\top\Sigma_0^{-1}x.
+\delta_k(x)
+=
+-
+\frac12
+\log|\Sigma_k|
+-
+\frac12
+(x-\mu_k)^\top
+\Sigma_k^{-1}
+(x-\mu_k)
++
+\log\pi_k,
 ```
 
-当 $\Sigma_0\neq\Sigma_1$ 时：
+则 boundary 是：
 
 ```math
--\frac12\Sigma_1^{-1}+\frac12\Sigma_0^{-1}\neq0
+\delta_1(x)-\delta_0(x)=0.
 ```
 
-一般成立，所以 quadratic part 留下，boundary 一般是 quadratic。GDA 的 linearity 来自 shared covariance 的 cancellation，不来自 Gaussian 这个词本身。
+展开后：
+
+```math
+\delta_1(x)-\delta_0(x)
+=
+-
+\frac12
+x^\top
+(
+\Sigma_1^{-1}
+-
+\Sigma_0^{-1}
+)
+x
+```
+
+```math
++
+\left(
+\Sigma_1^{-1}\mu_1
+-
+\Sigma_0^{-1}\mu_0
+\right)^\top
+x
++
+c,
+```
+
+其中 $c$ 不依赖于 $x$。关键是保留下来的 quadratic term：
+
+```math
+-
+\frac12
+x^\top
+(
+\Sigma_1^{-1}
+-
+\Sigma_0^{-1}
+)
+x.
+```
+
+因此 boundary 一般写成：
+
+```math
+x^\top A x+b^\top x+c=0.
+```
+
+这就是 quadratic decision surface。二维时是 quadratic curve；高维时是 quadratic hypersurface。
+
+```text
+shared covariance:
+\Sigma_0 = \Sigma_1
+-> A = 0
+-> linear hyperplane
+
+different covariances:
+\Sigma_0 \neq \Sigma_1
+-> A generally != 0
+-> quadratic boundary
+```
+
+GDA 的 linearity 来自 shared covariance 的 cancellation，不来自 Gaussian 这个词本身。
 
 ## 8. Why GDA and Logistic Regression Learn Differently
 

@@ -46,5 +46,5 @@ Cross-lecture companions are kept in one canonical location. For example, probab
 ## Lecture 5: Generative Learning, GDA, and Naive Bayes
 
 1. [Multivariate Gaussian Geometry](lecture-05-generative-learning-gda-naive-bayes/01-multivariate-gaussian-geometry.md)
-2. [GDA MLE, Discriminant Geometry, and Logistic Connection](lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md)
+2. [GDA MLE, MAP Prediction, Discriminant Geometry, QDA, and Logistic Connection](lecture-05-generative-learning-gda-naive-bayes/02-gda-mle-and-logistic-connection.md)
 3. [Naive Bayes Factorization and MLE](lecture-05-generative-learning-gda-naive-bayes/03-naive-bayes-factorization-and-mle.md)

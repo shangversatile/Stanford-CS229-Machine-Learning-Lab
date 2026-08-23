@@ -321,10 +321,16 @@ Bayes rule 给出：
 P(Y=y\mid X=x)=\frac{P(Y=y)P(X=x\mid Y=y)}{P(X=x)}.
 ```
 
-对 classification，denominator 不依赖 $y$：
+对 classification，$X=x$ 已经 fixed，所以 denominator 不依赖 $y$。这只是在 argmax decision rule 中删除 common normalization term；若要 normalized posterior probabilities，仍然需要 $P(X=x)$。因此 MAP prediction rule 是：
 
 ```math
-\hat y=\underset{y\in\{0,1\}}{\mathrm{argmax}}\ P(Y=y)P(X=x\mid Y=y).
+\hat y(x)
+=
+\underset{y\in\{0,1\}}{\mathrm{argmax}}
+P(Y=y\mid X=x)
+=
+\underset{y\in\{0,1\}}{\mathrm{argmax}}
+P(Y=y)P(X=x\mid Y=y).
 ```
 
 代入 Naive Bayes factorization：
