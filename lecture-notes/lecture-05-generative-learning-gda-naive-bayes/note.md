@@ -677,6 +677,49 @@ P_*(y\mid x).
 
 这就是“联合分布包含后验概率所需全部信息”的严格含义。不是因为联合似然和条件似然在代数上等价，而是因为一个正确的联合分布通过贝叶斯公式唯一决定后验分布。
 
+这里要特别区分“概率对象之间的映射”和“优化目标之间的等价”。贝叶斯公式保证的是：
+
+```text
+给定一个 joint distribution q_theta(x, y)
+-> 可以确定它诱导出的 posterior q_theta(y | x)
+```
+
+也就是联合分布到后验分布的函数映射。但它不保证：
+
+```text
+joint likelihood 增大
+-> conditional likelihood 一定增大
+```
+
+也不保证：
+
+```text
+joint likelihood 的最优 theta
+=
+conditional likelihood 的最优 theta
+```
+
+原因是：
+
+```math
+\log q_\theta(y\mid x)
+=
+\log q_\theta(x,y)
+-
+\log q_{\theta,X}(x).
+```
+
+预测时，$\theta$ 已经固定，$x$ 也已经固定；在比较不同候选 $y$ 时，$q_{\theta,X}(x)$ 是共同分母，所以可以从 $\arg\max_y$ 中删去。训练时则不同：优化变量是 $\theta$，而：
+
+```math
+q_{\theta,X}(x)
+=
+\sum_{y\in\mathcal Y}
+q_\theta(x,y)
+```
+
+本身依赖 $\theta$。因此训练时不能把 $\log q_{\theta,X}(x)$ 当成常数删掉。换句话说，贝叶斯公式让 joint model 能够产生 posterior classifier；但贝叶斯公式不把 joint optimization 变成 conditional optimization。
+
 同时，联合目标和条件目标一般不等价。把 joint KL 展开：
 
 ```math
@@ -2879,6 +2922,7 @@ Boundary audit:
 * 生成式目标是联合负对数似然，因为它估计 $p_\theta(x,y)$；判别式目标是条件负对数似然，因为它只估计 $p_\theta(y\mid x)$，而 $p_X(x)$ 对 $\theta$ 是无关项 / 常数项。
 * 判别式 log loss 的总体目标是真实 posterior；生成式 log loss 的总体目标是真实联合分布，再由贝叶斯公式诱导 posterior。
 * 联合似然和条件似然一般不是同一个优化目标；正确指定的联合模型只是在一致性意义下推出正确 posterior。
+* 贝叶斯公式保证 joint distribution 能诱导 posterior，但不保证 joint likelihood 和 conditional likelihood 在训练中同步增长或有相同最优点。
 * 优化误差、估计 / 泛化误差、近似误差和正则化效应是不同误差来源，不能混为“训练目标和预测目标是否一致”。
 * 分类时可以用 $\underset{y}{\mathrm{argmax}}\ p(x\mid y)P(y)$，因为 $p(x)$ 不依赖于 $y$。
 * Non-degenerate multivariate Gaussian density 要求 $\Sigma\succ0$；一般 covariance matrix 只保证 PSD。
