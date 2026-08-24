@@ -338,6 +338,657 @@ Figure 1. Discriminative learning 直接建模 $P(y\mid x)$ 或 decision rule；
 
 Generative modeling 增加了对 world 的结构假设：不仅要能分 label，还要描述每个 class 内 feature 怎么分布。这个额外结构在 assumption 近似正确时可能带来 sample-efficiency advantage；在 assumption 错误时也会带来 misspecification risk。
 
+### 5.1 训练目标、损失函数和分类器
+
+先把后文常用词固定下来，不默认读者已经知道这些术语。
+
+* 先验概率（prior）：观察 $x$ 之前，类别标签的基础概率，例如 $P(Y=y)$。在邮件分类中，它表示一封随机邮件本来是 spam 的概率。
+* 似然（likelihood）：把标签 $y$ 当作已知时，观察到特征 $x$ 的概率或密度，例如 $p(x\mid y)$。在 GDA 中，它表示“如果这类是 $y$，这个 $x$ 像不像该类的 Gaussian”。
+* 后验概率（posterior）：观察到 $x$ 之后，对标签概率的更新，例如 $P(Y=y\mid X=x)$。分类器最终比较的通常就是 posterior。
+* 联合分布（joint distribution）：同时描述 $X$ 和 $Y$ 的分布，例如 $p(x,y)$。
+* 边缘分布（marginal distribution）：只看其中一个变量的分布，例如 $p(x)=\sum_y p(x,y)$。它把 $Y$ 求和或积分掉。
+* 条件分布（conditional distribution）：给定一个变量后，另一个变量的分布，例如 $p(y\mid x)$ 或 $p(x\mid y)$。
+* 损失函数（loss）：对一次预测或一次概率赋值的惩罚。Loss 越小，模型在这个训练样本上越符合训练准则。
+* 目标函数（objective）：训练时对所有样本的 loss 加总或平均后得到的函数，通常记为 $J(\theta)$。训练算法最小化 objective。
+* 替代损失（surrogate loss）：代替真正目标的可优化 loss。例如分类真正关心 $0$-$1$ error，但训练常用 cross entropy。
+* 严格适当评分规则（proper scoring rule）：一类概率预测 loss；如果模型要报告一个概率分布，它在真实分布处取得总体最优值。Log loss / cross entropy 是最重要的例子。
+
+贝叶斯公式把这几个概率对象连接起来：
+
+```math
+P(Y=y\mid X=x)
+=
+\frac{
+p(X=x\mid Y=y)P(Y=y)
+}{
+p(X=x)
+}.
+```
+
+用术语说就是：
+
+```text
+后验概率 = 似然 * 先验概率 / 边缘证据
+```
+
+其中 $p(X=x)$ 也常叫证据（evidence）或归一化项（normalization term），因为它保证所有候选标签的 posterior 加起来等于 $1$。
+
+这里需要区分四个不同对象。给定有标签数据集：
+
+```math
+\mathcal D=\{(x^{(i)},y^{(i)})\}_{i=1}^m,
+\qquad
+y^{(i)}\in\mathcal Y,
+```
+
+机器学习算法通常先指定一个带参数的统计模型，再通过目标函数学习参数，最后由学到的参数定义预测规则。也就是：
+
+```text
+模型族 q_theta
+-> 训练目标 J(theta)
+-> 学到的参数 theta_hat
+-> 分类器 h_{theta_hat}
+```
+
+因此 $h_\theta$ 和 $J(\theta)$ 不是同一个数学对象。$h_\theta$ 是给定参数后的预测规则；$J(\theta)$ 是用训练数据选择参数的准则。一般可以写成：
+
+```math
+\hat\theta
+=
+\underset{\theta}{\mathrm{argmin}}\ J(\theta),
+```
+
+其中：
+
+```math
+J(\theta)
+=
+\frac1m
+\sum_{i=1}^m
+\ell_\theta(x^{(i)},y^{(i)})
++
+\lambda\Omega(\theta).
+```
+
+这里 $\ell_\theta$ 是损失函数，$\Omega$ 是正则项。Loss 的选择不是任意装饰；它表达了我们选择估计哪一个概率对象。对概率模型，最常见、也最有统计意义的选择是负对数似然：
+
+```math
+\ell_\theta(\text{observation})
+=
+-
+\log q_\theta(\text{observation}).
+```
+
+区别在于：不同建模路线把什么当作需要用似然解释的观察对象。
+
+判别式模型直接指定条件分布：
+
+```math
+q_\theta(y\mid x).
+```
+
+因此训练时最大化条件似然，或等价地最小化条件负对数似然：
+
+```math
+J_{\mathrm{disc}}(\theta)
+=
+-
+\sum_{i=1}^m
+\log q_\theta(y^{(i)}\mid x^{(i)}).
+```
+
+训练完后，分类器是：
+
+```math
+h_\theta(x)
+=
+\underset{y\in\mathcal Y}{\mathrm{argmax}}\ q_\theta(y\mid x).
+```
+
+如果强行把判别式模型写成联合形式：
+
+```math
+q_\theta(x,y)=q_\theta(y\mid x)p_X(x),
+```
+
+那么 $p_X(x)$ 不是这个判别式模型要学习的对象。只要 $p_X$ 不含 $\theta$，则：
+
+```math
+\sum_{i=1}^m
+\log q_\theta(x^{(i)},y^{(i)})
+=
+\sum_{i=1}^m
+\log q_\theta(y^{(i)}\mid x^{(i)})
++
+\sum_{i=1}^m
+\log p_X(x^{(i)}),
+```
+
+最后一项对 $\theta$ 是常数。所以对 $\theta$ 的优化等价于条件似然优化。这就是 logistic regression 直接写 $P_\theta(Y\mid X)$ 的对数似然的原因：它没有承诺去解释特征分布 $p_X(x)$。
+
+生成式模型的路线不同。它指定：
+
+```math
+\pi_\theta(y)=P_\theta(Y=y),
+\qquad
+q_\theta(x\mid y)=p_\theta(X=x\mid Y=y),
+```
+
+从而指定联合模型：
+
+```math
+q_\theta(x,y)=q_\theta(x\mid y)\pi_\theta(y).
+```
+
+所以训练目标是联合负对数似然：
+
+```math
+J_{\mathrm{gen}}(\theta)
+=
+-
+\sum_{i=1}^m
+\log q_\theta(x^{(i)},y^{(i)})
+```
+
+```math
+=
+-
+\sum_{i=1}^m
+\left[
+\log q_\theta(x^{(i)}\mid y^{(i)})
++
+\log \pi_\theta(y^{(i)})
+\right].
+```
+
+这解释了 GDA 为什么训练联合似然：它要估计的是类别先验、类别均值和协方差，也就是整个类别条件数据生成结构。对 GDA：
+
+```math
+\theta=(\phi,\mu_0,\mu_1,\Sigma).
+```
+
+预测时，输入 $x$ 已经被观察到。此时分类器不需要重新最大化联合似然，而是从已经学到的联合模型中用贝叶斯公式诱导后验概率：
+
+```math
+r_\theta(y\mid x)
+=
+\frac{
+q_\theta(x\mid y)\pi_\theta(y)
+}{
+\sum_{y'\in\mathcal Y}
+q_\theta(x\mid y')\pi_\theta(y')
+}.
+```
+
+于是：
+
+```math
+h_\theta(x)
+=
+\underset{y\in\mathcal Y}{\mathrm{argmax}}\ r_\theta(y\mid x)
+```
+
+```math
+=
+\underset{y\in\mathcal Y}{\mathrm{argmax}}\ q_\theta(x\mid y)\pi_\theta(y)
+```
+
+```math
+=
+\underset{y\in\mathcal Y}{\mathrm{argmax}}
+\left[
+\log q_\theta(x\mid y)+\log\pi_\theta(y)
+\right].
+```
+
+这里没有逻辑不一致。训练目标回答的是：
+
+```text
+在选定模型族下，哪个 theta 最能解释已经观察到的有标签样本？
+```
+
+预测规则回答的是：
+
+```text
+theta 已经固定且 x 已经观察到之后，哪个标签具有最大的 posterior 支持？
+```
+
+二者由同一个已经拟合好的概率模型连接，但不是同一个优化问题。更严格地说，$h_\theta$ 是由 $\theta$ 推导出来的预测函数；而 $\hat\theta$ 是通过最小化 $J(\theta)$ 得到的估计量。
+
+这句话要精确理解：
+
+```text
+判别式模型的训练对象和预测对象是对齐的：
+二者都围绕 P(Y | X)。
+
+生成式模型的训练对象和预测对象是相连但不相同的：
+训练拟合 P(X, Y)，预测使用 P(Y | X)。
+```
+
+这里的“对齐”不表示训练损失等于最终分类损失。Logistic regression 的 cross entropy 仍然不是 $0$-$1$ loss；它是用来估计条件分布的替代损失，也是概率预测中的严格适当评分规则。严格地说，判别式模型的一致性来自它直接最小化条件负对数似然。令真实数据分布为 $P_*$，判别式模型为 $q_\theta(y\mid x)$，总体条件风险是：
+
+```math
+\mathcal R_{\mathrm{cond}}(\theta)
+=
+\mathbb E_{(X,Y)\sim P_*}
+\left[
+-
+\log q_\theta(Y\mid X)
+\right].
+```
+
+把它按每个 $x$ 分解：
+
+```math
+\mathcal R_{\mathrm{cond}}(\theta)
+=
+H_{P_*}(Y\mid X)
++
+\mathbb E_{X\sim P_{*,X}}
+\left[
+\mathrm{KL}
+\left(
+P_*(Y\mid X)
+\middle\|
+q_\theta(Y\mid X)
+\right)
+\right].
+```
+
+第一项不依赖 $\theta$。因此如果条件模型族足够正确，最优解会满足：
+
+```math
+q_{\theta^*}(Y\mid X)
+=
+P_*(Y\mid X)
+\qquad
+P_{*,X}\text{-almost surely}.
+```
+
+预测时又使用：
+
+```math
+h_{\theta}(x)
+=
+\underset{y}{\mathrm{argmax}}\ q_\theta(y\mid x).
+```
+
+所以判别式训练和预测围绕同一个概率对象：$P(Y\mid X)$。
+
+生成式模型的严谨逻辑不同。令生成式模型给出联合密度或联合概率质量：
+
+```math
+q_\theta(x,y)
+=
+q_\theta(x\mid y)\pi_\theta(y).
+```
+
+总体联合风险是：
+
+```math
+\mathcal R_{\mathrm{joint}}(\theta)
+=
+\mathbb E_{(X,Y)\sim P_*}
+\left[
+-
+\log q_\theta(X,Y)
+\right]
+```
+
+```math
+=
+H_{P_*}(X,Y)
++
+\mathrm{KL}
+\left(
+P_*(X,Y)
+\middle\|
+q_\theta(X,Y)
+\right).
+```
+
+如果联合模型族正确，最优解会恢复真实联合分布：
+
+```math
+q_{\theta^*}(X,Y)
+=
+P_*(X,Y).
+```
+
+贝叶斯公式这时提供从联合分布到后验概率的确定映射。对任何满足 $P_{*,X}(x)>0$ 的 $x$：
+
+```math
+q_{\theta^*}(y\mid x)
+=
+\frac{
+q_{\theta^*}(x,y)
+}{
+q_{\theta^*}(x)
+}
+=
+\frac{
+P_*(x,y)
+}{
+P_{*,X}(x)
+}
+=
+P_*(y\mid x).
+```
+
+这就是“联合分布包含后验概率所需全部信息”的严格含义。不是因为联合似然和条件似然在代数上等价，而是因为一个正确的联合分布通过贝叶斯公式唯一决定后验分布。
+
+同时，联合目标和条件目标一般不等价。把 joint KL 展开：
+
+```math
+\mathrm{KL}
+\left(
+P_*(X,Y)
+\middle\|
+q_\theta(X,Y)
+\right)
+=
+\mathrm{KL}
+\left(
+P_{*,X}
+\middle\|
+q_{\theta,X}
+\right)
+```
+
+```math
++
+\mathbb E_{X\sim P_{*,X}}
+\left[
+\mathrm{KL}
+\left(
+P_*(Y\mid X)
+\middle\|
+q_\theta(Y\mid X)
+\right)
+\right],
+```
+
+其中：
+
+```math
+q_{\theta,X}(x)
+=
+\sum_{y\in\mathcal Y}
+q_\theta(x,y).
+```
+
+这个分解说明：生成式联合拟合同时关心两件事：
+
+```text
+1. 模型把边缘特征分布 X 解释得多好
+2. 模型诱导出来的 posterior 把给定 X 后的 Y 解释得多好
+```
+
+而判别式拟合只保留第二项。预测时 $q_{\theta,X}(x)$ 在 $\arg\max_y q_\theta(y\mid x)$ 中对候选 $y$ 是共同分母，所以可以删去；但训练时 $q_{\theta,X}$ 依赖 $\theta$，不能把它当成常数忽略。
+
+因此在模型错设下，两种总体目标通常不同：
+
+```math
+\theta^*_{\mathrm{joint}}
+=
+\underset{\theta}{\mathrm{argmin}}
+\mathrm{KL}
+\left(
+P_*(X,Y)
+\middle\|
+q_\theta(X,Y)
+\right),
+```
+
+但：
+
+```math
+\theta^*_{\mathrm{cond}}
+=
+\underset{\theta}{\mathrm{argmin}}
+\mathbb E_{X\sim P_{*,X}}
+\left[
+\mathrm{KL}
+\left(
+P_*(Y\mid X)
+\middle\|
+q_\theta(Y\mid X)
+\right)
+\right].
+```
+
+这也解释了 GDA 和 logistic regression 即使都能产生形式上像 logistic 的后验概率，训练结果仍可能不同。生成式训练在估计联合分布，因此它会关心类别条件密度的形状、扩散程度、相关性和先验概率。判别式训练只关心条件标签似然，因此它把统计资源集中在后验概率和决策边界上。如果 GDA 假设正确，联合模型的额外结构会提高小样本效率；如果假设错误，联合似然可能把参数拉向更好解释 $x$ 的密度形状，而这个方向不一定最有利于条件分类。
+
+### 5.2 优化理论和现代机器学习视角
+
+现代机器学习中，一个 classifier 的学习问题最好分成三层：
+
+```text
+统计目标
+-> 经验优化问题
+-> 数值算法 / 闭式解求解器
+```
+
+统计目标是总体层面的对象，回答“如果有无限数据，应该学什么”。经验优化问题是有限样本上实际最小化的目标函数。数值算法只回答“怎样把这个有限样本目标优化到足够好”。把这三层混在一起，会误以为训练损失、假设函数和最终预测目标必须长得完全一样。
+
+最终分类任务通常关心 $0$-$1$ risk：
+
+```math
+\mathcal R_{0/1}(h)
+=
+P_*
+\left(
+h(X)\neq Y
+\right).
+```
+
+Bayes 最优分类器是：
+
+```math
+h_*(x)
+=
+\underset{y\in\mathcal Y}{\mathrm{argmax}}\ P_*(Y=y\mid X=x).
+```
+
+因此分类任务的真正信息瓶颈是 posterior $P_*(Y\mid X)$。但是 $0$-$1$ loss 不连续、不可微、难优化；而且它只关心 argmax，不直接惩罚概率校准。因此实际训练常用替代损失。Log loss / cross entropy 是最重要的概率替代损失。
+
+判别式 log loss 是条件概率上的严格适当评分规则。对任意固定 $x$，若真实条件分布是 $p_*(\cdot\mid x)$，模型报告分布 $q(\cdot\mid x)$，则期望 log loss 为：
+
+```math
+\mathbb E_{Y\sim p_*(\cdot\mid x)}
+\left[
+-
+\log q(Y\mid x)
+\right]
+=
+H(p_*(\cdot\mid x))
++
+\mathrm{KL}
+\left(
+p_*(\cdot\mid x)
+\middle\|
+q(\cdot\mid x)
+\right).
+```
+
+因为 KL divergence 非负，最优报告是：
+
+```math
+q(\cdot\mid x)=p_*(\cdot\mid x).
+```
+
+这就是判别式 log loss 和最终后验概率预测对齐的严格含义：它不是直接优化 $0$-$1$ loss，但它的总体最小点是真实 posterior；真实 posterior 的 argmax 给出贝叶斯分类器。换句话说，判别式学习把优化目标直接放在后验概率对象上。
+
+生成式 log loss 是联合分布上的 proper scoring rule。对联合分布：
+
+```math
+\mathbb E_{(X,Y)\sim P_*}
+\left[
+-
+\log q(X,Y)
+\right]
+=
+H(P_*)
++
+\mathrm{KL}
+\left(
+P_*(X,Y)
+\middle\|
+q(X,Y)
+\right).
+```
+
+因此如果模型族包含真实分布，联合 log loss 的总体最小点是真实联合分布。真实联合分布再通过贝叶斯公式给出真实 posterior：
+
+```math
+q_*(y\mid x)
+=
+\frac{q_*(x,y)}{q_{*,X}(x)}
+=
+P_*(y\mid x),
+\qquad
+q_{*,X}(x)>0.
+```
+
+所以生成式学习的合理性来自：
+
+```text
+正确的联合模型
+-> 正确的联合分布
+-> 贝叶斯公式
+-> 正确的 posterior
+-> Bayes 最优分类器
+```
+
+这是一条一致性链条，不是说联合经验目标和条件经验目标是同一个函数。
+
+从经验风险最小化的角度，有限样本训练的是：
+
+```math
+\hat{\mathcal R}_m(\theta)
+=
+\frac1m
+\sum_{i=1}^m
+\ell_\theta(x^{(i)},y^{(i)})
++
+\lambda\Omega(\theta).
+```
+
+训练误差小只说明经验目标被优化得好；泛化还需要控制经验风险和总体风险的差距。现代机器学习通常把误差来源拆成：
+
+```text
+近似误差:
+模型族是否能表达真实机制或足够好的 posterior
+
+估计 / 泛化误差:
+有限样本带来的统计不确定性
+
+优化误差:
+算法是否真的找到经验目标的好解
+
+正则化 / 归纳偏置效应:
+约束或偏好如何改变 finite-sample solution
+```
+
+GDA 和 logistic regression 的差别可以在这四项中精确定位。
+
+GDA 的近似误差取决于真实 $P_*(X\mid Y)$ 是否接近共享协方差高斯模型。假设正确时，参数共享和分布结构会降低估计误差：少量数据就能估计类别中心、共享协方差和先验概率，然后通过贝叶斯公式得到 posterior。假设错误时，联合模型可能把表达能力用在解释错误的特征密度形状上，从而得到不理想的 posterior。
+
+Logistic regression 的近似误差取决于真实 log-odds 是否接近线性：
+
+```math
+\log
+\frac{
+P_*(Y=1\mid X=x)
+}{
+P_*(Y=0\mid X=x)
+}
+\approx
+\theta^\top x.
+```
+
+它不需要真实 $P_*(X\mid Y)$ 是 Gaussian，也不需要 shared covariance。因此它对特征分布的假设更弱。但更弱的结构也意味着：当 GDA assumptions 真的成立时，logistic regression 可能需要更多数据才能学到同样稳定的 boundary。
+
+优化理论还要区分目标函数形状和统计表现。GDA 的 MLE 有闭式的一阶最优解：
+
+```math
+\hat\phi,\hat\mu_0,\hat\mu_1,\hat\Sigma.
+```
+
+这表示它的有限样本联合似然优化可以解析求解，不表示它的预测风险一定更低。Logistic regression 的未正则化条件负对数似然，对 linear logits 是凸函数：
+
+```math
+J_{\mathrm{LR}}(\theta)
+=
+-
+\sum_{i=1}^m
+\left[
+y^{(i)}\log \sigma(\theta^\top x^{(i)})
++
+(1-y^{(i)})\log(1-\sigma(\theta^\top x^{(i)}))
+\right],
+```
+
+通常需要迭代数值优化，但凸性给出全局最优的优化结构。加入正则化后仍常保持凸性，例如 L2-regularized logistic regression。这里的计算区别是：
+
+```text
+GDA:
+对联合似然参数有闭式优化公式
+
+Logistic regression:
+对条件似然参数做迭代凸优化
+```
+
+这不是性能排序。优化是否成功、统计一致性是否成立、测试集分类准确率高不高，是三个不同层面的概念。
+
+在模型错设下，现代机器学习更强调投影目标。生成式训练选择的是最接近真实联合分布的模型成员：
+
+```math
+\theta^*_{\mathrm{joint}}
+=
+\underset{\theta}{\mathrm{argmin}}
+\mathrm{KL}
+\left(
+P_*(X,Y)
+\middle\|
+q_\theta(X,Y)
+\right).
+```
+
+判别式训练选择的是诱导 posterior 最接近真实 posterior 的模型成员：
+
+```math
+\theta^*_{\mathrm{cond}}
+=
+\underset{\theta}{\mathrm{argmin}}
+\mathbb E_{X\sim P_{*,X}}
+\left[
+\mathrm{KL}
+\left(
+P_*(Y\mid X)
+\middle\|
+q_\theta(Y\mid X)
+\right)
+\right].
+```
+
+这两个投影目标一般不同。只有在模型正确指定，或者两个投影目标恰好诱导同一 posterior 时，二者才会在预测层面一致。
+
+所以从优化理论和现代 ML 理论看，最严谨的总结是：
+
+```text
+判别式学习:
+优化一个总体目标为 P(Y | X) 的替代损失；
+预测也只依赖 P(Y | X)。
+
+生成式学习:
+优化一个总体目标为 P(X, Y) 的替代损失；
+预测使用这个已学习联合模型诱导出的 posterior。
+
+贝叶斯公式连接了这两个概率对象，
+但不会让这两个优化目标变成等价目标。
+```
+
 ## 6. Multivariate Gaussian Distribution
 
 Detailed companion: [Multivariate Gaussian Geometry](../../math-derivations/lecture-05-generative-learning-gda-naive-bayes/01-multivariate-gaussian-geometry.md).
@@ -914,6 +1565,30 @@ N_0=m-N_1.
 ```
 
 完整 log-likelihood 可以写成：
+
+这里 $d$ 是 feature dimension，也就是：
+
+```math
+x^{(i)}\in\mathbb R^d.
+```
+
+它出现在 log-likelihood 中，是因为每个 $d$-dimensional Gaussian density 都有 normalization constant：
+
+```math
+(2\pi)^{-d/2}|\Sigma|^{-1/2}.
+```
+
+对单个样本取 log 会贡献：
+
+```math
+-\frac d2\log(2\pi)-\frac12\log|\Sigma|.
+```
+
+对 $m$ 个样本求和，就得到：
+
+```math
+-\frac{md}{2}\log(2\pi)-\frac m2\log|\Sigma|.
+```
 
 ```math
 \ell
@@ -2198,8 +2873,13 @@ Boundary audit:
 
 ## 22. Fast Review Answers and Checklist
 
-* Generative learning 建模 $P(y)$ 和 $p(x\mid y)$，再用 Bayes rule 得到 $P(y\mid x)$。
-* Discriminative learning 直接建模 $P(y\mid x)$ 或从 $x$ 到 $y$ 的 decision rule。
+* 生成式学习建模 $P(y)$ 和 $p(x\mid y)$，再用贝叶斯公式得到 $P(y\mid x)$。
+* 判别式学习直接建模 $P(y\mid x)$ 或从 $x$ 到 $y$ 的决策规则。
+* $h_\theta$ 是给定参数后的预测规则；$J(\theta)$ 是用训练数据选择参数的目标函数，二者不是同一个数学对象。
+* 生成式目标是联合负对数似然，因为它估计 $p_\theta(x,y)$；判别式目标是条件负对数似然，因为它只估计 $p_\theta(y\mid x)$，而 $p_X(x)$ 对 $\theta$ 是无关项 / 常数项。
+* 判别式 log loss 的总体目标是真实 posterior；生成式 log loss 的总体目标是真实联合分布，再由贝叶斯公式诱导 posterior。
+* 联合似然和条件似然一般不是同一个优化目标；正确指定的联合模型只是在一致性意义下推出正确 posterior。
+* 优化误差、估计 / 泛化误差、近似误差和正则化效应是不同误差来源，不能混为“训练目标和预测目标是否一致”。
 * 分类时可以用 $\underset{y}{\mathrm{argmax}}\ p(x\mid y)P(y)$，因为 $p(x)$ 不依赖于 $y$。
 * Non-degenerate multivariate Gaussian density 要求 $\Sigma\succ0$；一般 covariance matrix 只保证 PSD。
 * Quadratic form $(x-\mu)^\top\Sigma^{-1}(x-\mu)$ 是 squared Mahalanobis distance。
