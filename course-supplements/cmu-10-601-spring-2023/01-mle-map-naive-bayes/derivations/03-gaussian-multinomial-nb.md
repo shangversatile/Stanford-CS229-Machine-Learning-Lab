@@ -1,14 +1,14 @@
-# Gaussian and Multinomial Naive Bayes
+# Gaussian 与 Multinomial Naive Bayes
 
-Cross-link: see [Module 01 sections 16-19](../README.md#16-gaussian-naive-bayes).
+返回 [Module 01](../README.md)。
 
-CS229 bridge: [Lecture 5 GDA/QDA](../../../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#13-qda-unequal-covariance-and-quadratic-boundary) already connects Gaussian covariance assumptions to boundary shape. This supplement adds the Gaussian NB diagonal-covariance case and the Multinomial NB count-event model.
+CS229 连接：[Lecture 5 GDA/QDA](../../../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#13-qda-unequal-covariance-and-quadratic-boundary) 已经说明 Gaussian covariance assumptions 如何影响边界形状。本文件补充 Gaussian NB 的 diagonal covariance case，以及 Multinomial NB 的 text count event model。
 
-Source boundary: independent derivation guided by CMU 10-601 Spring 2023 Lecture 17 and Tom Mitchell's Naive Bayes / Logistic Regression reading.
+来源边界：这是本仓库的独立推导，参考 CMU 10-601 Spring 2023 Lecture 17、Cohen 10-601 Naive Bayes materials、Tom Mitchell 的 Naive Bayes / Logistic Regression reading，以及公开实现参考。
 
 ## 1. Gaussian Naive Bayes Model
 
-Let $X\in\mathbb R^d$ and $Y\in\{0,\ldots,K-1\}$. Gaussian Naive Bayes assumes:
+令 $X\in\mathbb R^d$，$Y\in\{0,\ldots,K-1\}$。Gaussian NB 假设：
 
 ```math
 X_j\mid Y=k
@@ -16,7 +16,16 @@ X_j\mid Y=k
 \mathcal N(\mu_{jk},\sigma_{jk}^2).
 ```
 
-Conditional independence gives:
+并且给定 class 后 features 条件独立：
+
+```math
+P(X=x\mid Y=k)
+=
+\prod_{j=1}^{d}
+P(X_j=x_j\mid Y=k).
+```
+
+因此：
 
 ```math
 p(x\mid Y=k)
@@ -25,7 +34,7 @@ p(x\mid Y=k)
 \mathcal N(x_j;\mu_{jk},\sigma_{jk}^2).
 ```
 
-This is equivalent to a multivariate Gaussian with diagonal covariance:
+这等价于 diagonal covariance 的 multivariate Gaussian：
 
 ```math
 X\mid Y=k
@@ -33,19 +42,7 @@ X\mid Y=k
 \mathcal N(\mu_k,\Sigma_k),
 ```
 
-where:
-
-```math
-\mu_k
-=
-\begin{bmatrix}
-\mu_{1k}\\
-\vdots\\
-\mu_{dk}
-\end{bmatrix},
-```
-
-and:
+其中：
 
 ```math
 \Sigma_k
@@ -58,7 +55,7 @@ and:
 
 ## 2. Gaussian NB MLE
 
-Let:
+class count：
 
 ```math
 N_k
@@ -67,7 +64,7 @@ N_k
 \mathbf{1}\{y^{(i)}=k\}.
 ```
 
-The class-specific feature mean estimator is:
+mean estimator：
 
 ```math
 \hat\mu_{jk}
@@ -78,7 +75,7 @@ The class-specific feature mean estimator is:
 x_j^{(i)}.
 ```
 
-The MLE variance estimator is:
+variance MLE：
 
 ```math
 \hat\sigma_{jk}^2
@@ -91,7 +88,7 @@ x_j^{(i)}-\hat\mu_{jk}
 )^2.
 ```
 
-The class prior MLE remains:
+class prior：
 
 ```math
 \hat\pi_k
@@ -99,9 +96,29 @@ The class prior MLE remains:
 \frac{N_k}{m}.
 ```
 
+实现上可维护：
+
+```text
+count[k]
+sum_x[k, j]
+sum_x2[k, j]
+```
+
+再由：
+
+```math
+\hat\sigma_{jk}^2
+=
+\frac{\mathrm{sum\_x2}_{kj}}{N_k}
+-
+\hat\mu_{jk}^2
+```
+
+得到 variance。实际代码需要 variance floor，避免数值上出现 $0$ 方差。
+
 ## 3. Covariance Constraints
 
-GDA / LDA-style shared-covariance model:
+GDA / LDA-style shared-covariance model：
 
 ```math
 X\mid Y=k
@@ -109,7 +126,7 @@ X\mid Y=k
 \mathcal N(\mu_k,\Sigma).
 ```
 
-QDA class-specific full-covariance model:
+QDA class-specific full-covariance model：
 
 ```math
 X\mid Y=k
@@ -117,7 +134,7 @@ X\mid Y=k
 \mathcal N(\mu_k,\Sigma_k).
 ```
 
-Gaussian NB class-specific diagonal-covariance model:
+Gaussian NB class-specific diagonal-covariance model：
 
 ```math
 X\mid Y=k
@@ -132,19 +149,19 @@ X\mid Y=k
 ).
 ```
 
-The models are all Gaussian class-conditional generative classifiers, but their covariance constraints differ.
+三者都属于 Gaussian class-conditional generative classifiers，但 covariance constraints 不同。
 
-| Model | Covariance | Independent covariance parameters for $K$ classes |
+| Model | Covariance | $K$ classes 的 covariance 参数规模 |
 | --- | --- | --- |
 | GDA / LDA-style | shared full $\Sigma$ | $d(d+1)/2$ |
-| QDA | class-specific full $\Sigma_k$ | $K d(d+1)/2$ |
-| Gaussian NB | class-specific diagonal $\Sigma_k$ | $K d$ |
+| QDA | class-specific full $\Sigma_k$ | $Kd(d+1)/2$ |
+| Gaussian NB | class-specific diagonal $\Sigma_k$ | $Kd$ |
 
-Do not call Gaussian NB a strict submodel of GDA without qualification: classical CS229 GDA uses a shared full covariance, while Gaussian NB usually uses class-specific diagonal covariance. The more accurate statement is that both are constrained versions of Gaussian class-conditional modeling.
+不要不加限定地说 Gaussian NB 是 CS229 GDA 的严格子模型。classical CS229 GDA 共享 full covariance；Gaussian NB 常见形式使用 class-specific diagonal covariance。更准确的比较对象是 Gaussian class-conditional family 中的 parameter constraints。
 
 ## 4. Gaussian NB Prediction Score
 
-The log score for class $k$ is:
+class score：
 
 ```math
 s_k(x)
@@ -156,7 +173,7 @@ s_k(x)
 \mathcal N(x_j;\mu_{jk},\sigma_{jk}^2).
 ```
 
-Expanding the univariate Gaussian log-density:
+展开 univariate Gaussian log-density：
 
 ```math
 s_k(x)
@@ -172,11 +189,28 @@ s_k(x)
 \right].
 ```
 
-If variances differ by class, the decision boundary can contain quadratic feature terms. If all classes share the same diagonal covariance, those quadratic terms cancel class-to-class and the boundary becomes linear in $x$.
+若 variances class-specific，boundary 可以含 quadratic terms。若所有 class 共享同一个 diagonal covariance，class-to-class 比较时二次项会抵消，边界变成 linear in $x$。
 
 ## 5. Multinomial Naive Bayes Model
 
-For text counts, let $X_j$ be the count of vocabulary item $j$ in a document and let $N=\sum_j X_j$ be the document length. For class $k$:
+文本计数模型中，$X_j$ 是 vocabulary item $j$ 在文档中的出现次数：
+
+```math
+X_j
+=
+\text{count of vocabulary item }j.
+```
+
+document length：
+
+```math
+N
+=
+\sum_{j=1}^{d}
+X_j.
+```
+
+对 class $k$：
 
 ```math
 X\mid Y=k
@@ -184,7 +218,7 @@ X\mid Y=k
 \mathrm{Multinomial}(N,\theta_k),
 ```
 
-where:
+并且：
 
 ```math
 \sum_{j=1}^{d}
@@ -193,7 +227,7 @@ where:
 1.
 ```
 
-The probability mass is:
+probability mass：
 
 ```math
 p(x\mid Y=k)
@@ -203,11 +237,11 @@ p(x\mid Y=k)
 \theta_{jk}^{x_j}.
 ```
 
-For prediction on the same document $x$, the coefficient $N!/\prod_j x_j!$ is independent of $k$.
+预测同一个 document $x$ 时，组合系数 $N!/\prod_jx_j!$ 与 class 无关，不影响 $\mathrm{argmax}$。
 
 ## 6. Multinomial NB MLE
 
-Let:
+定义 class-word count：
 
 ```math
 C_{jk}
@@ -216,7 +250,7 @@ C_{jk}
 x_j^{(i)}.
 ```
 
-Let:
+class total count：
 
 ```math
 C_k
@@ -225,17 +259,18 @@ C_k
 C_{jk}.
 ```
 
-The class-specific log-likelihood term is:
+class-specific log-likelihood：
 
 ```math
 \ell(\theta_k)
 =
 \sum_{j=1}^{d}
 C_{jk}\log\theta_{jk}
-+ C,
++
+C,
 ```
 
-subject to:
+约束：
 
 ```math
 \sum_{j=1}^{d}
@@ -244,7 +279,7 @@ subject to:
 1.
 ```
 
-Use Lagrange multiplier $\lambda$:
+Lagrangian：
 
 ```math
 \mathcal L(\theta_k,\lambda)
@@ -261,7 +296,7 @@ C_{jk}\log\theta_{jk}
 \right).
 ```
 
-Stationarity gives:
+stationarity：
 
 ```math
 \frac{\partial \mathcal L}{\partial \theta_{jk}}
@@ -273,7 +308,7 @@ Stationarity gives:
 0.
 ```
 
-Thus:
+于是：
 
 ```math
 \theta_{jk}
@@ -282,7 +317,7 @@ Thus:
 \frac{C_{jk}}{\lambda}.
 ```
 
-Sum over $j$:
+对 $j$ 求和：
 
 ```math
 1
@@ -299,7 +334,7 @@ C_{jk}
 \frac{C_k}{\lambda}.
 ```
 
-So $\lambda=-C_k$ and:
+所以 $\lambda=-C_k$，得到：
 
 ```math
 \hat\theta_{jk}
@@ -307,17 +342,19 @@ So $\lambda=-C_k$ and:
 \frac{C_{jk}}{C_k}.
 ```
 
-## 7. Dirichlet MAP for Multinomial NB
+实现上就是 class-wise word counts 的归一化。
 
-With:
+## 7. Dirichlet MAP 和 Posterior Mean
+
+加入 Dirichlet prior：
 
 ```math
 \theta_k
 \sim
-\mathrm{Dirichlet}(\alpha_1,\ldots,\alpha_d),
+\mathrm{Dirichlet}(\alpha_1,\ldots,\alpha_d).
 ```
 
-the posterior is:
+posterior：
 
 ```math
 \theta_k\mid\mathcal D
@@ -330,7 +367,7 @@ C_{dk}+\alpha_d
 ).
 ```
 
-The interior MAP estimate is:
+interior MAP：
 
 ```math
 \hat\theta_{jk,\mathrm{MAP}}
@@ -342,7 +379,7 @@ C_k+\sum_{\ell=1}^{d}\alpha_{\ell}-d
 }.
 ```
 
-The posterior mean would instead be:
+posterior mean：
 
 ```math
 E[\theta_{jk}\mid\mathcal D]
@@ -354,4 +391,23 @@ C_k+\sum_{\ell=1}^{d}\alpha_{\ell}
 }.
 ```
 
-As in Beta-Bernoulli, MAP and posterior mean should not be conflated.
+和 Beta-Bernoulli 一样，MAP 与 posterior mean 不是同一个估计器。
+
+## 8. Implementation Consequence
+
+Multinomial NB 的训练核心可以写成：
+
+```text
+for each document i:
+    k = y[i]
+    class_count[k] += 1
+    word_count[k, :] += x_counts[i, :]
+```
+
+如果使用 sparse matrix，`word_count` 可以由 class mask 加矩阵聚合得到。预测时：
+
+```text
+score = X_counts @ log_theta.T + log_pi
+```
+
+这就是 CMU 视角中的重点：模型假设直接决定存储结构、训练复杂度和预测的向量化形式。

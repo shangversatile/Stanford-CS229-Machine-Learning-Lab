@@ -1,14 +1,22 @@
-# MLE, MAP, and Beta-Bernoulli
+# MLE、MAP 与 Beta-Bernoulli
 
-Cross-link: see [Module 01 sections 5-12](../README.md#5-mle-as-a-general-framework).
+返回 [Module 01](../README.md)。
 
-CS229 bridge: [Lecture 4 sufficient statistics](../../../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data) explains why count statistics can preserve parameter-relevant likelihood information.
+CS229 连接：[Lecture 4 sufficient statistics](../../../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md#conceptual-interlude-a-what-information-about-a-parameter-is-actually-in-the-data) 解释为什么某些统计量能保留和参数有关的 likelihood 信息。本推导把这个思想接到 CMU 的 closed-form MLE/MAP recipe。
 
-Source boundary: independent derivation guided by CMU 10-601 Spring 2023 Lecture 16 selected MLE/MAP segment, Lecture 17 MAP opening, and Tom Mitchell's MLE/MAP reading.
+来源边界：这是本仓库的独立推导，参考 CMU 10-601 Spring 2023 Lecture 16 的 MLE/MAP segment、Lecture 17 的 MAP opening、Tom Mitchell 的 MLE/MAP reading，以及模块索引中列出的 CMU historical notes。
 
-## 1. Likelihood as a Function of Parameters
+## 1. Likelihood 是参数的函数
 
-Let $\mathcal D=\{z^{(i)}\}_{i=1}^{m}$ be observed and fixed. For a parametric model $p(z\mid\theta)$:
+观测数据固定为：
+
+```math
+\mathcal D
+=
+\{z^{(i)}\}_{i=1}^{m}.
+```
+
+参数模型为 $p(z\mid\theta)$。likelihood 定义为：
 
 ```math
 L(\theta;\mathcal D)
@@ -16,9 +24,9 @@ L(\theta;\mathcal D)
 p(\mathcal D\mid\theta).
 ```
 
-The candidate parameter is $\theta$. The likelihood is evaluated as $\theta$ varies; it is not a posterior distribution over $\theta$.
+这里 $\theta$ 是 candidate parameter，$\mathcal D$ 是已经观察到的数据。优化时变化的是 $\theta$，不是数据。likelihood 不是 $p(\theta\mid\mathcal D)$。
 
-Under iid sampling:
+iid assumption 下：
 
 ```math
 L(\theta;\mathcal D)
@@ -27,7 +35,7 @@ L(\theta;\mathcal D)
 p(z^{(i)}\mid\theta).
 ```
 
-Taking logs gives:
+log-likelihood：
 
 ```math
 \ell(\theta)
@@ -38,7 +46,7 @@ Taking logs gives:
 \log p(z^{(i)}\mid\theta).
 ```
 
-Thus:
+MLE：
 
 ```math
 \hat\theta_{\mathrm{MLE}}
@@ -50,7 +58,7 @@ Thus:
 
 ## 2. Sufficient-Statistic Bridge
 
-If:
+若：
 
 ```math
 L(\theta;\mathcal D)
@@ -59,7 +67,7 @@ h(\mathcal D)
 g_{\theta}(S(\mathcal D)),
 ```
 
-then $h(\mathcal D)$ cannot affect the maximizing $\theta$:
+则 $h(\mathcal D)$ 和 $\theta$ 无关：
 
 ```math
 \underset{\theta}{\mathrm{argmax}}
@@ -71,11 +79,19 @@ L(\theta;\mathcal D)
 g_{\theta}(S(\mathcal D)).
 ```
 
-So the parameter-relevant evidence in the data is compressed by $S(\mathcal D)$. This is the CS229 Lecture 4 sufficient-statistics bridge into CMU's closed-form MLE/MAP recipe.
+因此参数估计所需的数据证据被压缩进 $S(\mathcal D)$。这就是：
+
+```text
+sufficient statistics
+-> likelihood compression
+-> parameter estimation
+```
+
+Bernoulli 的 $N_1,N_0$、Naive Bayes 的 class-feature counts、Gaussian NB 的 class-wise sums 都是这个思想的实现形态。
 
 ## 3. MAP Objective
 
-MAP starts from:
+MAP 从 posterior mode 开始：
 
 ```math
 \hat\theta_{\mathrm{MAP}}
@@ -85,7 +101,7 @@ MAP starts from:
 p(\theta\mid\mathcal D).
 ```
 
-Bayes rule gives:
+Bayes rule：
 
 ```math
 p(\theta\mid\mathcal D)
@@ -97,7 +113,7 @@ p(\mathcal D)
 }.
 ```
 
-Because $p(\mathcal D)$ is constant with respect to $\theta$:
+因为 $p(\mathcal D)$ 不随 candidate $\theta$ 变化：
 
 ```math
 \hat\theta_{\mathrm{MAP}}
@@ -107,7 +123,7 @@ Because $p(\mathcal D)$ is constant with respect to $\theta$:
 p(\mathcal D\mid\theta)p(\theta).
 ```
 
-The log objective is:
+log objective：
 
 ```math
 \ell_{\mathrm{MAP}}(\theta)
@@ -117,11 +133,19 @@ The log objective is:
 \log p(\theta).
 ```
 
-MLE is recovered when the prior is constant over the relevant parameter region.
+MLE 只看 data likelihood；MAP 看 data likelihood plus prior preference。
 
 ## 4. Bernoulli MLE
 
-Assume $Y_i\sim\mathrm{Bernoulli}(\phi)$, with $y_i\in\{0,1\}$. Define:
+假设：
+
+```math
+Y_i
+\sim
+\mathrm{Bernoulli}(\phi),
+```
+
+且 $y_i\in\{0,1\}$。定义：
 
 ```math
 N_1
@@ -130,7 +154,7 @@ N_1
 y_i,
 ```
 
-and:
+以及：
 
 ```math
 N_0
@@ -138,7 +162,7 @@ N_0
 m-N_1.
 ```
 
-The likelihood is:
+likelihood：
 
 ```math
 p(\mathcal D\mid\phi)
@@ -149,7 +173,7 @@ p(\mathcal D\mid\phi)
 \phi^{N_1}(1-\phi)^{N_0}.
 ```
 
-The log-likelihood is:
+log-likelihood：
 
 ```math
 \ell(\phi)
@@ -159,7 +183,7 @@ N_1\log\phi
 N_0\log(1-\phi).
 ```
 
-Differentiate:
+求导：
 
 ```math
 \frac{d\ell}{d\phi}
@@ -169,7 +193,7 @@ Differentiate:
 \frac{N_0}{1-\phi}.
 ```
 
-Set equal to zero:
+设为 $0$：
 
 ```math
 \frac{N_1}{\phi}
@@ -177,7 +201,7 @@ Set equal to zero:
 \frac{N_0}{1-\phi}.
 ```
 
-Then:
+于是：
 
 ```math
 N_1(1-\phi)
@@ -185,7 +209,7 @@ N_1(1-\phi)
 N_0\phi.
 ```
 
-So:
+整理：
 
 ```math
 N_1
@@ -195,7 +219,7 @@ N_1
 m\phi.
 ```
 
-Therefore:
+所以：
 
 ```math
 \hat\phi_{\mathrm{MLE}}
@@ -203,9 +227,9 @@ Therefore:
 \frac{N_1}{m}.
 ```
 
-## 5. Beta Prior and Posterior
+## 5. Beta Prior 和 Posterior
 
-Let:
+加入 prior：
 
 ```math
 \phi
@@ -213,7 +237,7 @@ Let:
 \mathrm{Beta}(\alpha,\beta).
 ```
 
-The density has proportional form:
+Beta density 的 proportional form：
 
 ```math
 p(\phi)
@@ -221,7 +245,7 @@ p(\phi)
 \phi^{\alpha-1}(1-\phi)^{\beta-1}.
 ```
 
-The posterior is proportional to likelihood times prior:
+posterior：
 
 ```math
 p(\phi\mid\mathcal D)
@@ -230,7 +254,7 @@ p(\phi\mid\mathcal D)
 \phi^{\alpha-1}(1-\phi)^{\beta-1}.
 ```
 
-Combine powers:
+合并幂次：
 
 ```math
 p(\phi\mid\mathcal D)
@@ -239,7 +263,7 @@ p(\phi\mid\mathcal D)
 (1-\phi)^{N_0+\beta-1}.
 ```
 
-This is a Beta density:
+因此：
 
 ```math
 \phi\mid\mathcal D
@@ -253,7 +277,7 @@ N_0+\beta
 
 ## 6. Beta-Bernoulli MAP
 
-The posterior log-density is:
+posterior log-density：
 
 ```math
 \ell(\phi)
@@ -271,7 +295,7 @@ N_0+\beta-1
 C.
 ```
 
-Differentiate:
+求导：
 
 ```math
 \frac{d\ell}{d\phi}
@@ -289,7 +313,7 @@ N_0+\beta-1
 }.
 ```
 
-Set the derivative to zero:
+设为 $0$：
 
 ```math
 \frac{
@@ -305,7 +329,7 @@ N_0+\beta-1
 }.
 ```
 
-Cross-multiply:
+交叉相乘：
 
 ```math
 (N_1+\alpha-1)(1-\phi)
@@ -313,7 +337,7 @@ Cross-multiply:
 (N_0+\beta-1)\phi.
 ```
 
-Collect terms:
+整理：
 
 ```math
 N_1+\alpha-1
@@ -321,7 +345,7 @@ N_1+\alpha-1
 (N_1+N_0+\alpha+\beta-2)\phi.
 ```
 
-Since $m=N_1+N_0$:
+因为 $m=N_1+N_0$：
 
 ```math
 \hat\phi_{\mathrm{MAP}}
@@ -333,11 +357,27 @@ m+\alpha+\beta-2
 }.
 ```
 
-The derivation assumes an interior maximum. The posterior mode is interior if $N_1+\alpha>1$ and $N_0+\beta>1$. Otherwise a boundary mode can occur.
+这个 derivation 只适用于 interior maximum。posterior mode 在内部的条件是：
+
+```math
+N_1+\alpha
+>
+1
+```
+
+以及：
+
+```math
+N_0+\beta
+>
+1.
+```
+
+否则 mode 可能出现在 boundary。特别是 $\alpha \leq 1$ 或 $\beta \leq 1$ 时，不能忽略 boundary case。
 
 ## 7. Posterior Mean versus MAP
 
-For:
+posterior：
 
 ```math
 \phi\mid\mathcal D
@@ -346,30 +386,38 @@ For:
 (
 N_1+\alpha,
 N_0+\beta
-),
+).
 ```
 
-the posterior mean is:
+posterior mean：
 
 ```math
 E[\phi\mid\mathcal D]
 =
-\frac{N_1+\alpha}{m+\alpha+\beta}.
+\frac{
+N_1+\alpha
+}{
+m+\alpha+\beta
+}.
 ```
 
-The posterior mode is:
+posterior mode / MAP：
 
 ```math
 \hat\phi_{\mathrm{MAP}}
 =
-\frac{N_1+\alpha-1}{m+\alpha+\beta-2}.
+\frac{
+N_1+\alpha-1
+}{
+m+\alpha+\beta-2
+}.
 ```
 
-These are different estimators. The posterior mean uses the first moment of the posterior; MAP uses the maximizing value.
+这两个估计一般不同。posterior mean 是对整个 posterior 的一阶矩；MAP 是 posterior density 最大的点。
 
 ## 8. Pseudo-Count Interpretation
 
-The MAP formula can be written as:
+MAP 可以写成：
 
 ```math
 \hat\phi_{\mathrm{MAP}}
@@ -381,4 +429,6 @@ N_1+N_0+(\alpha-1)+(\beta-1)
 }.
 ```
 
-This looks like the empirical-frequency estimator after adding $\alpha-1$ prior ones and $\beta-1$ prior zeros. That is an interpretation of the prior's effect, not a claim that the data literally contain those observations.
+所以 $\alpha-1$ 和 $\beta-1$ 看起来像 prior pseudo-counts。严格说，这只是 prior 对 posterior mode 的作用解释，不是说这些样本真的存在于数据集中。
+
+实现上，这个解释帮助理解 smoothing 为什么能避免 $0/1$ 极端估计；数学上，仍需区分 MAP mode、posterior mean 和具体 smoothing 公式。

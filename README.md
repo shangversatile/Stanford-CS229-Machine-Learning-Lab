@@ -41,7 +41,7 @@ CS229 is treated here as a foundational machine learning course for advanced AI 
 * `lecture-notes/`: Lecture-level notes focused on core questions, derivations, implementation insights, and research connections.
 * `math-derivations/`: Lecture-ordered standalone derivation records for core algorithms and probabilistic interpretations.
 * `assignments/`: Independent assignment workspaces and the academic integrity policy for public repository use.
-* `course-supplements/`: Selective, topic-based external course supplements subordinate to the CS229 mainline.
+* `course-supplements/`: 从属于 CS229 主线的外部课程专题补充层。
 * `labs/`: From-scratch implementation labs that connect CS229 theory with reproducible code.
 * `src/`: Reusable Python package for implementations, optimization utilities, metrics, data helpers, and visualization code.
 * `tests/`: Unit tests and future gradient checks for implementation correctness.
@@ -74,11 +74,11 @@ Links:
 
 ## Selected Course Supplements
 
-External courses are used only as targeted supplements to CS229 nodes, not as competing second course mainlines.
+外部课程只作为 CS229 节点的专题补充，不作为竞争性的第二条课程主线。
 
-Current supplement:
+当前补充层：
 
-* [CMU 10-601 Spring 2023 selected modules](course-supplements/cmu-10-601-spring-2023/README.md)
+* [CMU 10-601 Spring 2023 selected modules](course-supplements/cmu-10-601-spring-2023/README.md)：中文主叙事，按主题补充 CS229 L4/L5 等节点，突出 MLE/MAP、Naive Bayes 变体和实现视角。
 
 ## 6. Final Deliverables
 
@@ -124,7 +124,7 @@ By the end of this course lab, the repository should contain:
 * [x] Lecture 5 multivariate Gaussian, GDA, and Naive Bayes derivations added
 * [x] CS229 Lecture 5 complete
 * [ ] PS1 gate remains incomplete / in progress independently
-* [x] CMU 10-601 Supplement 01 initialized for interactive study
+* [x] CMU 10-601 Supplement 01 initialized for interactive study: MLE / MAP / Naive Bayes 中文补充层
 * [ ] CS229 Lecture 6 not started
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed

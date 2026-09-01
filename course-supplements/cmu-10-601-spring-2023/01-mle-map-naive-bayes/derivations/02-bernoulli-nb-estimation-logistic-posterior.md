@@ -1,14 +1,14 @@
-# Bernoulli Naive Bayes Estimation and Logistic Posterior
+# Bernoulli Naive Bayes 参数估计与 Logistic Posterior
 
-Cross-link: see [Module 01 sections 13-21](../README.md#13-bernoulli-naive-bayes).
+返回 [Module 01](../README.md)。
 
-CS229 bridge: [Lecture 5 Naive Bayes](../../../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#15-naive-bayes-for-discrete-features) gives the CS229 mainline factorization; this supplement expands the count-based estimation and logistic posterior connection.
+CS229 连接：[Lecture 5 Naive Bayes](../../../../lecture-notes/lecture-05-generative-learning-gda-naive-bayes/note.md#15-naive-bayes-for-discrete-features) 给出 CS229 主线的 factorization。本文件补全 CMU 10-601 更强调的 count-based estimation、MAP smoothing intuition 和 Naive Bayes linearity。
 
-Source boundary: independent derivation guided by CMU 10-601 Spring 2023 Lecture 17 and Tom Mitchell's Naive Bayes / Logistic Regression reading.
+来源边界：这是本仓库的独立推导，参考 CMU 10-601 Spring 2023 Lecture 17、Cohen 10-601 Naive Bayes materials，以及 Tom Mitchell 的 Naive Bayes / Logistic Regression reading。
 
 ## 1. Model
 
-Let $Y\in\{0,1,\ldots,K-1\}$ and $X\in\{0,1\}^d$. The class prior is:
+令 $Y\in\{0,1,\ldots,K-1\}$，$X\in\{0,1\}^{d}$。class prior：
 
 ```math
 P(Y=k)
@@ -16,7 +16,7 @@ P(Y=k)
 \pi_k.
 ```
 
-For a Bernoulli feature in class $k$:
+对 class $k$ 下的 binary feature：
 
 ```math
 \phi_{jk}
@@ -24,7 +24,7 @@ For a Bernoulli feature in class $k$:
 P(X_j=1\mid Y=k).
 ```
 
-The Naive Bayes assumption is:
+Naive Bayes assumption：
 
 ```math
 P(X=x\mid Y=k)
@@ -33,7 +33,7 @@ P(X=x\mid Y=k)
 P(X_j=x_j\mid Y=k).
 ```
 
-Therefore:
+因此：
 
 ```math
 P(X=x\mid Y=k)
@@ -43,7 +43,7 @@ P(X=x\mid Y=k)
 (1-\phi_{jk})^{1-x_j}.
 ```
 
-The joint model is:
+joint model：
 
 ```math
 P(X=x,Y=k)
@@ -56,22 +56,25 @@ P(X=x,Y=k)
 
 ## 2. Parameter Counting
 
-Without conditional independence, $P(X\mid Y=k)$ is a categorical distribution over $2^d$ binary configurations. Because probabilities sum to $1$, this requires $2^d-1$ free parameters per class.
-
-With Bernoulli Naive Bayes, each class needs $d$ Bernoulli parameters $\phi_{1k},\ldots,\phi_{dk}$. The class prior adds $K-1$ independent parameters.
-
-The independence assumption changes the scaling from exponential to linear in $d$.
-
-## 3. MLE for Class Prior
-
-The class-prior likelihood factor is:
+没有 conditional independence 时，$P(X\mid Y=k)$ 是定义在 $2^d$ 个 binary configurations 上的 categorical distribution。概率和为 $1$，因此每个 class 需要：
 
 ```math
-\prod_{i=1}^{m}
-\pi_{y^{(i)}}.
+2^d-1
 ```
 
-Define:
+个自由参数。
+
+Bernoulli NB 只需要每个 class 的 $d$ 个 feature probabilities：
+
+```math
+\phi_{1k},\ldots,\phi_{dk}.
+```
+
+class prior 另有 $K-1$ 个独立自由参数。参数规模从 exponential in $d$ 变为 linear in $d$，这正是 CMU 强调的可实现性来源。
+
+## 3. Class Prior MLE
+
+定义：
 
 ```math
 N_k
@@ -80,7 +83,14 @@ N_k
 \mathbf{1}\{y^{(i)}=k\}.
 ```
 
-The MLE is:
+class-prior likelihood factor：
+
+```math
+\prod_{i=1}^{m}
+\pi_{y^{(i)}}.
+```
+
+在约束 $\sum_k\pi_k=1$ 下最大化 $\sum_kN_k\log\pi_k$，得到：
 
 ```math
 \hat\pi_k
@@ -88,11 +98,9 @@ The MLE is:
 \frac{N_k}{m}.
 ```
 
-For multiple classes, this follows from maximizing $\sum_k N_k\log\pi_k$ subject to $\sum_k\pi_k=1$.
+## 4. Feature Parameter MLE
 
-## 4. MLE for Feature Parameters
-
-For a fixed feature $j$ and class $k$, only examples with $y^{(i)}=k$ affect $\phi_{jk}$. Define:
+固定 feature $j$ 和 class $k$。只看 $y^{(i)}=k$ 的样本：
 
 ```math
 N_{jk,1}
@@ -102,7 +110,7 @@ N_{jk,1}
 x_j^{(i)}.
 ```
 
-Also:
+并定义：
 
 ```math
 N_{jk,0}
@@ -112,7 +120,15 @@ N_{jk,0}
 (1-x_j^{(i)}).
 ```
 
-Then $N_k=N_{jk,1}+N_{jk,0}$ for that feature and class. The relevant log-likelihood is:
+对于该 feature/class pair：
+
+```math
+N_k
+=
+N_{jk,1}+N_{jk,0}.
+```
+
+相关 log-likelihood：
 
 ```math
 \ell(\phi_{jk})
@@ -122,7 +138,7 @@ N_{jk,1}\log\phi_{jk}
 N_{jk,0}\log(1-\phi_{jk}).
 ```
 
-By the Bernoulli MLE derivation:
+由 Bernoulli MLE：
 
 ```math
 \hat\phi_{jk}
@@ -134,7 +150,7 @@ N_k
 }.
 ```
 
-Expanded over examples:
+展开为样本求和：
 
 ```math
 \hat\phi_{jk}
@@ -155,9 +171,17 @@ y^{(i)}=k
 }.
 ```
 
-## 5. MAP for Feature Parameters
+编程对应：
 
-Assume independent Beta priors:
+```text
+class_count[k] = number of examples with y == k
+feature_count[k, j] = number of class-k examples with feature j present
+phi[k, j] = feature_count[k, j] / class_count[k]
+```
+
+## 5. Feature Parameter MAP
+
+假设 independent Beta priors：
 
 ```math
 \phi_{jk}
@@ -165,7 +189,7 @@ Assume independent Beta priors:
 \mathrm{Beta}(\alpha,\beta).
 ```
 
-The posterior has shape parameters:
+posterior shape parameters：
 
 ```math
 N_{jk,1}+\alpha,
@@ -173,7 +197,7 @@ N_{jk,1}+\alpha,
 N_{jk,0}+\beta.
 ```
 
-The interior MAP estimate is:
+interior MAP：
 
 ```math
 \hat\phi_{jk,\mathrm{MAP}}
@@ -185,34 +209,34 @@ N_k+\alpha+\beta-2
 }.
 ```
 
-This reduces extreme estimates when prior shape parameters pull mass away from $0$ or $1$. Boundary cases must be handled when a posterior shape parameter is at or below $1$.
+这个 prior 会把估计从极端 $0$ 或 $1$ 拉回来，但 boundary condition 仍然要检查。它给出 smoothing intuition，却不等同于任意 additive smoothing 公式。
 
-## 6. Prediction
+## 6. Prediction in Log Space
 
-For any class $k$:
+Bayes rule：
 
 ```math
 P(Y=k\mid X=x)
 =
 \frac{
-\pi_k p(x\mid Y=k)
+\pi_kp(x\mid Y=k)
 }{
 \sum_{\ell}
 \pi_{\ell}p(x\mid Y=\ell)
 }.
 ```
 
-The denominator is common across candidate classes, so:
+分母对所有 candidate class 相同，所以：
 
 ```math
 \hat y
 =
 \underset{k}{\mathrm{argmax}}
 \,
-\pi_k p(x\mid Y=k).
+\pi_kp(x\mid Y=k).
 ```
 
-Using logs:
+log-space：
 
 ```math
 \hat y
@@ -229,9 +253,11 @@ x_j\log\phi_{jk}
 \right].
 ```
 
-## 7. Logistic Posterior for Binary Bernoulli NB
+这是实现中的默认形式，避免很多小概率相乘导致 underflow。
 
-For $Y\in\{0,1\}$:
+## 7. Logistic Posterior
+
+二分类时 $Y\in\{0,1\}$：
 
 ```math
 \log
@@ -249,7 +275,7 @@ P(Y=0\mid x)
 }.
 ```
 
-Substitute the Bernoulli NB likelihood:
+代入 Bernoulli NB：
 
 ```math
 =
@@ -263,7 +289,7 @@ x_j\log\frac{\phi_{j1}}{\phi_{j0}}
 \right].
 ```
 
-Group all terms that do not multiply $x_j$:
+展开：
 
 ```math
 =
@@ -281,7 +307,7 @@ x_j
 \right].
 ```
 
-Define:
+定义 bias：
 
 ```math
 b
@@ -292,7 +318,7 @@ b
 \log\frac{1-\phi_{j1}}{1-\phi_{j0}}.
 ```
 
-Define:
+定义 weight：
 
 ```math
 w_j
@@ -305,7 +331,7 @@ w_j
 }.
 ```
 
-Then:
+得到：
 
 ```math
 \log
@@ -318,14 +344,23 @@ P(Y=0\mid x)
 w^Tx+b.
 ```
 
-Therefore:
+所以：
 
 ```math
 P(Y=1\mid x)
 =
-\frac{1}{1+\exp(-(w^Tx+b))}
-=
 \sigma(w^Tx+b).
 ```
 
-Bernoulli Naive Bayes and logistic regression can share a posterior functional form while having different training objectives and different finite-sample estimators.
+Bernoulli NB 可以诱导 logistic-form posterior；但参数 $w,b$ 是由 generative counts 派生出来的，不是 logistic regression 通过 conditional likelihood 直接训练出来的。
+
+## 8. Implementation Consequence
+
+如果只需要分类边界，训练后可以预计算 $w$ 和 $b$。对 batch $X$：
+
+```text
+score = X @ w + b
+prediction = score >= 0
+```
+
+这解释了 Cohen 讲义中 “Naive Bayes is linear” 的含义：线性形式来自 generative model 的 posterior algebra，而不是来自直接拟合线性分类器。
