@@ -41,6 +41,7 @@ CS229 is treated here as a foundational machine learning course for advanced AI 
 * `lecture-notes/`: Lecture-level notes focused on core questions, derivations, implementation insights, and research connections.
 * `math-derivations/`: Lecture-ordered standalone derivation records for core algorithms and probabilistic interpretations.
 * `assignments/`: Independent assignment workspaces and the academic integrity policy for public repository use.
+* `course-supplements/`: Selective, topic-based external course supplements subordinate to the CS229 mainline.
 * `labs/`: From-scratch implementation labs that connect CS229 theory with reproducible code.
 * `src/`: Reusable Python package for implementations, optimization utilities, metrics, data helpers, and visualization code.
 * `tests/`: Unit tests and future gradient checks for implementation correctness.
@@ -70,6 +71,14 @@ Links:
 * [assignments/problem-set-map.md](assignments/problem-set-map.md)
 * [assignments/ps1-supervised-learning/README.md](assignments/ps1-supervised-learning/README.md)
 * [assignments/ps1-supervised-learning/ps1-gate-checklist.md](assignments/ps1-supervised-learning/ps1-gate-checklist.md)
+
+## Selected Course Supplements
+
+External courses are used only as targeted supplements to CS229 nodes, not as competing second course mainlines.
+
+Current supplement:
+
+* [CMU 10-601 Spring 2023 selected modules](course-supplements/cmu-10-601-spring-2023/README.md)
 
 ## 6. Final Deliverables
 
@@ -113,8 +122,10 @@ By the end of this course lab, the repository should contain:
 * [x] Exponential-family and GLM origin derivation added
 * [x] Lecture 5 note: complete first-pass research-level note
 * [x] Lecture 5 multivariate Gaussian, GDA, and Naive Bayes derivations added
-* [ ] Lecture 5 interactive study in progress
-* [ ] PS1 gate remains incomplete
+* [x] CS229 Lecture 5 complete
+* [ ] PS1 gate remains incomplete / in progress independently
+* [x] CMU 10-601 Supplement 01 initialized for interactive study
+* [ ] CS229 Lecture 6 not started
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed
 

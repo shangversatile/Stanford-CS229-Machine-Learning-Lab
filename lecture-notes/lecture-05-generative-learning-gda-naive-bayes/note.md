@@ -709,7 +709,7 @@ conditional likelihood 的最优 theta
 \log q_{\theta,X}(x).
 ```
 
-预测时，$\theta$ 已经固定，$x$ 也已经固定；在比较不同候选 $y$ 时，$q_{\theta,X}(x)$ 是共同分母，所以可以从 $\arg\max_y$ 中删去。训练时则不同：优化变量是 $\theta$，而：
+预测时，$\theta$ 已经固定，$x$ 也已经固定；在比较不同候选 $y$ 时，$q_{\theta,X}(x)$ 是共同分母，所以可以从 $\underset{y}{\mathrm{argmax}}$ 中删去。训练时则不同：优化变量是 $\theta$，而：
 
 ```math
 q_{\theta,X}(x)
@@ -767,7 +767,7 @@ q_\theta(x,y).
 2. 模型诱导出来的 posterior 把给定 X 后的 Y 解释得多好
 ```
 
-而判别式拟合只保留第二项。预测时 $q_{\theta,X}(x)$ 在 $\arg\max_y q_\theta(y\mid x)$ 中对候选 $y$ 是共同分母，所以可以删去；但训练时 $q_{\theta,X}$ 依赖 $\theta$，不能把它当成常数忽略。
+而判别式拟合只保留第二项。预测时 $q_{\theta,X}(x)$ 在 $\underset{y}{\mathrm{argmax}}\,q_\theta(y\mid x)$ 中对候选 $y$ 是共同分母，所以可以删去；但训练时 $q_{\theta,X}$ 依赖 $\theta$，不能把它当成常数忽略。
 
 因此在模型错设下，两种总体目标通常不同：
 
