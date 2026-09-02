@@ -1,6 +1,6 @@
 # Statistical Risk Framework
 
-返回 [Module 01](../README.md)。
+返回 [Module 01](../note.md)。
 
 来源边界：本文件参考 MIT 9.520 / 6.860 Class 02 和 Rosasco / Poggio notes Chapter 1 的 statistical learning setup，并把它局部连接到 CS229 Lecture 1-5 已学模型。这里不证明 uniform convergence 或 generalization bounds。
 

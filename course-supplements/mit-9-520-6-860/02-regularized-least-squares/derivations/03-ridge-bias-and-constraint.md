@@ -1,6 +1,6 @@
 # Ridge Bias and Constrained View
 
-返回 [Module 02](../README.md)。
+返回 [Module 02](../note.md)。
 
 来源边界：参考 MIT 9.520 / 6.860 Class 03 中 regularization、bias、penalized / constrained views 的讨论。本文件不做完整 bias-variance decomposition。
 

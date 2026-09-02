@@ -1,6 +1,6 @@
 # Target Functions and Losses
 
-返回 [Module 01](../README.md)。
+返回 [Module 01](../note.md)。
 
 来源边界：本文件覆盖 MIT 9.520 / 6.860 Class 02 中 target function、conditional risk、loss choice 与 population optimum 的部分，并只保留 CS229 Lecture 5 之前已经需要的 square loss、0-1 classification loss 和 logistic loss。Hinge loss 在 Class 02 / Class 05 中出现，但当前推迟到 CS229 SVM 节点。
 

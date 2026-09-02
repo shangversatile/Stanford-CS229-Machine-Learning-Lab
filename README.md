@@ -79,7 +79,7 @@ Links:
 当前补充层：
 
 * [CMU 10-601 Spring 2023 selected modules](course-supplements/cmu-10-601-spring-2023/README.md)：中文主叙事，按主题补充 CS229 L4/L5 等节点，突出 MLE/MAP、Naive Bayes 变体和实现视角。
-* [MIT 9.520 / 6.860 selected theory modules](course-supplements/mit-9-520-6-860/README.md)：中文主叙事，按主题补充 CS229 L1-L5 已学内容的 statistical-learning、regularization、risk minimization、optimization 和 generalization foundations 视角。
+* [MIT 9.520 / 6.860 selected theory modules](course-supplements/mit-9-520-6-860/overview.md)：中文主叙事，按主题补充 CS229 L1-L5 已学内容的 statistical-learning、regularization、risk minimization、optimization 和 generalization foundations 视角。
 
 ## 6. Final Deliverables
 

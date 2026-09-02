@@ -1,6 +1,6 @@
 # Logistic Likelihood and Empirical Risk
 
-返回 [Module 03](../README.md)。
+返回 [Module 03](../note.md)。
 
 来源边界：本文件把 CS229 Lecture 3-4 的 Bernoulli logistic likelihood 与 MIT 9.520 / 6.860 Class 05 的 logistic empirical risk 连接起来。它只处理 logistic regression；Class 05 中的 SVM 内容不在当前范围。
 

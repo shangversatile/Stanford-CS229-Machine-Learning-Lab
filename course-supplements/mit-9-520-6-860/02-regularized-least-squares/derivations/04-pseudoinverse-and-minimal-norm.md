@@ -1,6 +1,6 @@
 # Pseudoinverse and Minimal-Norm Least Squares
 
-返回 [Module 02](../README.md)。
+返回 [Module 02](../note.md)。
 
 来源边界：本文件覆盖 MIT 9.520 / 6.860 Class 03 中 overdetermined systems、underdetermined systems、Moore-Penrose pseudoinverse、minimal-norm solution 与 ridge limit 的部分。它服务于 regularized least squares 的理论理解，不进入 kernels 或后续 representation theorem。
 

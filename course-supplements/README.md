@@ -14,7 +14,7 @@
 | 补充来源 | CS229 主线连接 | 当前模块 | 状态 |
 | --- | --- | --- | --- |
 | [CMU 10-601 Spring 2023](cmu-10-601-spring-2023/README.md) | CS229 L2-L5；后续连接 L6-L8、EM/GMM、RL 节点 | [01 MLE、MAP 与 Naive Bayes](cmu-10-601-spring-2023/01-mle-map-naive-bayes/README.md) | active supplement |
-| [MIT 9.520 / 6.860](mit-9-520-6-860/README.md) | CS229 L1-L5；后续连接 L6-L8 和 generalization theory 节点 | [01 Statistical Learning Setting](mit-9-520-6-860/01-statistical-learning-setting/README.md)、[02 Regularized Least Squares](mit-9-520-6-860/02-regularized-least-squares/README.md)、[03 Logistic Regression as Regularized Risk](mit-9-520-6-860/03-logistic-regression-as-regularized-risk/README.md)、[04 Stochastic Gradient Learning](mit-9-520-6-860/04-stochastic-gradient-learning/README.md) | active theory supplement |
+| [MIT 9.520 / 6.860](mit-9-520-6-860/overview.md) | CS229 L1-L5；后续连接 L6-L8 和 generalization theory 节点 | [01 Statistical Learning Setting](mit-9-520-6-860/01-statistical-learning-setting/note.md)、[02 Regularized Least Squares](mit-9-520-6-860/02-regularized-least-squares/note.md)、[03 Logistic Regression as Regularized Risk](mit-9-520-6-860/03-logistic-regression-as-regularized-risk/note.md)、[04 Stochastic Gradient Learning](mit-9-520-6-860/04-stochastic-gradient-learning/note.md) | active theory supplement |
 
 ## Boundary / 边界
 

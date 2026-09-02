@@ -1,6 +1,6 @@
 # Module 03: Logistic Regression as Regularized Risk
 
-返回 [MIT 9.520 / 6.860 supplement index](../README.md)。
+返回 [MIT 9.520 / 6.860 supplement overview](../overview.md)。
 
 ## Source Metadata / 来源元数据
 

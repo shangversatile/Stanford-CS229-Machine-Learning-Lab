@@ -1,6 +1,6 @@
 # OLS and Ridge Normal Equations
 
-返回 [Module 02](../README.md)。
+返回 [Module 02](../note.md)。
 
 来源边界：参考 MIT 9.520 / 6.860 Class 03 对 Ordinary Least Squares、normal equation 和 ridge regression 的处理。本文件只讨论 CS229 L1-L5 已需理解的 linear least-squares regularization。
 

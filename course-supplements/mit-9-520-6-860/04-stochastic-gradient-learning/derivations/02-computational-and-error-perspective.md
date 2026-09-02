@@ -1,6 +1,6 @@
 # Computational and Error Perspective
 
-返回 [Module 04](../README.md)。
+返回 [Module 04](../note.md)。
 
 来源边界：本文件覆盖 MIT 9.520 / 6.860 Class 06 中为什么需要 stochastic gradients、online least squares、basic convex optimization baseline，以及 optimization error 与 statistical error 的区分。Early stopping、implicit regularization、stability 和 deep learning theory 不展开。
 

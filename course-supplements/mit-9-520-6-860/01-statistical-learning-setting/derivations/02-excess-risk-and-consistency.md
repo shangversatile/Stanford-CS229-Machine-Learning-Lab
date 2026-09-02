@@ -1,6 +1,6 @@
 # Excess Risk and Consistency
 
-返回 [Module 01](../README.md)。
+返回 [Module 01](../note.md)。
 
 来源边界：本文件覆盖 MIT 9.520 / 6.860 Class 02 中与 excess risk、consistency 和 learning target 有关的基础内容。它只建立定义和分解，不进入后续 learning-theory bound。
 

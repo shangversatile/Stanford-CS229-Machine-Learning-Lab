@@ -1,6 +1,6 @@
 # Module 02: Regularized Least Squares
 
-返回 [MIT 9.520 / 6.860 supplement index](../README.md)。
+返回 [MIT 9.520 / 6.860 supplement overview](../overview.md)。
 
 ## Source Metadata / 来源元数据
 

@@ -1,6 +1,6 @@
 # Logistic Convexity, Gradient, and Separability
 
-返回 [Module 03](../README.md)。
+返回 [Module 03](../note.md)。
 
 来源边界：本文件覆盖 MIT 9.520 / 6.860 Class 05 中 logistic regression objective、smooth convex optimization、regularization 与 separable-data instability 的当前相关部分。SVM 和 hinge loss 不展开。
 

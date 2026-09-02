@@ -1,6 +1,6 @@
 # Batch Gradient and SGD Unbiasedness
 
-返回 [Module 04](../README.md)。
+返回 [Module 04](../note.md)。
 
 来源边界：本文件覆盖 MIT 9.520 / 6.860 Class 06 中 finite-sum objective、batch gradient、stochastic gradient 与 unbiased estimator 的当前相关部分。它不讨论 early stopping 或 SGD generalization theory。
 

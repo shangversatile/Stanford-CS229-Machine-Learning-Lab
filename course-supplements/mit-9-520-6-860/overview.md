@@ -50,10 +50,10 @@ MIT supplement 不进入 `lecture-notes/`，也不进入全局 `math-derivations
 
 | Module | CS229 连接 | MIT source | Status |
 | --- | --- | --- | --- |
-| [01-statistical-learning-setting](01-statistical-learning-setting/README.md) | CS229 L1-L2 supervised learning / regression；L3-L5 已学模型统一视角 | Class 02；notes Chapter 1 | current |
-| [02-regularized-least-squares](02-regularized-least-squares/README.md) | CS229 L1-L2 linear regression；normal equation | Class 03；notes Chapter 4 | current |
-| [03-logistic-regression-as-regularized-risk](03-logistic-regression-as-regularized-risk/README.md) | CS229 L2-L4 logistic regression / GLM；L5 GDA-logistic 对照 | Class 05 logistic subset；convex optimization appendix | current |
-| [04-stochastic-gradient-learning](04-stochastic-gradient-learning/README.md) | CS229 L1-L4 gradient-based learning；future implementation | Class 06；convex optimization appendix | current |
+| [01-statistical-learning-setting](01-statistical-learning-setting/note.md) | CS229 L1-L2 supervised learning / regression；L3-L5 已学模型统一视角 | Class 02；notes Chapter 1 | current |
+| [02-regularized-least-squares](02-regularized-least-squares/note.md) | CS229 L1-L2 linear regression；normal equation | Class 03；notes Chapter 4 | current |
+| [03-logistic-regression-as-regularized-risk](03-logistic-regression-as-regularized-risk/note.md) | CS229 L2-L4 logistic regression / GLM；L5 GDA-logistic 对照 | Class 05 logistic subset；convex optimization appendix | current |
+| [04-stochastic-gradient-learning](04-stochastic-gradient-learning/note.md) | CS229 L1-L4 gradient-based learning；future implementation | Class 06；convex optimization appendix | current |
 
 这些模块按 CS229-linked topics 建立，不按 MIT Class01、Class02、Class03 的整门课顺序重建平行课程。
 
