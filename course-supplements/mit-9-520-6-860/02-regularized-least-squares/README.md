@@ -16,6 +16,15 @@ MIT / CBMM Learning Hub, 9.520 / 6.860, *Statistical Learning Theory and Applica
 
 CS229 cross-link：[Lecture 2 linear regression note](../../../lecture-notes/lecture-02-linear-regression/note.md) 和 [normal equation derivation](../../../math-derivations/lecture-02-linear-regression/01-linear-regression-mle-map.md)。
 
+## Detailed Notes / 深入笔记
+
+| File | 内容 |
+| --- | --- |
+| [derivations/01-ols-ridge-normal-equations.md](derivations/01-ols-ridge-normal-equations.md) | OLS 与 ridge objective 的矩阵求导、normal equations、closed-form solution |
+| [derivations/02-ridge-spectral-regularization.md](derivations/02-ridge-spectral-regularization.md) | SVD 下 OLS inverse amplification 与 ridge spectral shrinkage |
+| [derivations/03-ridge-bias-and-constraint.md](derivations/03-ridge-bias-and-constraint.md) | fixed-design ridge bias、penalized / constrained viewpoints、为什么 $\lambda$ 不是 $1/c$ |
+| [derivations/04-pseudoinverse-and-minimal-norm.md](derivations/04-pseudoinverse-and-minimal-norm.md) | Class 03 的 overdetermined / underdetermined systems、pseudoinverse、minimal-norm interpolating solution、ridge-to-pseudoinverse limit |
+
 ## 1. 模块定位
 
 CS229 Lecture 2 已经推导 ordinary least squares 和 normal equation。本模块不重复完整 CS229 derivation，而是从 MIT 9.520 的 regularization viewpoint 重新解释：

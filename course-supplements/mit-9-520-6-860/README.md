@@ -35,16 +35,16 @@ MIT supplement 不进入 `lecture-notes/`，也不进入全局 `math-derivations
 | --- | --- |
 | MIT / CBMM Learning Hub syllabus: <https://cbmm.mit.edu/lh-9-520/syllabus> | 课程结构、Class 02/03/05/06 与 deferred classes 的边界 |
 | Class 02: Statistical Learning Setting: <https://cbmm.mit.edu/lh-9-520/class-02> | statistical learning setting、expected risk、empirical risk、ERM、excess risk、consistency、regularization 的当前主源 |
-| Class 02 slides: <https://cbmm.mit.edu/sites/default/files/documents/Class02_ERM_2018.pdf> | loss、risk、empirical risk minimization、excess risk、consistency、regularization 公式核查 |
+| Class 02 slides: <https://cbmm.mit.edu/sites/default/files/documents/class02_SLT.pdf> | loss、target function、risk、empirical risk minimization、excess risk、consistency、regularization 公式核查 |
 | Class 03: Regularized Least Squares: <https://cbmm.mit.edu/lh-9-520/class-03> | OLS 到 ridge / Tikhonov regularization、ill-conditioning、bias 和 constrained / penalized views |
 | Class 03 slides: <https://cbmm.mit.edu/sites/default/files/documents/Class03_RLS.pdf> | normal equation、regularized least squares、spectral filtering 和 bias 公式核查 |
 | Class 05: Logistic Regression and Support Vector Machines: <https://cbmm.mit.edu/lh-9-520/class-05> | 当前只使用 logistic regression、regularized risk 和 convex optimization 子集；SVM 子集 deferred |
 | Class 05 slides: <https://cbmm.mit.edu/sites/default/files/documents/Class05_LogisticsSVM.pdf> | logistic / SVM 边界核查；当前不展开 hinge loss、margin 和 SVM |
 | Class 06: Stochastic Gradient Descent: <https://cbmm.mit.edu/lh-9-520/class-06> | batch gradient、SGD、stochastic gradient expectation、optimization perspective |
 | Class 06 slides: <https://cbmm.mit.edu/sites/default/files/documents/Class06_SGD.pdf> | SGD update、full-gradient cost、sample gradient expectation 和 computational trade-off |
-| L. Rosasco, T. Poggio, *Machine Learning: a Regularization Approach*, MIT 9.520 Lecture Notes | Chapter 1 用于 statistical learning setting；Chapter 4 用于 regularized least squares；Appendix 用于 convex optimization 术语。该材料按 Learning Hub syllabus / class references 的官方课程配套笔记处理。 |
+| L. Rosasco, T. Poggio, *Machine Learning: a Regularization Approach*, MIT 9.520 Lecture Notes: <https://cbmm.mit.edu/sites/default/files/documents/MLNotes_0.pdf> | Chapter 1 用于 statistical learning setting；Chapter 4 用于 regularized least squares；Appendix 用于 convex optimization 术语。该材料按 Learning Hub syllabus / class references 的官方课程配套笔记处理。 |
 
-来源边界：这些文件是本仓库自己的中文综合笔记和独立推导，不是 MIT slides 或 notes 的复制。MIT OCW older 9.520 materials 只可用于 historical clarification / supplementary derivation；当前未把它们作为本层主源。
+来源边界：这些文件是本仓库自己的中文综合笔记和独立推导，不是 MIT slides 或 notes 的复制。这里的 supplement 指“从属于 CS229 主线的选段层”，不是浅层摘要；每个当前模块都应能作为独立笔记阅读，并把官方材料中与 CS229 L5 之前直接相关的定义、推导和理论重点讲完整。MIT OCW older 9.520 materials 只可用于 historical clarification / supplementary derivation；当前未把它们作为本层主源。
 
 ## Current Selected Modules / 当前选段模块
 
@@ -56,6 +56,15 @@ MIT supplement 不进入 `lecture-notes/`，也不进入全局 `math-derivations
 | [04-stochastic-gradient-learning](04-stochastic-gradient-learning/README.md) | CS229 L1-L4 gradient-based learning；future implementation | Class 06；convex optimization appendix | current |
 
 这些模块按 CS229-linked topics 建立，不按 MIT Class01、Class02、Class03 的整门课顺序重建平行课程。
+
+## Independent Module Notes / 独立模块笔记
+
+| Module | 独立笔记 |
+| --- | --- |
+| Module 01 | [statistical-risk-framework](01-statistical-learning-setting/derivations/01-statistical-risk-framework.md)、[excess-risk-and-consistency](01-statistical-learning-setting/derivations/02-excess-risk-and-consistency.md)、[target-functions-and-losses](01-statistical-learning-setting/derivations/03-target-functions-and-losses.md) |
+| Module 02 | [ols-ridge-normal-equations](02-regularized-least-squares/derivations/01-ols-ridge-normal-equations.md)、[ridge-spectral-regularization](02-regularized-least-squares/derivations/02-ridge-spectral-regularization.md)、[ridge-bias-and-constraint](02-regularized-least-squares/derivations/03-ridge-bias-and-constraint.md)、[pseudoinverse-and-minimal-norm](02-regularized-least-squares/derivations/04-pseudoinverse-and-minimal-norm.md) |
+| Module 03 | [logistic-likelihood-and-risk](03-logistic-regression-as-regularized-risk/derivations/01-logistic-likelihood-and-risk.md)、[logistic-convexity-gradient-and-separability](03-logistic-regression-as-regularized-risk/derivations/02-logistic-convexity-gradient-and-separability.md) |
+| Module 04 | [batch-gd-and-sgd-unbiasedness](04-stochastic-gradient-learning/derivations/01-batch-gd-and-sgd-unbiasedness.md)、[computational-and-error-perspective](04-stochastic-gradient-learning/derivations/02-computational-and-error-perspective.md) |
 
 ## Current CS229 Mapping / 当前 CS229 映射
 
@@ -174,17 +183,6 @@ Figure generation script:
 | Item | Status |
 | --- | --- |
 | CS229 Lecture 5 | complete |
-| CS229 PS1 | in progress independently |
 | CMU Supplement 01: MLE / MAP / Naive Bayes | active |
 | MIT Supplement: CS229 L1-L5 theoretical complement | active |
 | CS229 Lecture 6 | not started |
-
-## PS1 Isolation / PS1 隔离
-
-本层不修改：
-
-```text
-assignments/ps1-supervised-learning/
-```
-
-也不生成 PS1 answers，不解 PS1，不改变 PS1 progress。MIT supplement 和 CS229 PS1 并行独立。

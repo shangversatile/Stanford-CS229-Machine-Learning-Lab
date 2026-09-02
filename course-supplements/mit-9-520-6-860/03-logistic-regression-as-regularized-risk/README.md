@@ -19,6 +19,13 @@ MIT / CBMM Learning Hub, 9.520 / 6.860, *Statistical Learning Theory and Applica
 
 CS229 cross-link：[Lecture 3 logistic regression](../../../lecture-notes/lecture-03-locally-weighted-logistic-regression/note.md#11-logistic-regression-hypothesis)、[logistic gradient derivation](../../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md)、[Lecture 4 GLM derivation](../../../lecture-notes/lecture-04-perceptron-exponential-family-glm/note.md)。
 
+## Detailed Notes / 深入笔记
+
+| File | 内容 |
+| --- | --- |
+| [derivations/01-logistic-likelihood-and-risk.md](derivations/01-logistic-likelihood-and-risk.md) | CS229 Bernoulli likelihood 与 MIT empirical logistic risk 的等价、label convention 转换、regularized logistic 的三种读法 |
+| [derivations/02-logistic-convexity-gradient-and-separability.md](derivations/02-logistic-convexity-gradient-and-separability.md) | logistic objective 的 gradient、Hessian、convexity、regularized existence / uniqueness、separable-data instability |
+
 ## 1. 模块定位
 
 CS229 Lecture 3 和 Lecture 4 已经完成：

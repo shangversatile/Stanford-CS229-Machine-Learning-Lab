@@ -16,6 +16,13 @@ MIT / CBMM Learning Hub, 9.520 / 6.860, *Statistical Learning Theory and Applica
 
 CS229 cross-link：[Lecture 2 batch vs stochastic gradient descent](../../../lecture-notes/lecture-02-linear-regression/note.md#6-batch-gradient-descent-vs-stochastic-gradient-descent)、[Lecture 3 logistic gradient](../../../math-derivations/lecture-03-locally-weighted-logistic-regression/02-logistic-regression-gradient-newton.md)。
 
+## Detailed Notes / 深入笔记
+
+| File | 内容 |
+| --- | --- |
+| [derivations/01-batch-gd-and-sgd-unbiasedness.md](derivations/01-batch-gd-and-sgd-unbiasedness.md) | finite-sum objective、batch gradient、one-sample / mini-batch SGD、unbiased gradient estimator 证明 |
+| [derivations/02-computational-and-error-perspective.md](derivations/02-computational-and-error-perspective.md) | Class 06 的 computational motivation、online least squares、basic convex GD baseline、optimization error vs statistical error |
+
 ## 1. 模块定位
 
 Stochastic Gradient Descent 不是新的 prediction model。它是求解 empirical-risk problems 的 optimization method。

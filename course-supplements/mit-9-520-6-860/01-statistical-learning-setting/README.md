@@ -11,10 +11,20 @@ MIT / CBMM Learning Hub, 9.520 / 6.860, *Statistical Learning Theory and Applica
 当前选用：
 
 * Class 02: Statistical Learning Setting。
-* Class 02 slides: `Class02_ERM_2018.pdf`。
+* Class 02 slides: `class02_SLT.pdf`。
 * L. Rosasco, T. Poggio, *Machine Learning: a Regularization Approach*, Chapter 1: Statistical Learning Theory。
 
+Class 02 slides 使用 $P$ 表示 $\mathcal X\times\mathcal Y$ 上的未知 probability measure；Rosasco / Poggio notes 中也常见 $\rho$ notation。本模块正文统一写 $\rho$，第一次出现时把它说明为与 Class 02 的 $P$ 相同层级的 population distribution。
+
 本模块只使用 Class 02 中和 CS229 Lecture 5 及之前直接相关的 statistical learning framework。后续的 uniform convergence、Rademacher complexity、stability 和 deep learning theory 不在当前范围内。
+
+## Detailed Notes / 深入笔记
+
+| File | 内容 |
+| --- | --- |
+| [derivations/01-statistical-risk-framework.md](derivations/01-statistical-risk-framework.md) | 从 unknown population distribution 到 expected risk、empirical risk、ERM，并连接 CS229 linear / logistic / GDA / NB |
+| [derivations/02-excess-risk-and-consistency.md](derivations/02-excess-risk-and-consistency.md) | excess risk、$f^*$、$f_{\mathcal H}^*$、approximation / estimation limitation、consistency target |
+| [derivations/03-target-functions-and-losses.md](derivations/03-target-functions-and-losses.md) | Class 02 的 conditional risk / target function 视角：square loss、0-1 classification、logistic loss 与 CS229 log-odds 的连接 |
 
 ## 1. 模块定位
 
