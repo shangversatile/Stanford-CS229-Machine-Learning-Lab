@@ -79,6 +79,7 @@ Links:
 当前补充层：
 
 * [CMU 10-601 Spring 2023 selected modules](course-supplements/cmu-10-601-spring-2023/README.md)：中文主叙事，按主题补充 CS229 L4/L5 等节点，突出 MLE/MAP、Naive Bayes 变体和实现视角。
+* [MIT 9.520 / 6.860 selected theory modules](course-supplements/mit-9-520-6-860/README.md)：中文主叙事，按主题补充 CS229 L1-L5 已学内容的 statistical-learning、regularization、risk minimization、optimization 和 generalization foundations 视角。
 
 ## 6. Final Deliverables
 
@@ -125,6 +126,7 @@ By the end of this course lab, the repository should contain:
 * [x] CS229 Lecture 5 complete
 * [ ] PS1 gate remains incomplete / in progress independently
 * [x] CMU 10-601 Supplement 01 initialized for interactive study: MLE / MAP / Naive Bayes 中文补充层
+* [x] MIT 9.520 / 6.860 Supplement initialized: CS229 L1-L5 theoretical complement
 * [ ] CS229 Lecture 6 not started
 * [ ] Linear regression from scratch implemented
 * [ ] First tests completed
